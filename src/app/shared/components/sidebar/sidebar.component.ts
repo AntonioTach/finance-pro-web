@@ -199,7 +199,8 @@ export class SidebarComponent {
 
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'pi-home', route: '/dashboard' },
-    { label: 'Transacciones', icon: 'pi-credit-card', route: '/transactions' },
+    { label: 'Transacciones', icon: 'pi-money-bill', route: '/transactions' },
+    { label: 'Tarjetas', icon: 'pi-credit-card', route: '/cards' },
     { label: 'Categorías', icon: 'pi-tags', route: '/categories' },
     { label: 'Presupuestos', icon: 'pi-wallet', route: '/budgets' },
     { label: 'Reportes', icon: 'pi-chart-bar', route: '/reports' },

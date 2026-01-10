@@ -1,9 +1,62 @@
 <form [formGroup]="transactionForm" (ngSubmit)="handleSubmit()" class="transaction-form">
+  <!-- Card Transaction Toggle -->
+  @if (cards().length > 0) {
+    <div class="form-field card-toggle">
+      <label class="toggle-label">
+        <input
+          type="checkbox"
+          [checked]="isCardTransaction()"
+          (change)="isCardTransaction.set(!isCardTransaction()); onCardTransactionToggle()"
+        />
+        <span class="toggle-text">
+          <i class="pi pi-credit-card"></i>
+          Transacción con Tarjeta
+        </span>
+      </label>
+    </div>
+  }
+
+  <!-- Card Selector (only when card transaction is enabled) -->
+  @if (isCardTransaction()) {
+    <div class="form-field">
+      <label for="cardId">Tarjeta</label>
+      <p-select
+        id="cardId"
+        formControlName="cardId"
+        [options]="cards()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Selecciona una tarjeta"
+        [fluid]="true"
+      >
+        <ng-template #item let-card>
+          <div class="card-option">
+            <span class="card-name">{{ card.name }}</span>
+            @if (card.last4) {
+              <small class="card-last4">•••• {{ card.last4 }}</small>
+            }
+          </div>
+        </ng-template>
+        <ng-template #selectedItem let-card>
+          <div class="card-option" *ngIf="card">
+            <span class="card-name">{{ card.name }}</span>
+            @if (card.last4) {
+              <small class="card-last4">•••• {{ card.last4 }}</small>
+            }
+          </div>
+        </ng-template>
+      </p-select>
+      @if (transactionForm.get('cardId')?.invalid && transactionForm.get('cardId')?.touched) {
+        <small class="error-text">La tarjeta es requerida</small>
+      }
+    </div>
+  }
+
   <!-- Transaction Type -->
   <div class="form-field">
-    <label>Transaction Type</label>
+    <label>Tipo de Transacción</label>
     <p-selectbutton
-      [options]="transactionTypes"
+      [options]="transactionTypes()"
       formControlName="type"
       (onChange)="onTypeChange()"
       [allowEmpty]="false"
@@ -12,32 +65,32 @@
 
   <!-- Amount -->
   <div class="form-field">
-    <label for="amount">Amount</label>
+    <label for="amount">Monto</label>
     <p-inputnumber
       id="amount"
       formControlName="amount"
       mode="currency"
-      currency="USD"
-      locale="en-US"
+      currency="MXN"
+      locale="es-MX"
       [minFractionDigits]="2"
       placeholder="0.00"
       [fluid]="true"
     />
     @if (transactionForm.get('amount')?.invalid && transactionForm.get('amount')?.touched) {
-      <small class="error-text">Amount is required and must be greater than 0</small>
+      <small class="error-text">El monto es requerido y debe ser mayor a 0</small>
     }
   </div>
 
   <!-- Category -->
   <div class="form-field">
-    <label for="categoryId">Category</label>
+    <label for="categoryId">Categoría</label>
     <p-select
       id="categoryId"
       formControlName="categoryId"
       [options]="filteredCategories()"
       optionLabel="name"
       optionValue="id"
-      placeholder="Select a category"
+      placeholder="Selecciona una categoría"
       [fluid]="true"
       [showClear]="true"
     >
@@ -55,29 +108,29 @@
       </ng-template>
     </p-select>
     @if (transactionForm.get('categoryId')?.invalid && transactionForm.get('categoryId')?.touched) {
-      <small class="error-text">Category is required</small>
+      <small class="error-text">La categoría es requerida</small>
     }
   </div>
 
   <!-- Description -->
   <div class="form-field">
-    <label for="description">Description</label>
+    <label for="description">Descripción</label>
     <input
       id="description"
       type="text"
       pInputText
       formControlName="description"
-      placeholder="Enter description"
+      placeholder="Ingresa una descripción"
       class="w-full"
     />
     @if (transactionForm.get('description')?.invalid && transactionForm.get('description')?.touched) {
-      <small class="error-text">Description is required</small>
+      <small class="error-text">La descripción es requerida</small>
     }
   </div>
 
   <!-- Date -->
   <div class="form-field">
-    <label for="date">Date</label>
+    <label for="date">Fecha</label>
     <p-datepicker
       id="date"
       formControlName="date"
@@ -86,18 +139,18 @@
       [fluid]="true"
     />
     @if (transactionForm.get('date')?.invalid && transactionForm.get('date')?.touched) {
-      <small class="error-text">Date is required</small>
+      <small class="error-text">La fecha es requerida</small>
     }
   </div>
 
   <!-- Notes -->
   <div class="form-field">
-    <label for="notes">Notes (optional)</label>
+    <label for="notes">Notas (opcional)</label>
     <textarea
       id="notes"
       pTextarea
       formControlName="notes"
-      placeholder="Add any additional notes..."
+      placeholder="Agrega notas adicionales..."
       rows="3"
       class="w-full"
     ></textarea>
@@ -111,14 +164,14 @@
   <!-- Actions -->
   <div class="form-actions">
     <p-button
-      label="Cancel"
+      label="Cancelar"
       severity="secondary"
       [outlined]="true"
       (onClick)="handleCancel()"
     />
     <p-button
       type="submit"
-      [label]="isLoading ? 'Saving...' : (isEditMode ? 'Update' : 'Save')"
+      [label]="isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar')"
       [disabled]="transactionForm.invalid || isLoading"
       [loading]="isLoading"
     />

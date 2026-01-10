@@ -37,6 +37,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'cards',
+        loadChildren: () =>
+          import('./features/cards/cards.routes').then(
+            (m) => m.CARD_ROUTES,
+          ),
+      },
+      {
         path: 'budgets',
         loadChildren: () =>
           import('./features/budgets/budgets.routes').then(

@@ -10,10 +10,13 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { MessageModule } from 'primeng/message';
+import { CheckboxModule } from 'primeng/checkbox';
 import { TransactionService } from '../services/transaction.service';
 import { CategoryService } from '../../categories/services/category.service';
+import { CardService } from '../../cards/services/card.service';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 import { Category } from '../../../core/models/category.model';
+import { Card, CardType } from '../../../core/models/card.model';
 
 @Component({
   selector: 'app-transaction-form',
@@ -29,6 +32,7 @@ import { Category } from '../../../core/models/category.model';
     TextareaModule,
     SelectButtonModule,
     MessageModule,
+    CheckboxModule,
   ],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.scss'],
@@ -37,6 +41,7 @@ export class TransactionFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private transactionService = inject(TransactionService);
   private categoryService = inject(CategoryService);
+  private cardService = inject(CardService);
   private dialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
 
@@ -44,16 +49,34 @@ export class TransactionFormComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   categories = signal<Category[]>([]);
+  cards = signal<Card[]>([]);
   selectedType = signal<TransactionType>(TransactionType.EXPENSE);
+  isCardTransaction = signal(false);
 
-  transactionTypes = [
-    { label: '📤 Expense', value: TransactionType.EXPENSE },
-    { label: '📥 Income', value: TransactionType.INCOME },
+  regularTransactionTypes = [
+    { label: '📤 Gasto', value: TransactionType.EXPENSE },
+    { label: '📥 Ingreso', value: TransactionType.INCOME },
   ];
+
+  cardTransactionTypes = [
+    { label: '🛒 Compra', value: TransactionType.CARD_PURCHASE },
+    { label: '💳 Pago', value: TransactionType.CARD_PAYMENT },
+  ];
+
+  transactionTypes = computed(() => {
+    return this.isCardTransaction() ? this.cardTransactionTypes : this.regularTransactionTypes;
+  });
 
   filteredCategories = computed(() => {
     const type = this.selectedType();
-    return this.categories().filter((cat) => cat.type === (type as string));
+    // Map card transaction types to category types
+    let categoryType: string;
+    if (type === TransactionType.CARD_PURCHASE || type === TransactionType.EXPENSE) {
+      categoryType = 'expense';
+    } else {
+      categoryType = 'income';
+    }
+    return this.categories().filter((cat) => cat.type === categoryType);
   });
 
   get transaction(): Transaction | null {
@@ -72,14 +95,19 @@ export class TransactionFormComponent implements OnInit {
       description: ['', Validators.required],
       date: [new Date(), Validators.required],
       notes: [''],
+      cardId: [null],
     });
   }
 
   ngOnInit(): void {
     this.loadCategories();
+    this.loadCards();
 
     if (this.transaction) {
       this.selectedType.set(this.transaction.type as TransactionType);
+      const hasCard = !!this.transaction.cardId;
+      this.isCardTransaction.set(hasCard);
+
       this.transactionForm.patchValue({
         type: this.transaction.type,
         amount: this.transaction.amount,
@@ -87,6 +115,7 @@ export class TransactionFormComponent implements OnInit {
         description: this.transaction.description,
         date: new Date(this.transaction.date),
         notes: this.transaction.notes || '',
+        cardId: this.transaction.cardId || null,
       });
     }
   }
@@ -100,6 +129,37 @@ export class TransactionFormComponent implements OnInit {
         console.error('Error loading categories:', error);
       },
     });
+  }
+
+  loadCards(): void {
+    this.cardService.getAll().subscribe({
+      next: (cards) => {
+        this.cards.set(cards);
+      },
+      error: (error) => {
+        console.error('Error loading cards:', error);
+      },
+    });
+  }
+
+  onCardTransactionToggle(): void {
+    const isCard = this.isCardTransaction();
+    if (isCard) {
+      // Switch to card transaction type
+      this.transactionForm.patchValue({ 
+        type: TransactionType.CARD_PURCHASE,
+        categoryId: null,
+      });
+      this.selectedType.set(TransactionType.CARD_PURCHASE);
+    } else {
+      // Switch to regular transaction type
+      this.transactionForm.patchValue({ 
+        type: TransactionType.EXPENSE, 
+        cardId: null,
+        categoryId: null,
+      });
+      this.selectedType.set(TransactionType.EXPENSE);
+    }
   }
 
   onTypeChange(): void {
@@ -118,12 +178,17 @@ export class TransactionFormComponent implements OnInit {
       this.errorMessage = '';
 
       const formValue = this.transactionForm.value;
-      const formData = {
+      const formData: Record<string, unknown> = {
         ...formValue,
         date: formValue.date instanceof Date
           ? formValue.date.toISOString().split('T')[0]
           : formValue.date,
       };
+
+      // Remove cardId if not a card transaction
+      if (!this.isCardTransaction()) {
+        delete formData['cardId'];
+      }
 
       const request$ = this.isEditMode
         ? this.transactionService.update(this.transaction!.id, formData)
