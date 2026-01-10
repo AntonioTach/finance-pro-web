@@ -1,0 +1,112 @@
+<p-toast />
+<p-confirmdialog />
+
+<div class="transaction-list-page">
+  <div class="page-header">
+    <h1>Transactions</h1>
+    <p-button
+      label="Add Transaction"
+      icon="pi pi-plus"
+      (onClick)="openAddDialog()"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  } @else if (transactions().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-wallet empty-icon"></i>
+      <h3>No transactions yet</h3>
+      <p>Start tracking your finances by adding your first transaction</p>
+      <p-button
+        label="Add Transaction"
+        icon="pi pi-plus"
+        (onClick)="openAddDialog()"
+      />
+    </div>
+  } @else {
+    <p-table
+      [value]="transactions()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} transactions"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template #header>
+        <tr>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th class="text-right">Amount</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-transaction>
+        <tr>
+          <td>
+            <div class="category-cell">
+              <span class="category-icon">{{ transaction.category?.icon || '💰' }}</span>
+              <span>{{ transaction.category?.name }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="description-cell">
+              <span class="description">{{ transaction.description }}</span>
+              @if (transaction.notes) {
+                <small class="notes">{{ transaction.notes }}</small>
+              }
+            </div>
+          </td>
+          <td>{{ transaction.date | dateFormat }}</td>
+          <td>
+            <p-tag
+              [value]="transaction.type | titlecase"
+              [severity]="getTransactionSeverity(transaction.type)"
+            />
+          </td>
+          <td class="text-right">
+            <span
+              class="amount"
+              [class.income]="transaction.type === 'income'"
+              [class.expense]="transaction.type === 'expense'"
+            >
+              {{ transaction.type === 'income' ? '+' : '-' }}{{ transaction.amount | currencyFormat:currency() }}
+            </span>
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [text]="true"
+                severity="secondary"
+                (onClick)="openEditDialog(transaction)"
+                pTooltip="Edit"
+              />
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                (onClick)="confirmDelete(transaction)"
+                pTooltip="Delete"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center">
+            No transactions found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</div>

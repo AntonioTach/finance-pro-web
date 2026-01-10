@@ -1,0 +1,91 @@
+<p-toast />
+
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p-button
+      label="Add Transaction"
+      icon="pi pi-plus"
+      (onClick)="openAddDialog()"
+    />
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Balance Summary Card -->
+    <p-card styleClass="summary-card">
+      <ng-template #header>
+        <div class="card-header">
+          <h2>Balance Summary</h2>
+        </div>
+      </ng-template>
+      <div class="summary-content">
+        <div class="summary-item">
+          <span class="label">Income</span>
+          <span class="value income">{{ summary()?.income | currencyFormat:currency() }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Expenses</span>
+          <span class="value expense">{{ summary()?.expense | currencyFormat:currency() }}</span>
+        </div>
+        <div class="summary-item total">
+          <span class="label">Balance</span>
+          <span
+            class="value"
+            [class.positive]="summary()?.balance >= 0"
+            [class.negative]="summary()?.balance < 0"
+          >
+            {{ summary()?.balance | currencyFormat:currency() }}
+          </span>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Recent Transactions Card -->
+    <p-card>
+      <ng-template #header>
+        <div class="card-header">
+          <h2>Recent Transactions</h2>
+          <a routerLink="/transactions" class="view-all">View All</a>
+        </div>
+      </ng-template>
+
+      @if (isLoading()) {
+        <div class="loading-container">
+          <app-loading-spinner></app-loading-spinner>
+        </div>
+      } @else if (recentTransactions().length === 0) {
+        <div class="empty-state">
+          <p>No transactions yet</p>
+          <p-button
+            label="Add your first transaction"
+            [outlined]="true"
+            (onClick)="openAddDialog()"
+          />
+        </div>
+      } @else {
+        <ul class="transaction-list">
+          @for (transaction of recentTransactions(); track transaction.id) {
+            <li class="transaction-item">
+              <div class="transaction-info">
+                <span class="transaction-icon">{{ transaction.category?.icon || '💰' }}</span>
+                <div>
+                  <div class="transaction-description">{{ transaction.description }}</div>
+                  <div class="transaction-meta">
+                    {{ transaction.date | dateFormat:'MMM dd' }} • {{ transaction.category?.name }}
+                  </div>
+                </div>
+              </div>
+              <div
+                class="transaction-amount"
+                [class.income]="transaction.type === 'income'"
+                [class.expense]="transaction.type === 'expense'"
+              >
+                {{ transaction.type === 'income' ? '+' : '-' }}{{ transaction.amount | currencyFormat:currency() }}
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </p-card>
+  </div>
+</div>

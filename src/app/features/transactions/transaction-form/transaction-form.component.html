@@ -1,0 +1,126 @@
+<form [formGroup]="transactionForm" (ngSubmit)="handleSubmit()" class="transaction-form">
+  <!-- Transaction Type -->
+  <div class="form-field">
+    <label>Transaction Type</label>
+    <p-selectbutton
+      [options]="transactionTypes"
+      formControlName="type"
+      (onChange)="onTypeChange()"
+      [allowEmpty]="false"
+    />
+  </div>
+
+  <!-- Amount -->
+  <div class="form-field">
+    <label for="amount">Amount</label>
+    <p-inputnumber
+      id="amount"
+      formControlName="amount"
+      mode="currency"
+      currency="USD"
+      locale="en-US"
+      [minFractionDigits]="2"
+      placeholder="0.00"
+      [fluid]="true"
+    />
+    @if (transactionForm.get('amount')?.invalid && transactionForm.get('amount')?.touched) {
+      <small class="error-text">Amount is required and must be greater than 0</small>
+    }
+  </div>
+
+  <!-- Category -->
+  <div class="form-field">
+    <label for="categoryId">Category</label>
+    <p-select
+      id="categoryId"
+      formControlName="categoryId"
+      [options]="filteredCategories()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Select a category"
+      [fluid]="true"
+      [showClear]="true"
+    >
+      <ng-template #item let-category>
+        <div class="category-option">
+          <span class="category-icon">{{ category.icon }}</span>
+          <span>{{ category.name }}</span>
+        </div>
+      </ng-template>
+      <ng-template #selectedItem let-category>
+        <div class="category-option" *ngIf="category">
+          <span class="category-icon">{{ category.icon }}</span>
+          <span>{{ category.name }}</span>
+        </div>
+      </ng-template>
+    </p-select>
+    @if (transactionForm.get('categoryId')?.invalid && transactionForm.get('categoryId')?.touched) {
+      <small class="error-text">Category is required</small>
+    }
+  </div>
+
+  <!-- Description -->
+  <div class="form-field">
+    <label for="description">Description</label>
+    <input
+      id="description"
+      type="text"
+      pInputText
+      formControlName="description"
+      placeholder="Enter description"
+      class="w-full"
+    />
+    @if (transactionForm.get('description')?.invalid && transactionForm.get('description')?.touched) {
+      <small class="error-text">Description is required</small>
+    }
+  </div>
+
+  <!-- Date -->
+  <div class="form-field">
+    <label for="date">Date</label>
+    <p-datepicker
+      id="date"
+      formControlName="date"
+      [showIcon]="true"
+      dateFormat="yy-mm-dd"
+      [fluid]="true"
+    />
+    @if (transactionForm.get('date')?.invalid && transactionForm.get('date')?.touched) {
+      <small class="error-text">Date is required</small>
+    }
+  </div>
+
+  <!-- Notes -->
+  <div class="form-field">
+    <label for="notes">Notes (optional)</label>
+    <textarea
+      id="notes"
+      pTextarea
+      formControlName="notes"
+      placeholder="Add any additional notes..."
+      rows="3"
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <p-message severity="error" [text]="errorMessage" />
+  }
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="handleCancel()"
+    />
+    <p-button
+      type="submit"
+      [label]="isLoading ? 'Saving...' : (isEditMode ? 'Update' : 'Save')"
+      [disabled]="transactionForm.invalid || isLoading"
+      [loading]="isLoading"
+    />
+  </div>
+</form>
