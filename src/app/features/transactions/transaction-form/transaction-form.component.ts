@@ -44,6 +44,7 @@ export class TransactionFormComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   categories = signal<Category[]>([]);
+  selectedType = signal<TransactionType>(TransactionType.EXPENSE);
 
   transactionTypes = [
     { label: '📤 Expense', value: TransactionType.EXPENSE },
@@ -51,8 +52,8 @@ export class TransactionFormComponent implements OnInit {
   ];
 
   filteredCategories = computed(() => {
-    const type = this.transactionForm?.get('type')?.value;
-    return this.categories().filter((cat) => cat.type === type);
+    const type = this.selectedType();
+    return this.categories().filter((cat) => cat.type === (type as string));
   });
 
   get transaction(): Transaction | null {
@@ -78,6 +79,7 @@ export class TransactionFormComponent implements OnInit {
     this.loadCategories();
 
     if (this.transaction) {
+      this.selectedType.set(this.transaction.type as TransactionType);
       this.transactionForm.patchValue({
         type: this.transaction.type,
         amount: this.transaction.amount,
@@ -101,6 +103,8 @@ export class TransactionFormComponent implements OnInit {
   }
 
   onTypeChange(): void {
+    const newType = this.transactionForm.get('type')?.value;
+    this.selectedType.set(newType);
     this.transactionForm.patchValue({ categoryId: null });
   }
 

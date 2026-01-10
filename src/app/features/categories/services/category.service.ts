@@ -28,5 +28,9 @@ export class CategoryService {
   delete(id: string): Observable<void> {
     return this.apiService.delete<void>(`/categories/${id}`);
   }
+
+  syncDefaults(): Observable<{ added: number; total: number }> {
+    return this.apiService.post<{ added: number; total: number }>('/categories/sync', {});
+  }
 }
 
