@@ -51,6 +51,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'subscriptions',
+        loadChildren: () =>
+          import('./features/subscriptions/subscriptions.routes').then(
+            (m) => m.SUBSCRIPTION_ROUTES,
+          ),
+      },
+      {
         path: 'reports',
         loadChildren: () =>
           import('./features/reports/reports.routes').then(

@@ -1,0 +1,85 @@
+.subscription-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.error-text {
+  color: var(--red-500);
+  font-size: 0.75rem;
+}
+
+.help-text {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+}
+
+.category-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-icon {
+  font-size: 1.25rem;
+}
+
+.card-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-option i {
+  color: var(--primary-color);
+}
+
+.card-name {
+  font-weight: 500;
+}
+
+.card-last4 {
+  color: var(--text-color-secondary);
+  margin-left: auto;
+}
+
+.switch-field {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.switch-label {
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.w-full {
+  width: 100%;
+}

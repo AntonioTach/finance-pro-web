@@ -1,0 +1,139 @@
+<p-toast />
+<p-confirmdialog />
+
+<div class="subscription-list-page">
+  <div class="page-header">
+    <h1>Suscripciones</h1>
+    <p-button
+      label="Nueva Suscripción"
+      icon="pi pi-plus"
+      (onClick)="openAddDialog()"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  } @else if (subscriptions().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-calendar empty-icon"></i>
+      <h3>No hay suscripciones</h3>
+      <p>Agrega tus suscripciones recurrentes para llevar un mejor control de tus gastos</p>
+      <p-button
+        label="Nueva Suscripción"
+        icon="pi pi-plus"
+        (onClick)="openAddDialog()"
+      />
+    </div>
+  } @else {
+    <p-table
+      [value]="subscriptions()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} suscripciones"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template #header>
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th class="text-right">Costo</th>
+          <th class="text-center">Día de Pago</th>
+          <th>Método de Pago</th>
+          <th class="text-center">Estado</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-subscription>
+        <tr>
+          <td>
+            <div class="name-cell">
+              <span class="name">{{ subscription.name }}</span>
+              @if (subscription.notes) {
+                <small class="notes">{{ subscription.notes }}</small>
+              }
+            </div>
+          </td>
+          <td>
+            <div class="category-cell">
+              <span class="category-icon">{{ subscription.category?.icon || '📦' }}</span>
+              <span>{{ subscription.category?.name }}</span>
+            </div>
+          </td>
+          <td class="text-right">
+            <span class="amount">
+              {{ subscription.amount | currencyFormat:currency() }}
+            </span>
+          </td>
+          <td class="text-center">
+            <span 
+              class="payment-day"
+              [class.due-soon]="isPaymentDueSoon(subscription.paymentDay) && subscription.isActive"
+            >
+              Día {{ getDayOrdinal(subscription.paymentDay) }}
+              @if (isPaymentDueSoon(subscription.paymentDay) && subscription.isActive) {
+                <i class="pi pi-exclamation-triangle due-warning" pTooltip="Próximo a vencer"></i>
+              }
+            </span>
+          </td>
+          <td>
+            <div class="payment-method-cell">
+              @if (subscription.card) {
+                <i class="pi pi-credit-card"></i>
+                <span>{{ subscription.card.name }}</span>
+              } @else {
+                <i class="pi pi-wallet"></i>
+                <span>Efectivo</span>
+              }
+            </div>
+          </td>
+          <td class="text-center">
+            <p-tag
+              [value]="getStatusLabel(subscription.isActive)"
+              [severity]="getStatusSeverity(subscription.isActive)"
+            />
+          </td>
+          <td class="text-center">
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-dollar"
+                [rounded]="true"
+                [text]="true"
+                severity="success"
+                (onClick)="openTransactionDialog(subscription)"
+                pTooltip="Registrar Pago"
+                [disabled]="!subscription.isActive"
+              />
+              <p-button
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [text]="true"
+                severity="secondary"
+                (onClick)="openEditDialog(subscription)"
+                pTooltip="Editar"
+              />
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                (onClick)="confirmDelete(subscription)"
+                pTooltip="Eliminar"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="text-center">
+            No se encontraron suscripciones.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</div>

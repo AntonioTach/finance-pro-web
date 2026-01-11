@@ -1,0 +1,163 @@
+<form [formGroup]="subscriptionForm" (ngSubmit)="handleSubmit()" class="subscription-form">
+  <!-- Name -->
+  <div class="form-field">
+    <label for="name">Nombre de la Suscripción</label>
+    <input
+      id="name"
+      type="text"
+      pInputText
+      formControlName="name"
+      placeholder="Ej: Netflix, Spotify, etc."
+      class="w-full"
+    />
+    @if (subscriptionForm.get('name')?.invalid && subscriptionForm.get('name')?.touched) {
+      <small class="error-text">El nombre es requerido</small>
+    }
+  </div>
+
+  <!-- Amount -->
+  <div class="form-field">
+    <label for="amount">Costo Mensual</label>
+    <p-inputnumber
+      id="amount"
+      formControlName="amount"
+      mode="currency"
+      currency="MXN"
+      locale="es-MX"
+      [minFractionDigits]="2"
+      placeholder="0.00"
+      [fluid]="true"
+    />
+    @if (subscriptionForm.get('amount')?.invalid && subscriptionForm.get('amount')?.touched) {
+      <small class="error-text">El monto es requerido y debe ser mayor a 0</small>
+    }
+  </div>
+
+  <!-- Payment Day -->
+  <div class="form-field">
+    <label for="paymentDay">Día de Pago</label>
+    <p-select
+      id="paymentDay"
+      formControlName="paymentDay"
+      [options]="paymentDayOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Selecciona el día de pago"
+      [fluid]="true"
+    />
+    @if (subscriptionForm.get('paymentDay')?.invalid && subscriptionForm.get('paymentDay')?.touched) {
+      <small class="error-text">El día de pago es requerido</small>
+    }
+  </div>
+
+  <!-- Category -->
+  <div class="form-field">
+    <label for="categoryId">Categoría</label>
+    <p-select
+      id="categoryId"
+      formControlName="categoryId"
+      [options]="expenseCategories"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Selecciona una categoría"
+      [fluid]="true"
+      [showClear]="true"
+    >
+      <ng-template #item let-category>
+        <div class="category-option">
+          <span class="category-icon">{{ category.icon }}</span>
+          <span>{{ category.name }}</span>
+        </div>
+      </ng-template>
+      <ng-template #selectedItem let-category>
+        <div class="category-option" *ngIf="category">
+          <span class="category-icon">{{ category.icon }}</span>
+          <span>{{ category.name }}</span>
+        </div>
+      </ng-template>
+    </p-select>
+    @if (subscriptionForm.get('categoryId')?.invalid && subscriptionForm.get('categoryId')?.touched) {
+      <small class="error-text">La categoría es requerida</small>
+    }
+  </div>
+
+  <!-- Payment Method (Card) -->
+  <div class="form-field">
+    <label for="cardId">Método de Pago</label>
+    <p-select
+      id="cardId"
+      formControlName="cardId"
+      [options]="cards()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Efectivo (sin tarjeta)"
+      [fluid]="true"
+      [showClear]="true"
+    >
+      <ng-template #item let-card>
+        <div class="card-option">
+          <i class="pi pi-credit-card"></i>
+          <span class="card-name">{{ card.name }}</span>
+          @if (card.last4) {
+            <small class="card-last4">•••• {{ card.last4 }}</small>
+          }
+        </div>
+      </ng-template>
+      <ng-template #selectedItem let-card>
+        <div class="card-option" *ngIf="card">
+          <i class="pi pi-credit-card"></i>
+          <span class="card-name">{{ card.name }}</span>
+          @if (card.last4) {
+            <small class="card-last4">•••• {{ card.last4 }}</small>
+          }
+        </div>
+      </ng-template>
+    </p-select>
+    <small class="help-text">Deja vacío si pagas en efectivo</small>
+  </div>
+
+  <!-- Active Status -->
+  <div class="form-field switch-field">
+    <label for="isActive">Estado</label>
+    <div class="switch-container">
+      <p-toggleswitch id="isActive" formControlName="isActive" />
+      <span class="switch-label">
+        {{ subscriptionForm.get('isActive')?.value ? 'Activa' : 'Inactiva' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="form-field">
+    <label for="notes">Notas (opcional)</label>
+    <textarea
+      id="notes"
+      pTextarea
+      formControlName="notes"
+      placeholder="Agrega notas adicionales..."
+      rows="3"
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <p-message severity="error" [text]="errorMessage" />
+  }
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="handleCancel()"
+    />
+    <p-button
+      type="submit"
+      [label]="isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar')"
+      [disabled]="subscriptionForm.invalid || isLoading"
+      [loading]="isLoading"
+    />
+  </div>
+</form>

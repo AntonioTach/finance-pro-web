@@ -83,6 +83,10 @@ export class TransactionFormComponent implements OnInit {
     return this.dialogConfig.data?.transaction || null;
   }
 
+  get prefilled(): Partial<Transaction> | null {
+    return this.dialogConfig.data?.prefilled || null;
+  }
+
   get isEditMode(): boolean {
     return !!this.transaction;
   }
@@ -116,6 +120,21 @@ export class TransactionFormComponent implements OnInit {
         date: new Date(this.transaction.date),
         notes: this.transaction.notes || '',
         cardId: this.transaction.cardId || null,
+      });
+    } else if (this.prefilled) {
+      const prefilledType = this.prefilled.type as TransactionType || TransactionType.EXPENSE;
+      this.selectedType.set(prefilledType);
+      const hasCard = !!this.prefilled.cardId;
+      this.isCardTransaction.set(hasCard);
+
+      this.transactionForm.patchValue({
+        type: prefilledType,
+        amount: this.prefilled.amount || null,
+        categoryId: this.prefilled.categoryId || null,
+        description: this.prefilled.description || '',
+        date: this.prefilled.date ? new Date(this.prefilled.date) : new Date(),
+        notes: this.prefilled.notes || '',
+        cardId: this.prefilled.cardId || null,
       });
     }
   }
