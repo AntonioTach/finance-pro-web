@@ -1,0 +1,180 @@
+<div class="trend-report">
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filter-field">
+      <label>Period Type</label>
+      <p-select
+        [(ngModel)]="selectedPeriod"
+        [options]="periodOptions"
+        (onChange)="loadReport()"
+      />
+    </div>
+    <div class="filter-field">
+      <label>Time Range</label>
+      <p-select
+        [(ngModel)]="selectedMonths"
+        [options]="monthOptions"
+        (onChange)="loadReport()"
+      />
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else if (report()) {
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="card-icon income">
+          <i class="pi pi-arrow-circle-down"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Average Income</span>
+          <span class="value income">{{ formatCurrency(report()?.averageIncome) }}</span>
+          <span class="period">per {{ getPeriodLabel() }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-icon expense">
+          <i class="pi pi-arrow-circle-up"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Average Expenses</span>
+          <span class="value expense">{{ formatCurrency(report()?.averageExpenses) }}</span>
+          <span class="period">per {{ getPeriodLabel() }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-icon" [class.positive]="getProjectedBalance() >= 0" [class.negative]="getProjectedBalance() < 0">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Projected Savings</span>
+          <span class="value" [class.income]="getProjectedBalance() >= 0" [class.expense]="getProjectedBalance() < 0">
+            {{ formatCurrency(report()?.projectedBalance) }}
+          </span>
+          <span class="period">per {{ getPeriodLabel() }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-icon data-points">
+          <i class="pi pi-database"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Data Points</span>
+          <span class="value">{{ report()?.dataPoints?.length || 0 }}</span>
+          <span class="period">{{ getPeriodLabel() }}s analyzed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chart - Income vs Expenses -->
+    <p-card header="Income vs Expenses Over Time" styleClass="main-chart-card">
+      @if (report()?.dataPoints?.length) {
+        <div class="chart-container main-chart">
+          <canvas
+            baseChart
+            [data]="incomeExpenseChartData()"
+            [type]="'line'"
+            [options]="lineChartOptions"
+          ></canvas>
+        </div>
+      } @else {
+        <div class="no-data">
+          <i class="pi pi-chart-line"></i>
+          <p>No trend data available for this period</p>
+        </div>
+      }
+    </p-card>
+
+    <!-- Balance Chart -->
+    <p-card header="Net Balance Trend" styleClass="balance-chart-card">
+      @if (report()?.dataPoints?.length) {
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [data]="balanceChartData()"
+            [type]="'bar'"
+            [options]="barChartOptions"
+          ></canvas>
+        </div>
+      } @else {
+        <div class="no-data">
+          <i class="pi pi-chart-bar"></i>
+          <p>No balance data available</p>
+        </div>
+      }
+    </p-card>
+
+    <!-- Data Table -->
+    <p-card header="Detailed Data" styleClass="table-card">
+      <div class="data-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th style="text-align: right">Income</th>
+              <th style="text-align: right">Expenses</th>
+              <th style="text-align: right">Balance</th>
+              <th style="width: 150px">Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (point of report()?.dataPoints; track point.date; let i = $index) {
+              <tr>
+                <td>{{ point.label }}</td>
+                <td style="text-align: right" class="income">
+                  {{ formatCurrency(point.income) }}
+                </td>
+                <td style="text-align: right" class="expense">
+                  {{ formatCurrency(point.expenses) }}
+                </td>
+                <td style="text-align: right" [class.income]="(point.balance ?? 0) >= 0" [class.expense]="(point.balance ?? 0) < 0">
+                  {{ formatCurrency(point.balance) }}
+                </td>
+                <td>
+                  <div class="trend-indicator">
+                    @if (i > 0) {
+                      @if ((point.balance ?? 0) > (report()!.dataPoints[i - 1].balance ?? 0)) {
+                        <i class="pi pi-arrow-up trend-up"></i>
+                        <span class="trend-up">Improving</span>
+                      } @else if ((point.balance ?? 0) < (report()!.dataPoints[i - 1].balance ?? 0)) {
+                        <i class="pi pi-arrow-down trend-down"></i>
+                        <span class="trend-down">Declining</span>
+                      } @else {
+                        <i class="pi pi-minus trend-stable"></i>
+                        <span class="trend-stable">Stable</span>
+                      }
+                    } @else {
+                      <span class="trend-stable">-</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td><strong>Averages</strong></td>
+              <td style="text-align: right" class="income">
+                <strong>{{ formatCurrency(report()?.averageIncome) }}</strong>
+              </td>
+              <td style="text-align: right" class="expense">
+                <strong>{{ formatCurrency(report()?.averageExpenses) }}</strong>
+              </td>
+              <td style="text-align: right" [class.income]="getProjectedBalance() >= 0" [class.expense]="getProjectedBalance() < 0">
+                <strong>{{ formatCurrency(report()?.projectedBalance) }}</strong>
+              </td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </p-card>
+  }
+</div>

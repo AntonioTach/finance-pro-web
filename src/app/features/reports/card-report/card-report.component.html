@@ -1,0 +1,223 @@
+<div class="card-report">
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else if (report()) {
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="card-icon total">
+          <i class="pi pi-credit-card"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Total Cards</span>
+          <span class="value">{{ report()?.cards?.length || 0 }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-icon spent">
+          <i class="pi pi-shopping-cart"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Total Spent</span>
+          <span class="value">{{ formatCurrency(report()?.totalSpentAllCards) }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-icon limit">
+          <i class="pi pi-chart-bar"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Total Credit Limit</span>
+          <span class="value">{{ formatCurrency(report()?.totalCreditLimit) }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="card-icon available">
+          <i class="pi pi-wallet"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Available Credit</span>
+          <span class="value">{{ formatCurrency(report()?.totalAvailableCredit) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credit Utilization -->
+    <div class="utilization-section">
+      <p-card header="Credit Utilization" styleClass="utilization-card">
+        <div class="utilization-content">
+          <div class="knob-container">
+            <p-knob
+              [(ngModel)]="utilizationValue"
+              [readonly]="true"
+              [size]="180"
+              [strokeWidth]="12"
+              valueTemplate="{value}%"
+              [valueColor]="getUtilizationColor(getOverallUtilization())"
+            />
+            <span class="knob-label">Overall Utilization</span>
+          </div>
+          <div class="utilization-details">
+            <div class="detail-item">
+              <span class="detail-label">Used Credit</span>
+              <span class="detail-value expense">{{ formatCurrency(report()?.totalSpentAllCards) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Available Credit</span>
+              <span class="detail-value success">{{ formatCurrency(report()?.totalAvailableCredit) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Limit</span>
+              <span class="detail-value">{{ formatCurrency(report()?.totalCreditLimit) }}</span>
+            </div>
+            <div class="utilization-status" [class]="getUtilizationStatus(getOverallUtilization())">
+              <i class="pi" [class]="getUtilizationIcon(getOverallUtilization())"></i>
+              {{ getUtilizationMessage(getOverallUtilization()) }}
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Spending by Card Chart -->
+      <p-card header="Spending by Card" styleClass="chart-card">
+        @if (report()?.cardsBySpending?.length) {
+          <div class="chart-container">
+            <canvas
+              baseChart
+              [data]="spendingChartData()"
+              [type]="'bar'"
+              [options]="barChartOptions"
+            ></canvas>
+          </div>
+        } @else {
+          <div class="no-data">
+            <i class="pi pi-chart-bar"></i>
+            <p>No spending data available</p>
+          </div>
+        }
+      </p-card>
+    </div>
+
+    <!-- Cards Table -->
+    <p-card header="Card Details" styleClass="table-card">
+      <p-table
+        [value]="report()?.cards || []"
+        [tableStyle]="{ 'min-width': '70rem' }"
+        styleClass="p-datatable-sm p-datatable-striped"
+        sortField="totalSpent"
+        [sortOrder]="-1"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="cardName">Card <p-sortIcon field="cardName" /></th>
+            <th>Type</th>
+            <th>Network</th>
+            <th pSortableColumn="transactionCount" style="text-align: right">Transactions <p-sortIcon field="transactionCount" /></th>
+            <th pSortableColumn="totalSpent" style="text-align: right">Total Spent <p-sortIcon field="totalSpent" /></th>
+            <th style="text-align: right">Avg Transaction</th>
+            <th style="text-align: right">Credit Limit</th>
+            <th style="width: 180px">Utilization</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-card>
+          <tr>
+            <td>
+              <div class="card-name-cell">
+                <i class="pi pi-credit-card" [style.color]="getCardColor(card.cardType)"></i>
+                <span class="name">{{ card.cardName }}</span>
+                <span class="last4">****{{ card.last4 }}</span>
+              </div>
+            </td>
+            <td>
+              <p-tag
+                [value]="card.cardType"
+                [severity]="card.cardType === 'credit' ? 'info' : 'success'"
+              />
+            </td>
+            <td>
+              <span class="network-badge">{{ card.cardNetwork | titlecase }}</span>
+            </td>
+            <td style="text-align: right">{{ card.transactionCount ?? 0 }}</td>
+            <td style="text-align: right" class="spent-amount">
+              {{ formatCurrency(card.totalSpent) }}
+            </td>
+            <td style="text-align: right">
+              {{ formatCurrency(card.averageTransaction) }}
+            </td>
+            <td style="text-align: right">
+              @if (card.creditLimit) {
+                {{ formatCurrency(card.creditLimit) }}
+              } @else {
+                <span class="no-limit">N/A</span>
+              }
+            </td>
+            <td>
+              @if (card.utilizationPercentage !== undefined && card.utilizationPercentage !== null) {
+                <div class="utilization-bar">
+                  <p-progressBar
+                    [value]="card.utilizationPercentage ?? 0"
+                    [showValue]="false"
+                    [style]="{ height: '10px' }"
+                    [styleClass]="getUtilizationBarClass(card.utilizationPercentage ?? 0)"
+                  />
+                  <span class="utilization-label">{{ formatNumber(card.utilizationPercentage) }}%</span>
+                </div>
+              } @else {
+                <span class="no-limit">-</span>
+              }
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center">
+              <div class="empty-message">
+                <i class="pi pi-credit-card"></i>
+                <p>No cards found</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <!-- Top Spending Cards -->
+    <p-card header="Top Spending Cards" styleClass="ranking-card">
+      <div class="ranking-list">
+        @for (card of report()?.cardsBySpending?.slice(0, 5); track card.cardId; let i = $index) {
+          <div class="ranking-item">
+            <div class="rank" [class]="'rank-' + (i + 1)">#{{ i + 1 }}</div>
+            <div class="card-info">
+              <i class="pi pi-credit-card"></i>
+              <span class="card-name">{{ card.cardName }}</span>
+              <span class="last4">****{{ card.last4 }}</span>
+            </div>
+            <div class="card-stats">
+              <span class="amount">{{ formatCurrency(card.totalSpent) }}</span>
+              <span class="transactions">{{ card.transactionCount ?? 0 }} transactions</span>
+            </div>
+            <div class="spending-bar">
+              <p-progressBar
+                [value]="getSpendingPercentage(card.totalSpent)"
+                [showValue]="false"
+                [style]="{ height: '6px', width: '100px' }"
+              />
+            </div>
+          </div>
+        } @empty {
+          <p class="no-data-text">No spending data available</p>
+        }
+      </div>
+    </p-card>
+  } @else {
+    <div class="no-data-container">
+      <i class="pi pi-credit-card"></i>
+      <p>No card data available</p>
+    </div>
+  }
+</div>

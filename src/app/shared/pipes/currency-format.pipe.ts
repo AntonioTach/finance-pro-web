@@ -9,8 +9,13 @@ export class CurrencyFormatPipe implements PipeTransform {
     value: number | null | undefined,
     currency: string = 'USD',
   ): string {
-    if (value === null || value === undefined) {
-      return '0.00';
+    if (value === null || value === undefined || isNaN(value)) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(0);
     }
 
     return new Intl.NumberFormat('en-US', {

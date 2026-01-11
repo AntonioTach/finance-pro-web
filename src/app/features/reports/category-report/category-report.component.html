@@ -1,0 +1,214 @@
+<div class="category-report">
+  <!-- Date Filters -->
+  <div class="filters-section">
+    <div class="date-range">
+      <div class="date-field">
+        <label>Start Date</label>
+        <p-datepicker
+          [(ngModel)]="startDate"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+        />
+      </div>
+      <div class="date-field">
+        <label>End Date</label>
+        <p-datepicker
+          [(ngModel)]="endDate"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+        />
+      </div>
+      <p-button icon="pi pi-search" label="Apply" (onClick)="applyFilters()" />
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else if (report()) {
+    <!-- Summary Cards -->
+    <div class="summary-row">
+      <div class="summary-item income">
+        <i class="pi pi-arrow-circle-down"></i>
+        <div class="summary-details">
+          <span class="label">Total Income</span>
+          <span class="value">{{ formatCurrency(report()?.totalIncome) }}</span>
+        </div>
+      </div>
+      <div class="summary-item expense">
+        <i class="pi pi-arrow-circle-up"></i>
+        <div class="summary-details">
+          <span class="label">Total Expenses</span>
+          <span class="value">{{ formatCurrency(report()?.totalExpenses) }}</span>
+        </div>
+      </div>
+      <div class="summary-item balance" [class.positive]="netBalance() >= 0" [class.negative]="netBalance() < 0">
+        <i class="pi pi-wallet"></i>
+        <div class="summary-details">
+          <span class="label">Net Balance</span>
+          <span class="value">{{ formatCurrency(netBalance()) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <!-- Expense Chart -->
+      <p-card header="Expenses by Category" styleClass="chart-card">
+        @if (report()?.expenseByCategory?.length) {
+          <div class="chart-container">
+            <canvas
+              baseChart
+              [data]="expenseChartData()"
+              [type]="'doughnut'"
+              [options]="chartOptions"
+            ></canvas>
+          </div>
+          <div class="chart-legend">
+            @for (item of report()?.expenseByCategory; track item.categoryId) {
+              <div class="legend-item">
+                <span class="legend-color" [style.background-color]="item.categoryColor"></span>
+                <span class="legend-label">{{ item.categoryName }}</span>
+                <span class="legend-value">{{ formatNumber(item.percentage) }}%</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-data">
+            <i class="pi pi-chart-pie"></i>
+            <p>No expense data for this period</p>
+          </div>
+        }
+      </p-card>
+
+      <!-- Income Chart -->
+      <p-card header="Income by Category" styleClass="chart-card">
+        @if (report()?.incomeByCategory?.length) {
+          <div class="chart-container">
+            <canvas
+              baseChart
+              [data]="incomeChartData()"
+              [type]="'doughnut'"
+              [options]="chartOptions"
+            ></canvas>
+          </div>
+          <div class="chart-legend">
+            @for (item of report()?.incomeByCategory; track item.categoryId) {
+              <div class="legend-item">
+                <span class="legend-color" [style.background-color]="item.categoryColor"></span>
+                <span class="legend-label">{{ item.categoryName }}</span>
+                <span class="legend-value">{{ formatNumber(item.percentage) }}%</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-data">
+            <i class="pi pi-chart-pie"></i>
+            <p>No income data for this period</p>
+          </div>
+        }
+      </p-card>
+    </div>
+
+    <!-- Detailed Tables -->
+    <div class="tables-section">
+      <!-- Expense Table -->
+      <p-card header="Expense Breakdown" styleClass="table-card">
+        <p-table
+          [value]="report()?.expenseByCategory || []"
+          [tableStyle]="{ 'min-width': '100%' }"
+          styleClass="p-datatable-sm p-datatable-striped"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Category</th>
+              <th style="text-align: right">Amount</th>
+              <th style="text-align: right">%</th>
+              <th style="text-align: right">Transactions</th>
+              <th style="width: 150px">Distribution</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-category>
+            <tr>
+              <td>
+                <div class="category-cell">
+                  <span class="category-icon" [style.background-color]="category.categoryColor">
+                    <i class="pi" [class]="'pi-' + category.categoryIcon"></i>
+                  </span>
+                  <span>{{ category.categoryName }}</span>
+                </div>
+              </td>
+              <td style="text-align: right" class="amount expense">
+                {{ formatCurrency(category.amount) }}
+              </td>
+              <td style="text-align: right">{{ formatNumber(category.percentage) }}%</td>
+              <td style="text-align: right">{{ category.transactionCount ?? 0 }}</td>
+              <td>
+                <p-progressBar
+                  [value]="category.percentage ?? 0"
+                  [showValue]="false"
+                  [style]="{ height: '8px' }"
+                />
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center">No expense categories</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+      <!-- Income Table -->
+      <p-card header="Income Breakdown" styleClass="table-card">
+        <p-table
+          [value]="report()?.incomeByCategory || []"
+          [tableStyle]="{ 'min-width': '100%' }"
+          styleClass="p-datatable-sm p-datatable-striped"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Category</th>
+              <th style="text-align: right">Amount</th>
+              <th style="text-align: right">%</th>
+              <th style="text-align: right">Transactions</th>
+              <th style="width: 150px">Distribution</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-category>
+            <tr>
+              <td>
+                <div class="category-cell">
+                  <span class="category-icon" [style.background-color]="category.categoryColor">
+                    <i class="pi" [class]="'pi-' + category.categoryIcon"></i>
+                  </span>
+                  <span>{{ category.categoryName }}</span>
+                </div>
+              </td>
+              <td style="text-align: right" class="amount income">
+                {{ formatCurrency(category.amount) }}
+              </td>
+              <td style="text-align: right">{{ formatNumber(category.percentage) }}%</td>
+              <td style="text-align: right">{{ category.transactionCount ?? 0 }}</td>
+              <td>
+                <p-progressBar
+                  [value]="category.percentage ?? 0"
+                  [showValue]="false"
+                  [style]="{ height: '8px' }"
+                  styleClass="income-bar"
+                />
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center">No income categories</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  }
+</div>

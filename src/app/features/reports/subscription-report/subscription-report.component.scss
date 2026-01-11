@@ -1,0 +1,449 @@
+.subscription-report {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summary-card {
+  background: var(--surface-card);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--surface-border);
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  &.active .card-icon {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+  }
+
+  &.monthly .card-icon {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+  }
+
+  &.yearly .card-icon {
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+  }
+
+  &.inactive .card-icon {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .label {
+      font-size: 0.85rem;
+      color: var(--text-color-secondary);
+    }
+
+    .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+  }
+}
+
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1rem;
+}
+
+:host ::ng-deep .chart-card,
+:host ::ng-deep .timeline-card {
+  .p-card-header {
+    padding: 1rem 1.25rem 0;
+    font-weight: 600;
+  }
+
+  .p-card-content {
+    padding: 1.25rem;
+  }
+}
+
+.chart-container {
+  max-width: 220px;
+  margin: 0 auto 1.5rem;
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--surface-ground);
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  .legend-label {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+
+  .legend-value {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-ground);
+  border-radius: 10px;
+  border-left: 3px solid var(--primary-color);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateX(4px);
+  }
+
+  &.due-soon {
+    border-left-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  .payment-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+
+    .days {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .label {
+      font-size: 0.7rem;
+      color: var(--text-color-secondary);
+      text-transform: uppercase;
+    }
+  }
+
+  &.due-soon .payment-date .days {
+    color: #ef4444;
+  }
+
+  .payment-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .name {
+      font-weight: 500;
+    }
+  }
+
+  .payment-amount {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+}
+
+:host ::ng-deep .cards-section {
+  .p-card-header {
+    padding: 1rem 1.25rem 0;
+    font-weight: 600;
+  }
+
+  .p-card-content {
+    padding: 1.25rem;
+  }
+}
+
+.payment-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.payment-card-item {
+  background: var(--surface-ground);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--primary-color);
+      font-size: 1.25rem;
+    }
+
+    .card-name {
+      font-weight: 600;
+    }
+  }
+
+  .card-stats {
+    display: flex;
+    justify-content: space-between;
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .stat-value {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-color-secondary);
+      }
+    }
+  }
+}
+
+:host ::ng-deep .table-card {
+  .p-card-header {
+    padding: 1rem 1.25rem 0;
+    font-weight: 600;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+.subscription-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+.uncategorized {
+  color: var(--text-color-secondary);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+.no-card {
+  color: var(--text-color-secondary);
+}
+
+.amount {
+  font-weight: 600;
+}
+
+.yearly-amount {
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+.next-payment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+
+  i {
+    color: var(--primary-color);
+  }
+
+  &.due-soon {
+    color: #ef4444;
+
+    i {
+      color: #ef4444;
+    }
+  }
+}
+
+.total-row {
+  background: var(--surface-ground);
+}
+
+:host ::ng-deep .inactive-card {
+  .p-card-header {
+    padding: 1rem 1.25rem 0;
+    font-weight: 600;
+  }
+
+  .p-card-content {
+    padding: 1.25rem;
+  }
+}
+
+.inactive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.inactive-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--surface-ground);
+  border-radius: 8px;
+  opacity: 0.8;
+
+  .sub-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--text-color-secondary);
+    }
+
+    .name {
+      font-weight: 500;
+    }
+  }
+
+  .sub-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+
+    .amount {
+      color: var(--text-color-secondary);
+      text-decoration: line-through;
+    }
+
+    .savings {
+      font-size: 0.75rem;
+      color: #22c55e;
+      font-weight: 500;
+    }
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+}
+
+.empty-message {
+  padding: 2rem;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    color: var(--text-color-secondary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+}
+
+.no-data-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+}

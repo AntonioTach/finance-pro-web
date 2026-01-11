@@ -1,0 +1,175 @@
+<div class="overview-report">
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else if (report()) {
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card income">
+        <div class="card-icon">
+          <i class="pi pi-arrow-down"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Total Income</span>
+          <span class="value">{{ formatCurrency(report()?.summary?.totalIncome) }}</span>
+          <span class="change" [class.positive]="getIncomeChange() >= 0" [class.negative]="getIncomeChange() < 0">
+            <i class="pi" [class.pi-arrow-up]="getIncomeChange() >= 0" [class.pi-arrow-down]="getIncomeChange() < 0"></i>
+            {{ formatPercentage(report()?.incomeChange) }} vs last month
+          </span>
+        </div>
+      </div>
+
+      <div class="summary-card expense">
+        <div class="card-icon">
+          <i class="pi pi-arrow-up"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Total Expenses</span>
+          <span class="value">{{ formatCurrency(report()?.summary?.totalExpenses) }}</span>
+          <span class="change" [class.positive]="getExpenseChange() <= 0" [class.negative]="getExpenseChange() > 0">
+            <i class="pi" [class.pi-arrow-up]="getExpenseChange() > 0" [class.pi-arrow-down]="getExpenseChange() <= 0"></i>
+            {{ formatPercentage(report()?.expenseChange) }} vs last month
+          </span>
+        </div>
+      </div>
+
+      <div class="summary-card balance" [class.positive]="getBalance() >= 0" [class.negative]="getBalance() < 0">
+        <div class="card-icon">
+          <i class="pi pi-wallet"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Net Balance</span>
+          <span class="value">{{ formatCurrency(report()?.summary?.balance) }}</span>
+          <span class="change" [class.positive]="getBalanceChange() >= 0" [class.negative]="getBalanceChange() < 0">
+            <i class="pi" [class.pi-arrow-up]="getBalanceChange() >= 0" [class.pi-arrow-down]="getBalanceChange() < 0"></i>
+            {{ formatPercentage(report()?.balanceChange) }} vs last month
+          </span>
+        </div>
+      </div>
+
+      <div class="summary-card transactions">
+        <div class="card-icon">
+          <i class="pi pi-list"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Transactions</span>
+          <span class="value">{{ report()?.summary?.transactionCount ?? 0 }}</span>
+          <span class="sub-info">
+            {{ report()?.summary?.incomeCount ?? 0 }} income · {{ report()?.summary?.expenseCount ?? 0 }} expenses
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="category-section">
+      <div class="category-grid">
+        <!-- Top Expense Categories -->
+        <p-card header="Top Expense Categories" styleClass="category-card">
+          <div class="category-list">
+            @for (category of report()?.topExpenseCategories; track category.categoryId) {
+              <div class="category-item">
+                <div class="category-info">
+                  <span class="category-icon" [style.background-color]="category.categoryColor">
+                    <i class="pi" [class]="'pi-' + category.categoryIcon"></i>
+                  </span>
+                  <span class="category-name">{{ category.categoryName }}</span>
+                </div>
+                <div class="category-stats">
+                  <span class="amount">{{ formatCurrency(category.amount) }}</span>
+                  <span class="percentage">{{ formatNumber(category.percentage) }}%</span>
+                </div>
+                <p-progressBar
+                  [value]="category.percentage ?? 0"
+                  [showValue]="false"
+                  [style]="{ height: '6px' }"
+                  styleClass="category-progress"
+                />
+              </div>
+            } @empty {
+              <p class="no-data">No expense data available</p>
+            }
+          </div>
+        </p-card>
+
+        <!-- Top Income Categories -->
+        <p-card header="Top Income Categories" styleClass="category-card">
+          <div class="category-list">
+            @for (category of report()?.topIncomeCategories; track category.categoryId) {
+              <div class="category-item">
+                <div class="category-info">
+                  <span class="category-icon" [style.background-color]="category.categoryColor">
+                    <i class="pi" [class]="'pi-' + category.categoryIcon"></i>
+                  </span>
+                  <span class="category-name">{{ category.categoryName }}</span>
+                </div>
+                <div class="category-stats">
+                  <span class="amount success">{{ formatCurrency(category.amount) }}</span>
+                  <span class="percentage">{{ formatNumber(category.percentage) }}%</span>
+                </div>
+                <p-progressBar
+                  [value]="category.percentage ?? 0"
+                  [showValue]="false"
+                  [style]="{ height: '6px' }"
+                  styleClass="category-progress income"
+                />
+              </div>
+            } @empty {
+              <p class="no-data">No income data available</p>
+            }
+          </div>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <p-card header="Recent Transactions" styleClass="transactions-card">
+      <p-table
+        [value]="report()?.recentTransactions || []"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        styleClass="p-datatable-sm p-datatable-striped"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th style="text-align: right">Amount</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-transaction>
+          <tr>
+            <td>{{ transaction.date | dateFormat }}</td>
+            <td>{{ transaction.description }}</td>
+            <td>
+              <span class="category-badge" [style.background-color]="(transaction.category?.color ?? '#666') + '20'" [style.color]="transaction.category?.color ?? '#666'">
+                {{ transaction.category?.name || 'Uncategorized' }}
+              </span>
+            </td>
+            <td>
+              <p-tag
+                [value]="getTransactionTypeLabel(transaction.type)"
+                [severity]="getTransactionSeverity(transaction.type)"
+              />
+            </td>
+            <td style="text-align: right" [class.income-amount]="transaction.type === 'income'" [class.expense-amount]="transaction.type !== 'income'">
+              {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center">No recent transactions</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  } @else {
+    <div class="no-data-container">
+      <i class="pi pi-inbox"></i>
+      <p>No report data available</p>
+    </div>
+  }
+</div>

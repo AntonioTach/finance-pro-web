@@ -1,0 +1,254 @@
+<div class="subscription-report">
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else if (report()) {
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card active">
+        <div class="card-icon">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Active Subscriptions</span>
+          <span class="value">{{ report()?.activeSubscriptions?.length || 0 }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card monthly">
+        <div class="card-icon">
+          <i class="pi pi-calendar"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Monthly Cost</span>
+          <span class="value">{{ formatCurrency(report()?.totalMonthlyAmount) }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card yearly">
+        <div class="card-icon">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Yearly Cost</span>
+          <span class="value">{{ formatCurrency(report()?.totalYearlyAmount) }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card inactive">
+        <div class="card-icon">
+          <i class="pi pi-pause-circle"></i>
+        </div>
+        <div class="card-content">
+          <span class="label">Inactive</span>
+          <span class="value">{{ report()?.inactiveSubscriptions?.length || 0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <!-- Subscriptions by Category -->
+      <p-card header="Subscriptions by Category" styleClass="chart-card">
+        @if (report()?.subscriptionsByCategory?.length) {
+          <div class="chart-container">
+            <canvas
+              baseChart
+              [data]="categoryChartData()"
+              [type]="'doughnut'"
+              [options]="doughnutOptions"
+            ></canvas>
+          </div>
+          <div class="chart-legend">
+            @for (item of report()?.subscriptionsByCategory; track item.categoryId) {
+              <div class="legend-item">
+                <span class="legend-color" [style.background-color]="item.categoryColor"></span>
+                <span class="legend-label">{{ item.categoryName }}</span>
+                <span class="legend-value">{{ formatCurrency(item.amount) }}/mo</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-data">
+            <i class="pi pi-chart-pie"></i>
+            <p>No category data available</p>
+          </div>
+        }
+      </p-card>
+
+      <!-- Upcoming Payments -->
+      <p-card header="Upcoming Payments" styleClass="timeline-card">
+        @if (report()?.upcomingPayments?.length) {
+          <div class="upcoming-list">
+            @for (payment of report()?.upcomingPayments?.slice(0, 7); track payment.subscription.id) {
+              <div class="upcoming-item" [class.due-soon]="(payment.daysUntilPayment ?? 0) <= 3">
+                <div class="payment-date">
+                  <span class="days">{{ payment.daysUntilPayment ?? 0 }}</span>
+                  <span class="label">{{ payment.daysUntilPayment === 1 ? 'day' : 'days' }}</span>
+                </div>
+                <div class="payment-info">
+                  <span class="name">{{ payment.subscription.name }}</span>
+                  <span class="category">
+                    @if (payment.subscription.category) {
+                      <span class="category-badge" [style.background-color]="(payment.subscription.category.color ?? '#666') + '20'" [style.color]="payment.subscription.category.color ?? '#666'">
+                        {{ payment.subscription.category.name }}
+                      </span>
+                    }
+                  </span>
+                </div>
+                <div class="payment-amount">
+                  {{ formatCurrency(payment.subscription.amount) }}
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-data">
+            <i class="pi pi-calendar"></i>
+            <p>No upcoming payments</p>
+          </div>
+        }
+      </p-card>
+    </div>
+
+    <!-- Subscriptions by Card -->
+    @if (report()?.subscriptionsByCard?.length) {
+      <p-card header="Subscriptions by Payment Method" styleClass="cards-section">
+        <div class="payment-cards-grid">
+          @for (card of report()?.subscriptionsByCard; track card.cardId) {
+            <div class="payment-card-item">
+              <div class="card-header">
+                <i class="pi pi-credit-card"></i>
+                <span class="card-name">{{ card.cardName }}</span>
+              </div>
+              <div class="card-stats">
+                <div class="stat">
+                  <span class="stat-value">{{ card.subscriptionCount ?? 0 }}</span>
+                  <span class="stat-label">subscriptions</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-value">{{ formatCurrency(card.monthlyAmount) }}</span>
+                  <span class="stat-label">monthly</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </p-card>
+    }
+
+    <!-- Active Subscriptions Table -->
+    <p-card header="Active Subscriptions" styleClass="table-card">
+      <p-table
+        [value]="report()?.activeSubscriptions || []"
+        [tableStyle]="{ 'min-width': '60rem' }"
+        styleClass="p-datatable-sm p-datatable-striped"
+        sortField="subscription.amount"
+        [sortOrder]="-1"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="subscription.name">Name <p-sortIcon field="subscription.name" /></th>
+            <th>Category</th>
+            <th>Payment Day</th>
+            <th>Card</th>
+            <th pSortableColumn="subscription.amount" style="text-align: right">Monthly <p-sortIcon field="subscription.amount" /></th>
+            <th pSortableColumn="yearlyAmount" style="text-align: right">Yearly <p-sortIcon field="yearlyAmount" /></th>
+            <th style="text-align: right">Next Payment</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>
+              <div class="subscription-name">
+                <i class="pi pi-replay"></i>
+                <span>{{ item.subscription.name }}</span>
+              </div>
+            </td>
+            <td>
+              @if (item.subscription.category) {
+                <span class="category-badge" [style.background-color]="(item.subscription.category.color ?? '#666') + '20'" [style.color]="item.subscription.category.color ?? '#666'">
+                  <i class="pi" [class]="'pi-' + item.subscription.category.icon"></i>
+                  {{ item.subscription.category.name }}
+                </span>
+              } @else {
+                <span class="uncategorized">Uncategorized</span>
+              }
+            </td>
+            <td>
+              <p-tag [value]="'Day ' + (item.subscription.paymentDay ?? '-')" severity="info" />
+            </td>
+            <td>
+              @if (item.subscription.card) {
+                <span class="card-badge">
+                  <i class="pi pi-credit-card"></i>
+                  {{ item.subscription.card.name }}
+                </span>
+              } @else {
+                <span class="no-card">-</span>
+              }
+            </td>
+            <td style="text-align: right" class="amount">
+              {{ formatCurrency(item.subscription.amount) }}
+            </td>
+            <td style="text-align: right" class="yearly-amount">
+              {{ formatCurrency(item.yearlyAmount) }}
+            </td>
+            <td style="text-align: right">
+              <span class="next-payment" [class.due-soon]="(item.daysUntilPayment ?? 0) <= 3">
+                <i class="pi pi-calendar"></i>
+                {{ item.daysUntilPayment ?? 0 }} {{ item.daysUntilPayment === 1 ? 'day' : 'days' }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center empty-message">
+              <i class="pi pi-inbox"></i>
+              <p>No active subscriptions</p>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <tr class="total-row">
+            <td colspan="4" style="text-align: right; font-weight: 600">Total:</td>
+            <td style="text-align: right; font-weight: 700; color: var(--primary-color)">
+              {{ formatCurrency(report()?.totalMonthlyAmount) }}
+            </td>
+            <td style="text-align: right; font-weight: 700; color: var(--primary-color)">
+              {{ formatCurrency(report()?.totalYearlyAmount) }}
+            </td>
+            <td></td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+
+    <!-- Inactive Subscriptions -->
+    @if (report()?.inactiveSubscriptions?.length) {
+      <p-card header="Inactive Subscriptions" styleClass="inactive-card">
+        <div class="inactive-grid">
+          @for (sub of report()?.inactiveSubscriptions; track sub.id) {
+            <div class="inactive-item">
+              <div class="sub-info">
+                <i class="pi pi-pause-circle"></i>
+                <span class="name">{{ sub.name }}</span>
+              </div>
+              <div class="sub-details">
+                <span class="amount">{{ formatCurrency(sub.amount) }}/mo</span>
+                <span class="savings">Saving {{ formatCurrency((sub.amount ?? 0) * 12) }}/year</span>
+              </div>
+            </div>
+          }
+        </div>
+      </p-card>
+    }
+  } @else {
+    <div class="no-data-container">
+      <i class="pi pi-replay"></i>
+      <p>No subscription data available</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,58 @@
+<div class="reports-page">
+  <header class="reports-header">
+    <h1>
+      <i class="pi pi-chart-bar"></i>
+      Financial Reports
+    </h1>
+    <p class="subtitle">Comprehensive analysis of your finances</p>
+  </header>
+
+  <p-tabs [value]="0" [scrollable]="true">
+    <p-tablist>
+      <p-tab [value]="0">
+        <i class="pi pi-home"></i>
+        <span>Overview</span>
+      </p-tab>
+      <p-tab [value]="1">
+        <i class="pi pi-chart-line"></i>
+        <span>Trends</span>
+      </p-tab>
+      <p-tab [value]="2">
+        <i class="pi pi-chart-pie"></i>
+        <span>Categories</span>
+      </p-tab>
+      <p-tab [value]="3">
+        <i class="pi pi-list"></i>
+        <span>Transactions</span>
+      </p-tab>
+      <p-tab [value]="4">
+        <i class="pi pi-credit-card"></i>
+        <span>Cards</span>
+      </p-tab>
+      <p-tab [value]="5">
+        <i class="pi pi-replay"></i>
+        <span>Subscriptions</span>
+      </p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel [value]="0">
+        <app-overview-report />
+      </p-tabpanel>
+      <p-tabpanel [value]="1">
+        <app-trend-report />
+      </p-tabpanel>
+      <p-tabpanel [value]="2">
+        <app-category-report />
+      </p-tabpanel>
+      <p-tabpanel [value]="3">
+        <app-transaction-report />
+      </p-tabpanel>
+      <p-tabpanel [value]="4">
+        <app-card-report />
+      </p-tabpanel>
+      <p-tabpanel [value]="5">
+        <app-subscription-report />
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

@@ -1,91 +1,341 @@
 <p-toast />
 
 <div class="dashboard">
-  <div class="dashboard-header">
-    <h1>Dashboard</h1>
-    <p-button
-      label="Add Transaction"
-      icon="pi pi-plus"
-      (onClick)="openAddDialog()"
-    />
-  </div>
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="greeting">
+        <h1>{{ getGreeting() }}, {{ userName() }}! 👋</h1>
+        <p>Here's your financial overview for this month</p>
+      </div>
+      <div class="header-actions">
+        <p-button
+          icon="pi pi-plus"
+          label="Add Transaction"
+          (onClick)="openAddTransaction()"
+          styleClass="p-button-rounded"
+        />
+      </div>
+    </div>
+  </header>
 
-  <div class="dashboard-grid">
-    <!-- Balance Summary Card -->
-    <p-card styleClass="summary-card">
-      <ng-template #header>
-        <div class="card-header">
-          <h2>Balance Summary</h2>
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else {
+    <!-- Summary Cards -->
+    <section class="summary-section">
+      <div class="summary-cards">
+        <!-- Income Card -->
+        <div class="summary-card income-card">
+          <div class="card-icon">
+            <i class="pi pi-arrow-down-left"></i>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Income</span>
+            <span class="card-value">{{ formatCurrency(summary()?.income) }}</span>
+            <div class="card-change" [class.positive]="(summary()?.incomeChange ?? 0) >= 0" [class.negative]="(summary()?.incomeChange ?? 0) < 0">
+              <i class="pi" [class.pi-arrow-up]="(summary()?.incomeChange ?? 0) >= 0" [class.pi-arrow-down]="(summary()?.incomeChange ?? 0) < 0"></i>
+              <span>{{ (summary()?.incomeChange ?? 0) | number:'1.1-1' }}% vs last month</span>
+            </div>
+          </div>
         </div>
-      </ng-template>
-      <div class="summary-content">
-        <div class="summary-item">
-          <span class="label">Income</span>
-          <span class="value income">{{ summary()?.income | currencyFormat:currency() }}</span>
+
+        <!-- Expenses Card -->
+        <div class="summary-card expense-card">
+          <div class="card-icon">
+            <i class="pi pi-arrow-up-right"></i>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Expenses</span>
+            <span class="card-value">{{ formatCurrency(summary()?.expenses) }}</span>
+            <div class="card-change" [class.positive]="(summary()?.expenseChange ?? 0) < 0" [class.negative]="(summary()?.expenseChange ?? 0) >= 0">
+              <i class="pi" [class.pi-arrow-up]="(summary()?.expenseChange ?? 0) >= 0" [class.pi-arrow-down]="(summary()?.expenseChange ?? 0) < 0"></i>
+              <span>{{ (summary()?.expenseChange ?? 0) | number:'1.1-1' }}% vs last month</span>
+            </div>
+          </div>
         </div>
-        <div class="summary-item">
-          <span class="label">Expenses</span>
-          <span class="value expense">{{ summary()?.expense | currencyFormat:currency() }}</span>
+
+        <!-- Balance Card -->
+        <div class="summary-card balance-card" [class.positive]="(summary()?.balance ?? 0) >= 0" [class.negative]="(summary()?.balance ?? 0) < 0">
+          <div class="card-icon">
+            <i class="pi pi-wallet"></i>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Balance</span>
+            <span class="card-value">{{ formatCurrency(summary()?.balance) }}</span>
+            <div class="card-subtitle">
+              <span>{{ summary()?.transactionCount ?? 0 }} transactions this month</span>
+            </div>
+          </div>
         </div>
-        <div class="summary-item total">
-          <span class="label">Balance</span>
-          <span
-            class="value"
-            [class.positive]="summary()?.balance >= 0"
-            [class.negative]="summary()?.balance < 0"
-          >
-            {{ summary()?.balance | currencyFormat:currency() }}
-          </span>
+
+        <!-- Savings Goal Card -->
+        <div class="summary-card savings-card">
+          <div class="card-icon">
+            <i class="pi pi-chart-line"></i>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Savings Rate</span>
+            <span class="card-value">
+              @if ((summary()?.income ?? 0) > 0) {
+                {{ ((summary()?.balance ?? 0) / (summary()?.income ?? 1) * 100) | number:'1.0-0' }}%
+              } @else {
+                0%
+              }
+            </span>
+            <div class="card-subtitle">
+              <span>Of your income saved</span>
+            </div>
+          </div>
         </div>
       </div>
-    </p-card>
+    </section>
 
-    <!-- Recent Transactions Card -->
-    <p-card>
-      <ng-template #header>
-        <div class="card-header">
-          <h2>Recent Transactions</h2>
-          <a routerLink="/transactions" class="view-all">View All</a>
+    <!-- Cash Flow Card (without cards & subscriptions) -->
+    <section class="cashflow-section">
+      <div class="cashflow-card">
+        <div class="cashflow-header">
+          <div class="cashflow-title">
+            <i class="pi pi-money-bill"></i>
+            <h3>Cash Flow</h3>
+          </div>
+          <span class="cashflow-subtitle">Income & expenses without cards or subscriptions</span>
         </div>
-      </ng-template>
+        <div class="cashflow-content">
+          <div class="cashflow-item income">
+            <div class="cf-icon">
+              <i class="pi pi-arrow-down-left"></i>
+            </div>
+            <div class="cf-details">
+              <span class="cf-label">Cash Income</span>
+              <span class="cf-value">{{ formatCurrency(cashFlow()?.income) }}</span>
+            </div>
+            <div class="cf-change" [class.positive]="(cashFlow()?.incomeChange ?? 0) >= 0" [class.negative]="(cashFlow()?.incomeChange ?? 0) < 0">
+              <i class="pi" [class.pi-arrow-up]="(cashFlow()?.incomeChange ?? 0) >= 0" [class.pi-arrow-down]="(cashFlow()?.incomeChange ?? 0) < 0"></i>
+              {{ (cashFlow()?.incomeChange ?? 0) | number:'1.1-1' }}%
+            </div>
+          </div>
+          <div class="cashflow-divider"></div>
+          <div class="cashflow-item expense">
+            <div class="cf-icon">
+              <i class="pi pi-arrow-up-right"></i>
+            </div>
+            <div class="cf-details">
+              <span class="cf-label">Cash Expenses</span>
+              <span class="cf-value">{{ formatCurrency(cashFlow()?.expenses) }}</span>
+            </div>
+            <div class="cf-change" [class.positive]="(cashFlow()?.expenseChange ?? 0) < 0" [class.negative]="(cashFlow()?.expenseChange ?? 0) >= 0">
+              <i class="pi" [class.pi-arrow-up]="(cashFlow()?.expenseChange ?? 0) >= 0" [class.pi-arrow-down]="(cashFlow()?.expenseChange ?? 0) < 0"></i>
+              {{ (cashFlow()?.expenseChange ?? 0) | number:'1.1-1' }}%
+            </div>
+          </div>
+          <div class="cashflow-divider"></div>
+          <div class="cashflow-item balance" [class.positive]="(cashFlow()?.balance ?? 0) >= 0" [class.negative]="(cashFlow()?.balance ?? 0) < 0">
+            <div class="cf-icon">
+              <i class="pi pi-equals"></i>
+            </div>
+            <div class="cf-details">
+              <span class="cf-label">Net Cash Flow</span>
+              <span class="cf-value">{{ formatCurrency(cashFlow()?.balance) }}</span>
+            </div>
+            <div class="cf-badge" [class.positive]="(cashFlow()?.balance ?? 0) >= 0" [class.negative]="(cashFlow()?.balance ?? 0) < 0">
+              @if ((cashFlow()?.balance ?? 0) >= 0) {
+                <i class="pi pi-check-circle"></i> Positive
+              } @else {
+                <i class="pi pi-exclamation-circle"></i> Negative
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      @if (isLoading()) {
-        <div class="loading-container">
-          <app-loading-spinner></app-loading-spinner>
+    <!-- Main Content Grid -->
+    <section class="main-content">
+      <!-- Left Column -->
+      <div class="content-left">
+        <!-- Trend Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Income vs Expenses</h3>
+            <a routerLink="/reports" class="view-link">View Reports <i class="pi pi-arrow-right"></i></a>
+          </div>
+          <div class="chart-container">
+            @if (trendChartData().labels?.length) {
+              <canvas
+                baseChart
+                [data]="trendChartData()"
+                [type]="'line'"
+                [options]="trendChartOptions"
+              ></canvas>
+            } @else {
+              <div class="no-data">
+                <i class="pi pi-chart-line"></i>
+                <p>No data available yet</p>
+              </div>
+            }
+          </div>
         </div>
-      } @else if (recentTransactions().length === 0) {
-        <div class="empty-state">
-          <p>No transactions yet</p>
-          <p-button
-            label="Add your first transaction"
-            [outlined]="true"
-            (onClick)="openAddDialog()"
-          />
+
+        <!-- Recent Transactions -->
+        <div class="transactions-card">
+          <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <a routerLink="/transactions" class="view-link">View All <i class="pi pi-arrow-right"></i></a>
+          </div>
+          @if (recentTransactions().length === 0) {
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>No transactions yet</p>
+              <p-button
+                label="Add your first transaction"
+                [outlined]="true"
+                size="small"
+                (onClick)="openAddTransaction()"
+              />
+            </div>
+          } @else {
+            <ul class="transaction-list">
+              @for (tx of recentTransactions(); track tx.id) {
+                <li class="transaction-item">
+                  <div class="tx-icon" [class]="tx.type">
+                    <i class="pi" [class]="getTransactionIcon(tx.type)"></i>
+                  </div>
+                  <div class="tx-info">
+                    <span class="tx-description">{{ tx.description }}</span>
+                    <span class="tx-meta">
+                      {{ tx.date | dateFormat:'MMM dd' }}
+                      @if (tx.category) {
+                        <span class="tx-category" [style.background-color]="tx.category.color + '20'" [style.color]="tx.category.color">
+                          {{ tx.category.name }}
+                        </span>
+                      }
+                    </span>
+                  </div>
+                  <span class="tx-amount" [class.income]="tx.type === 'income'" [class.expense]="tx.type !== 'income'">
+                    {{ tx.type === 'income' ? '+' : '-' }}{{ formatCurrency(tx.amount) }}
+                  </span>
+                </li>
+              }
+            </ul>
+          }
         </div>
-      } @else {
-        <ul class="transaction-list">
-          @for (transaction of recentTransactions(); track transaction.id) {
-            <li class="transaction-item">
-              <div class="transaction-info">
-                <span class="transaction-icon">{{ transaction.category?.icon || '💰' }}</span>
-                <div>
-                  <div class="transaction-description">{{ transaction.description }}</div>
-                  <div class="transaction-meta">
-                    {{ transaction.date | dateFormat:'MMM dd' }} • {{ transaction.category?.name }}
+      </div>
+
+      <!-- Right Column -->
+      <div class="content-right">
+        <!-- Category Breakdown -->
+        <div class="category-card">
+          <div class="card-header">
+            <h3>Top Expenses</h3>
+            <a routerLink="/reports" class="view-link">Details <i class="pi pi-arrow-right"></i></a>
+          </div>
+          @if (categoryBreakdown().length === 0) {
+            <div class="no-data small">
+              <i class="pi pi-chart-pie"></i>
+              <p>No expense data</p>
+            </div>
+          } @else {
+            <div class="category-chart-wrapper">
+              <div class="chart-doughnut">
+                <canvas
+                  baseChart
+                  [data]="categoryChartData()"
+                  [type]="'doughnut'"
+                  [options]="categoryChartOptions"
+                ></canvas>
+              </div>
+              <ul class="category-legend">
+                @for (cat of categoryBreakdown(); track cat.name) {
+                  <li class="legend-item">
+                    <span class="legend-dot" [style.background-color]="cat.color"></span>
+                    <span class="legend-name">{{ cat.name }}</span>
+                    <span class="legend-value">{{ cat.percentage | number:'1.1-1' }}%</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+
+        <!-- Credit Cards -->
+        @if (cards().length > 0) {
+          <div class="cards-section">
+            <div class="card-header">
+              <h3>Credit Cards</h3>
+              <a routerLink="/cards" class="view-link">Manage <i class="pi pi-arrow-right"></i></a>
+            </div>
+            <div class="credit-cards">
+              @for (card of cards(); track card.id) {
+                <div class="credit-card-item">
+                  <div class="cc-header">
+                    <span class="cc-name">{{ card.name }}</span>
+                    <span class="cc-last4">•••• {{ card.last4 }}</span>
+                  </div>
+                  <div class="cc-limit">
+                    <span>Credit Limit</span>
+                    <span class="cc-amount">{{ formatCurrency(card.creditLimit) }}</span>
                   </div>
                 </div>
-              </div>
-              <div
-                class="transaction-amount"
-                [class.income]="transaction.type === 'income'"
-                [class.expense]="transaction.type === 'expense'"
-              >
-                {{ transaction.type === 'income' ? '+' : '-' }}{{ transaction.amount | currencyFormat:currency() }}
-              </div>
-            </li>
-          }
-        </ul>
-      }
-    </p-card>
-  </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Upcoming Payments -->
+        @if (upcomingPayments().length > 0) {
+          <div class="upcoming-card">
+            <div class="card-header">
+              <h3>Upcoming Payments</h3>
+              <a routerLink="/subscriptions" class="view-link">View All <i class="pi pi-arrow-right"></i></a>
+            </div>
+            <ul class="upcoming-list">
+              @for (payment of upcomingPayments(); track payment.name) {
+                <li class="upcoming-item" [class.due-soon]="payment.daysUntil <= 3">
+                  <div class="upcoming-info">
+                    <span class="upcoming-name">{{ payment.name }}</span>
+                    <span class="upcoming-date">
+                      @if (payment.daysUntil === 0) {
+                        Today
+                      } @else if (payment.daysUntil === 1) {
+                        Tomorrow
+                      } @else {
+                        {{ payment.dueDate }} ({{ payment.daysUntil }} days)
+                      }
+                    </span>
+                  </div>
+                  <span class="upcoming-amount">{{ formatCurrency(payment.amount) }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h3>Quick Actions</h3>
+          <div class="action-buttons">
+            <button class="action-btn" routerLink="/transactions">
+              <i class="pi pi-list"></i>
+              <span>Transactions</span>
+            </button>
+            <button class="action-btn" routerLink="/cards">
+              <i class="pi pi-credit-card"></i>
+              <span>Cards</span>
+            </button>
+            <button class="action-btn" routerLink="/subscriptions">
+              <i class="pi pi-refresh"></i>
+              <span>Subscriptions</span>
+            </button>
+            <button class="action-btn" routerLink="/reports">
+              <i class="pi pi-chart-bar"></i>
+              <span>Reports</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
 </div>

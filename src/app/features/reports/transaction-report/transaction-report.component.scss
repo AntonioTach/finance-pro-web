@@ -1,0 +1,177 @@
+.transaction-report {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+:host ::ng-deep .filters-card {
+  .p-card-header {
+    padding: 1rem 1.25rem 0;
+    font-weight: 600;
+  }
+
+  .p-card-content {
+    padding: 1rem 1.25rem;
+  }
+}
+
+.filters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+  }
+
+  input,
+  :host ::ng-deep .p-select,
+  :host ::ng-deep .p-datepicker,
+  :host ::ng-deep .p-inputnumber {
+    width: 100%;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.summary-item {
+  background: var(--surface-card);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--surface-border);
+
+  .label {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+  }
+
+  .value {
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+
+  &.income .value {
+    color: #22c55e;
+  }
+
+  &.expense .value {
+    color: #ef4444;
+  }
+
+  &.balance.positive .value {
+    color: #22c55e;
+  }
+
+  &.balance.negative .value {
+    color: #ef4444;
+  }
+}
+
+:host ::ng-deep .table-card {
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+.description,
+.notes {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+.uncategorized {
+  color: var(--text-color-secondary);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+.no-card {
+  color: var(--text-color-secondary);
+}
+
+.income-amount {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.expense-amount {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.empty-message {
+  padding: 3rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  p {
+    margin: 0;
+  }
+}
