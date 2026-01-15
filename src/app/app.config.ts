@@ -1,7 +1,9 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, LOCALE_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { registerLocaleData } from '@angular/common';
+import localeEsMX from '@angular/common/locales/es-MX';
 import { providePrimeNG } from 'primeng/config';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import Aura from '@primeuix/themes/aura';
@@ -10,6 +12,9 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+
+// Register es-MX locale
+registerLocaleData(localeEsMX, 'es-MX');
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,6 +36,7 @@ export const appConfig: ApplicationConfig = {
     DialogService,
     ConfirmationService,
     MessageService,
+    { provide: LOCALE_ID, useValue: 'es-MX' },
   ],
 };
 

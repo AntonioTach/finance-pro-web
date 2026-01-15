@@ -65,6 +65,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'calendar',
+        loadChildren: () =>
+          import('./features/calendar/calendar.routes').then(
+            (m) => m.calendarRoutes,
+          ),
+      },
+      {
         path: 'profile',
         loadChildren: () =>
           import('./features/profile/profile.routes').then(

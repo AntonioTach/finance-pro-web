@@ -1,0 +1,381 @@
+.yearly-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.projection-header {
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .projection-subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--surface-border);
+  text-align: center;
+
+  i {
+    font-size: 3rem;
+    color: var(--text-color-secondary);
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    color: var(--text-color);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+}
+
+.projection-table {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--surface-border);
+  overflow-x: auto;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 160px repeat(12, minmax(60px, 1fr));
+  min-width: 900px;
+}
+
+.table-header {
+  background: var(--surface-100);
+  border-bottom: 1px solid var(--surface-border);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .card-column,
+  .month-column {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .month-column {
+    text-align: center;
+    min-height: auto;
+  }
+}
+
+.table-row {
+  border-bottom: 1px solid var(--surface-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+}
+
+.card-column {
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  overflow: hidden;
+}
+
+.card-name {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-last4 {
+  color: var(--text-color-secondary);
+  font-size: 0.7rem;
+}
+
+.month-column {
+  padding: 0.5rem 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-height: 70px;
+  position: relative;
+
+  &:hover:not(.no-debt) {
+    background: var(--surface-100);
+  }
+
+  &.paid-off {
+    background: var(--green-50);
+  }
+
+  &.has-debt {
+    background: var(--surface-50);
+  }
+}
+
+.paid-off-indicator {
+  color: var(--green-500);
+  font-size: 1.25rem;
+
+  i {
+    animation: checkmark 0.3s ease-out;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.debt-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.debt-amount {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-color);
+  z-index: 2;
+  position: relative;
+  text-align: center;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+.debt-bar {
+  position: absolute;
+  bottom: 0;
+  left: 8%;
+  right: 8%;
+  border-radius: 4px 4px 0 0;
+  opacity: 0.4;
+  transition: height 0.3s ease-out;
+  min-height: 4px;
+}
+
+.no-debt {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+// Legend
+.legend-section {
+  padding: 1rem 1.25rem;
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--surface-border);
+
+  h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+  }
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.legend-bar {
+  width: 20px;
+  height: 12px;
+  border-radius: 3px;
+
+  &.high {
+    background: var(--red-400);
+  }
+
+  &.medium {
+    background: var(--orange-400);
+  }
+
+  &.low {
+    background: var(--green-400);
+  }
+}
+
+// Detail Dialog
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.detail-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+
+  .label {
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+  }
+
+  .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+}
+
+.msi-breakdown {
+  h4 {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+}
+
+.msi-item {
+  padding: 0.75rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.msi-description {
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.msi-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+
+  .monthly {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
+
+  .remaining {
+    color: var(--text-color-secondary);
+  }
+}
+
+.no-msi {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--surface-50);
+  border-radius: var(--border-radius);
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+
+  i {
+    color: var(--text-color-secondary);
+  }
+}
+
+@media (max-width: 1200px) {
+  .projection-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 140px repeat(12, minmax(55px, 1fr));
+    min-width: 800px;
+  }
+
+  .debt-amount {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 120px repeat(12, minmax(50px, 1fr));
+    min-width: 720px;
+  }
+
+  .month-column {
+    min-height: 60px;
+    padding: 0.375rem 0.125rem;
+  }
+
+  .card-name {
+    font-size: 0.75rem;
+  }
+
+  .debt-amount {
+    font-size: 0.6rem;
+  }
+}
