@@ -1,0 +1,271 @@
+<div class="cash-flow-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="pi pi-money-bill"></i> Cash Flow</h1>
+      <p>Track your real money: income, expenses, and card payments</p>
+    </div>
+    <p-button
+      icon="pi pi-download"
+      label="Export CSV"
+      (onClick)="exportToCsv()"
+      [disabled]="transactions().length === 0"
+      styleClass="p-button-outlined"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner />
+  } @else {
+    <!-- Summary Cards -->
+    <div class="summary-section">
+      <div class="summary-cards">
+        <!-- Available Cash Card -->
+        <p-card styleClass="summary-card available-cash">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="pi pi-wallet"></i>
+            </div>
+            <div class="card-details">
+              <span class="card-label">Available Cash</span>
+              <span class="card-value" [class.positive]="availableCash() >= 0" [class.negative]="availableCash() < 0">
+                {{ formatCurrency(availableCash()) }}
+              </span>
+              <span class="card-subtitle">Total cash on hand</span>
+            </div>
+          </div>
+        </p-card>
+
+        <!-- Income Card -->
+        <p-card styleClass="summary-card income">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="pi pi-arrow-down-left"></i>
+            </div>
+            <div class="card-details">
+              <span class="card-label">Total Income</span>
+              <span class="card-value">{{ formatCurrency(summary()?.totalIncome) }}</span>
+              <span class="card-subtitle">{{ summary()?.incomeCount || 0 }} transactions</span>
+            </div>
+          </div>
+        </p-card>
+
+        <!-- Expenses Card -->
+        <p-card styleClass="summary-card expense">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="pi pi-arrow-up-right"></i>
+            </div>
+            <div class="card-details">
+              <span class="card-label">Total Expenses</span>
+              <span class="card-value">{{ formatCurrency(summary()?.totalExpenses) }}</span>
+              <span class="card-subtitle">
+                {{ summary()?.expenseCount || 0 }} direct + {{ summary()?.cardPaymentCount || 0 }} card payments
+              </span>
+            </div>
+          </div>
+        </p-card>
+
+        <!-- Net Cash Flow Card -->
+        <p-card styleClass="summary-card net-flow">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="pi pi-chart-line"></i>
+            </div>
+            <div class="card-details">
+              <span class="card-label">Net Cash Flow</span>
+              <span class="card-value" [class.positive]="(summary()?.netCashFlow ?? 0) >= 0" [class.negative]="(summary()?.netCashFlow ?? 0) < 0">
+                {{ formatCurrency(summary()?.netCashFlow) }}
+              </span>
+              <span class="card-subtitle">Period income - expenses</span>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- Trend Chart -->
+    <p-card header="Cash Flow Trend" styleClass="chart-card">
+      <div class="chart-container">
+        @if (trendChartData().labels?.length) {
+          <canvas
+            baseChart
+            [data]="trendChartData()"
+            [options]="trendChartOptions"
+            type="line"
+          ></canvas>
+        } @else {
+          <p class="no-data">No data available for chart</p>
+        }
+      </div>
+    </p-card>
+
+    <!-- Filters -->
+    <p-card header="Filters" styleClass="filters-card">
+      <div class="filters-grid">
+        <div class="filter-row">
+          <div class="filter-field">
+            <label>Start Date</label>
+            <p-datepicker
+              [(ngModel)]="startDate"
+              dateFormat="yy-mm-dd"
+              [showIcon]="true"
+              placeholder="From date"
+            />
+          </div>
+          <div class="filter-field">
+            <label>End Date</label>
+            <p-datepicker
+              [(ngModel)]="endDate"
+              dateFormat="yy-mm-dd"
+              [showIcon]="true"
+              placeholder="To date"
+            />
+          </div>
+          <div class="filter-field">
+            <label>Category</label>
+            <p-select
+              [(ngModel)]="selectedCategoryId"
+              [options]="categoryOptions()"
+              placeholder="All Categories"
+              [showClear]="true"
+              [filter]="true"
+            />
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="filter-field">
+            <label>Min Amount</label>
+            <p-inputNumber
+              [(ngModel)]="minAmount"
+              mode="currency"
+              [currency]="currency()"
+              placeholder="Min"
+            />
+          </div>
+          <div class="filter-field">
+            <label>Max Amount</label>
+            <p-inputNumber
+              [(ngModel)]="maxAmount"
+              mode="currency"
+              [currency]="currency()"
+              placeholder="Max"
+            />
+          </div>
+          <div class="filter-field">
+            <label>Search</label>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="searchTerm"
+              placeholder="Search description..."
+            />
+          </div>
+        </div>
+        <div class="filter-actions">
+          <p-button
+            label="Apply Filters"
+            icon="pi pi-filter"
+            (onClick)="applyFilters()"
+          />
+          <p-button
+            label="Clear"
+            icon="pi pi-times"
+            (onClick)="clearFilters()"
+            styleClass="p-button-outlined"
+          />
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Transactions Table -->
+    <p-card styleClass="transactions-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-content">
+          <h3>Cash Transactions</h3>
+          <span class="transaction-count">{{ transactions().length }} transactions</span>
+        </div>
+      </ng-template>
+
+      @if (transactions().length > 0) {
+        <p-table
+          [value]="transactions()"
+          [paginator]="true"
+          [rows]="20"
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} transactions"
+          styleClass="p-datatable-sm"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th class="text-right">Amount</th>
+              <th>Notes</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-transaction>
+            <tr>
+              <td>{{ transaction.date | dateFormat }}</td>
+              <td>
+                <div class="transaction-description">
+                  <i class="pi" [ngClass]="'pi-' + getTypeIcon(transaction.type)"></i>
+                  <span>{{ transaction.description }}</span>
+                </div>
+              </td>
+              <td>
+                @if (transaction.category) {
+                  <div class="category-badge" [style.background-color]="transaction.category.color + '20'" [style.color]="transaction.category.color">
+                    <i class="pi pi-{{ transaction.category.icon }}"></i>
+                    {{ transaction.category.name }}
+                  </div>
+                } @else {
+                  <span class="text-muted">Uncategorized</span>
+                }
+              </td>
+              <td>
+                <p-tag
+                  [value]="getTypeLabel(transaction.type)"
+                  [severity]="getTypeSeverity(transaction.type)"
+                />
+              </td>
+              <td class="text-right">
+                <span
+                  class="amount"
+                  [class.positive]="transaction.type === 'income'"
+                  [class.negative]="transaction.type === 'expense' || transaction.type === 'card_payment'"
+                >
+                  {{ transaction.type === 'income' ? '+' : '-' }}{{ transaction.amount | currencyFormat:currency() }}
+                </span>
+              </td>
+              <td>
+                <span class="notes" [pTooltip]="transaction.notes" tooltipPosition="left">
+                  {{ transaction.notes || '-' }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center">
+                <div class="empty-state">
+                  <i class="pi pi-info-circle"></i>
+                  <p>No cash transactions found for the selected period</p>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-info-circle"></i>
+          <p>No cash transactions found</p>
+          <small>Cash transactions include direct income, expenses, and card payments</small>
+        </div>
+      }
+    </p-card>
+  }
+</div>

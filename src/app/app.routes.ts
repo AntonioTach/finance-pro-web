@@ -44,6 +44,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'cash-flow',
+        loadChildren: () =>
+          import('./features/cash-flow/cash-flow.routes').then(
+            (m) => m.CASH_FLOW_ROUTES,
+          ),
+      },
+      {
         path: 'budgets',
         loadChildren: () =>
           import('./features/budgets/budgets.routes').then(

@@ -81,7 +81,7 @@ export class TransactionFormComponent implements OnInit {
     const type = this.selectedType();
     // Map card transaction types to category types
     let categoryType: string;
-    if (type === TransactionType.CARD_PURCHASE || type === TransactionType.EXPENSE) {
+    if (type === TransactionType.CARD_PURCHASE || type === TransactionType.EXPENSE || type === TransactionType.CARD_PAYMENT) {
       categoryType = 'expense';
     } else {
       categoryType = 'income';

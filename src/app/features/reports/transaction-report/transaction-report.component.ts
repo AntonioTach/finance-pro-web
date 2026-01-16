@@ -101,7 +101,7 @@ export class TransactionReportComponent implements OnInit {
 
   totalExpenses = computed(() => {
     return this.transactions()
-      .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PURCHASE)
+      .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PURCHASE || t.type === TransactionType.CARD_PAYMENT)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
   });
 

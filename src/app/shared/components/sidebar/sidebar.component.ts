@@ -201,6 +201,7 @@ export class SidebarComponent {
     { label: 'Dashboard', icon: 'pi-home', route: '/dashboard' },
     { label: 'Transacciones', icon: 'pi-money-bill', route: '/transactions' },
     { label: 'Tarjetas', icon: 'pi-credit-card', route: '/cards' },
+    { label: 'Cash Flow', icon: 'pi-dollar', route: '/cash-flow' },
     { label: 'Calendario', icon: 'pi-calendar-plus', route: '/calendar' },
     { label: 'Suscripciones', icon: 'pi-sync', route: '/subscriptions' },
     { label: 'Categorías', icon: 'pi-tags', route: '/categories' },

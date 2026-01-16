@@ -347,7 +347,7 @@ export class ReportService {
             .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
           const expenses = periodTransactions
-            .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PURCHASE)
+            .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PURCHASE || t.type === TransactionType.CARD_PAYMENT)
             .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
           return {
@@ -388,7 +388,7 @@ export class ReportService {
   private calculateSummary(transactions: Transaction[]): FinancialSummary {
     const incomeTransactions = transactions.filter((t) => t.type === TransactionType.INCOME);
     const expenseTransactions = transactions.filter(
-      (t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PURCHASE
+      (t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PURCHASE || t.type === TransactionType.CARD_PAYMENT
     );
 
     const totalIncome = incomeTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
@@ -415,7 +415,7 @@ export class ReportService {
     const transactionType = type === CategoryType.INCOME ? TransactionType.INCOME : TransactionType.EXPENSE;
 
     const relevantTransactions = transactions.filter(
-      (t) => t.type === transactionType || (type === CategoryType.EXPENSE && t.type === TransactionType.CARD_PURCHASE)
+      (t) => t.type === transactionType || (type === CategoryType.EXPENSE && (t.type === TransactionType.CARD_PURCHASE || t.type === TransactionType.CARD_PAYMENT))
     );
 
     const totalAmount = relevantTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
