@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'finance-pro-api-production-cad1.up.railway.app',
+  apiUrl: 'https://finance-pro-api-production-cad1.up.railway.app/api',
 };
