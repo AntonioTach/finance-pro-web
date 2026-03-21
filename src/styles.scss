@@ -176,8 +176,14 @@ body {
 }
 
 // ── PrimeNG: Button ───────────────────────────────────────────
+// Force consistent border-radius via PrimeNG's own CSS variable
+// so @layer dark-mode tokens cannot override it
+:root, .dark-mode {
+  --p-button-border-radius: 10px;
+}
+
 .p-button {
-  border-radius: var(--border-radius) !important;
+  border-radius: 10px !important;
   font-weight: var(--font-weight-semibold) !important;
   font-family: var(--font-family) !important;
   letter-spacing: 0.01em !important;

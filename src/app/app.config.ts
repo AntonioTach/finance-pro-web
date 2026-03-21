@@ -26,6 +26,13 @@ const FinanceProPreset = definePreset(Aura, {
       950: '{indigo.950}',
     },
   },
+  components: {
+    button: {
+      root: {
+        borderRadius: '10px',
+      },
+    },
+  },
 });
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
