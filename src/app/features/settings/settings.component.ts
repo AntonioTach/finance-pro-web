@@ -29,11 +29,10 @@ export class SettingsComponent {
 
   selectTheme(id: ThemeId): void {
     this.themeService.setTheme(id);
-    const theme = this.themes.find(t => t.id === id);
     this.messageService.add({
       severity: 'success',
       summary: this.ts.t('settings.theme.applied'),
-      detail: `"${theme?.name}"`,
+      detail: `"${this.ts.t('settings.theme.' + id + '.name')}"`,
       life: 2500,
     });
   }

@@ -226,8 +226,8 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
     .ghost-bar {
       height: 8px;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-      opacity: 0.6;
+      background: var(--gradient-primary);
+      opacity: 0.5;
     }
 
     /* Overlay gradient */
@@ -237,8 +237,8 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
       inset: 0;
       background: radial-gradient(
         ellipse at center,
-        var(--bg-elevated) 30%,
-        rgba(17, 24, 39, 0.7) 100%
+        var(--bg-elevated) 20%,
+        transparent 75%
       );
       z-index: 1;
       pointer-events: none;

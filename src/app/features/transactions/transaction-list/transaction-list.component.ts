@@ -142,7 +142,13 @@ export class TransactionListComponent implements OnInit {
     });
   }
 
-  getTransactionSeverity(type: string): 'success' | 'danger' {
-    return type === 'income' ? 'success' : 'danger';
+  getTransactionSeverity(type: string): 'success' | 'danger' | 'info' | 'warn' {
+    switch (type) {
+      case 'income':       return 'success';
+      case 'expense':      return 'danger';
+      case 'card_purchase': return 'warn';
+      case 'card_payment':  return 'info';
+      default:             return 'danger';
+    }
   }
 }

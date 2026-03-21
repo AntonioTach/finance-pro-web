@@ -63,7 +63,7 @@
           [class.active]="isActive(theme.id)"
           (click)="selectTheme(theme.id)"
           [attr.aria-pressed]="isActive(theme.id)"
-          [attr.aria-label]="'Aplicar tema ' + theme.name"
+          [attr.aria-label]="('settings.theme.' + theme.id + '.name') | translate"
         >
           <!-- Preview -->
           <div class="theme-preview" [style.background]="theme.preview.bg">
@@ -112,21 +112,21 @@
           <!-- Info -->
           <div class="theme-info">
             <div class="theme-meta">
-              <span class="theme-name">{{ theme.name }}</span>
+              <span class="theme-name">{{ ('settings.theme.' + theme.id + '.name') | translate }}</span>
               @if (isActive(theme.id)) {
                 <span class="theme-active-badge">
                   <i class="pi pi-check"></i> {{ 'settings.active' | translate }}
                 </span>
               }
             </div>
-            <p class="theme-description">{{ theme.description }}</p>
+            <p class="theme-description">{{ ('settings.theme.' + theme.id + '.desc') | translate }}</p>
 
             <!-- Color dots -->
             <div class="theme-colors">
-              <div class="color-dot" [style.background]="theme.preview.bg" title="Fondo"></div>
-              <div class="color-dot" [style.background]="theme.preview.card" title="Tarjeta"></div>
-              <div class="color-dot" [style.background]="theme.preview.accent" title="Acento"></div>
-              <div class="color-dot" [style.background]="theme.preview.text" title="Texto"></div>
+              <div class="color-dot" [style.background]="theme.preview.bg" [title]="'settings.colorDot.bg' | translate"></div>
+              <div class="color-dot" [style.background]="theme.preview.card" [title]="'settings.colorDot.card' | translate"></div>
+              <div class="color-dot" [style.background]="theme.preview.accent" [title]="'settings.colorDot.accent' | translate"></div>
+              <div class="color-dot" [style.background]="theme.preview.text" [title]="'settings.colorDot.text' | translate"></div>
             </div>
           </div>
 

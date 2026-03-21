@@ -93,6 +93,10 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'transactions.error.delete':   'Failed to delete transaction',
     'transactions.dialogNew':      'New Transaction',
     'transactions.dialogEdit':     'Edit Transaction',
+    'transactions.type.income':        'Income',
+    'transactions.type.expense':       'Expense',
+    'transactions.type.card_purchase': 'Card Purchase',
+    'transactions.type.card_payment':  'Card Payment',
 
     // ── Auth — Login ─────────────────────────────────────────
     'auth.login.title':              'Welcome back',
@@ -143,6 +147,24 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.brand.register.f3':           'Reports from day one',
     'auth.brand.register.f4':           'Preset categories included',
 
+    // ── Profile ──────────────────────────────────────────────
+    'profile.title':           'Profile',
+    'profile.subtitle':        'Manage your account information',
+    'profile.section.info':    'Personal Information',
+    'profile.section.prefs':   'Preferences',
+    'profile.name':            'Full name',
+    'profile.email':           'Email address',
+    'profile.currency':        'Main currency',
+    'profile.save':            'Save changes',
+    'profile.saving':          'Saving...',
+    'profile.success':         'Profile updated successfully',
+    'profile.error':           'Failed to update profile',
+    'profile.memberSince':     'Member since',
+    'profile.currency.usd':    'USD — US Dollar',
+    'profile.currency.eur':    'EUR — Euro',
+    'profile.currency.gbp':    'GBP — British Pound',
+    'profile.currency.mxn':    'MXN — Mexican Peso',
+
     // ── Settings ─────────────────────────────────────────────
     'settings.title':                  'Settings',
     'settings.subtitle':               'Customize the appearance of FinancePro',
@@ -157,6 +179,23 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'settings.active':                 'Active',
     'settings.lang.es':                'Spanish',
     'settings.lang.en':                'English',
+    'settings.colorDot.bg':            'Background',
+    'settings.colorDot.card':          'Card',
+    'settings.colorDot.accent':        'Accent',
+    'settings.colorDot.text':          'Text',
+    // Theme names & descriptions
+    'settings.theme.dark.name':        'Dark',
+    'settings.theme.dark.desc':        'Deep dark with indigo accents',
+    'settings.theme.light.name':       'Light',
+    'settings.theme.light.desc':       'Clean light with modern indigo accents',
+    'settings.theme.sand.name':        'Sand',
+    'settings.theme.sand.desc':        'Warm ivory with golden amber accent',
+    'settings.theme.midnight.name':    'Midnight',
+    'settings.theme.midnight.desc':    'Pure black with electric violet',
+    'settings.theme.ocean.name':       'Ocean',
+    'settings.theme.ocean.desc':       'Deep sea with glacial cyan',
+    'settings.theme.aurora.name':      'Aurora',
+    'settings.theme.aurora.desc':      'Boreal dusk with emerald green',
 
     // ── Budgets WIP ──────────────────────────────────────────
     'budgets.title':        'Budgets',
@@ -258,6 +297,10 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'transactions.error.delete':   'Error al eliminar la transacción',
     'transactions.dialogNew':      'Nueva transacción',
     'transactions.dialogEdit':     'Editar transacción',
+    'transactions.type.income':        'Ingreso',
+    'transactions.type.expense':       'Gasto',
+    'transactions.type.card_purchase': 'Compra con tarjeta',
+    'transactions.type.card_payment':  'Pago de tarjeta',
 
     // ── Auth — Login ─────────────────────────────────────────
     'auth.login.title':              'Bienvenido de vuelta',
@@ -308,6 +351,24 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.brand.register.f3':           'Reportes desde el primer día',
     'auth.brand.register.f4':           'Categorías predefinidas incluidas',
 
+    // ── Perfil ────────────────────────────────────────────────
+    'profile.title':           'Perfil',
+    'profile.subtitle':        'Gestiona la información de tu cuenta',
+    'profile.section.info':    'Información personal',
+    'profile.section.prefs':   'Preferencias',
+    'profile.name':            'Nombre completo',
+    'profile.email':           'Correo electrónico',
+    'profile.currency':        'Moneda principal',
+    'profile.save':            'Guardar cambios',
+    'profile.saving':          'Guardando...',
+    'profile.success':         'Perfil actualizado correctamente',
+    'profile.error':           'Error al actualizar el perfil',
+    'profile.memberSince':     'Miembro desde',
+    'profile.currency.usd':    'USD — Dólar estadounidense',
+    'profile.currency.eur':    'EUR — Euro',
+    'profile.currency.gbp':    'GBP — Libra esterlina',
+    'profile.currency.mxn':    'MXN — Peso mexicano',
+
     // ── Configuración ────────────────────────────────────────
     'settings.title':                  'Configuración',
     'settings.subtitle':               'Personaliza la apariencia de FinancePro',
@@ -322,6 +383,23 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'settings.active':                 'Activo',
     'settings.lang.es':                'Español',
     'settings.lang.en':                'Inglés',
+    'settings.colorDot.bg':            'Fondo',
+    'settings.colorDot.card':          'Tarjeta',
+    'settings.colorDot.accent':        'Acento',
+    'settings.colorDot.text':          'Texto',
+    // Nombres y descripciones de temas
+    'settings.theme.dark.name':        'Oscuro',
+    'settings.theme.dark.desc':        'Oscuro profundo con acentos índigo',
+    'settings.theme.light.name':       'Claro',
+    'settings.theme.light.desc':       'Claro limpio con acentos índigo modernos',
+    'settings.theme.sand.name':        'Arena',
+    'settings.theme.sand.desc':        'Marfil cálido con acento ámbar dorado',
+    'settings.theme.midnight.name':    'Medianoche',
+    'settings.theme.midnight.desc':    'Negro puro con violeta eléctrico',
+    'settings.theme.ocean.name':       'Oceano',
+    'settings.theme.ocean.desc':       'Profundidades del mar con cyan glaciar',
+    'settings.theme.aurora.name':      'Aurora',
+    'settings.theme.aurora.desc':      'Anochecer boreal con verde esmeralda',
 
     // ── Presupuestos WIP ─────────────────────────────────────
     'budgets.title':        'Presupuestos',

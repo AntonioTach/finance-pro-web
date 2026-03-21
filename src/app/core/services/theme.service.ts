@@ -1,6 +1,6 @@
 import { Injectable, signal, effect } from '@angular/core';
 
-export type ThemeId = 'dark' | 'light' | 'midnight' | 'ocean' | 'aurora';
+export type ThemeId = 'dark' | 'light' | 'sand' | 'midnight' | 'ocean' | 'aurora';
 
 export interface Theme {
   id: ThemeId;
@@ -75,6 +75,38 @@ export const THEMES: Theme[] = [
       '--shadow-sm':         '0 1px 3px rgba(0, 0, 0, 0.08)',
       '--shadow-md':         '0 4px 16px rgba(0, 0, 0, 0.1)',
       '--shadow-lg':         '0 8px 32px rgba(0, 0, 0, 0.12)',
+    },
+  },
+  {
+    id: 'sand',
+    name: 'Sand',
+    description: 'Warm ivory with golden amber accent',
+    preview: { bg: '#faf8f4', card: '#ffffff', accent: '#d97706', text: '#1c1917' },
+    vars: {
+      '--bg-color':          '#faf8f4',
+      '--bg-secondary':      '#f0ece2',
+      '--bg-elevated':       '#ffffff',
+      '--bg-input':          '#ffffff',
+      '--bg-hover':          'rgba(0, 0, 0, 0.04)',
+      '--text-color':        '#1c1917',
+      '--text-secondary':    '#78716c',
+      '--text-muted':        '#a8a29e',
+      '--border-color':      'rgba(0, 0, 0, 0.08)',
+      '--border-hover':      'rgba(0, 0, 0, 0.14)',
+      '--primary-color':     '#d97706',
+      '--primary-hover':     '#b45309',
+      '--primary-light':     '#b45309',
+      '--primary-subtle':    'rgba(217, 119, 6, 0.1)',
+      '--primary-glow':      'rgba(217, 119, 6, 0.2)',
+      '--secondary-color':   '#f59e0b',
+      '--gradient-primary':  'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+      '--gradient-hero':     'linear-gradient(135deg, #fef3c7 0%, #fde68a 60%, #fef9ee 100%)',
+      '--glass-bg':          'rgba(0, 0, 0, 0.02)',
+      '--glass-bg-stronger': 'rgba(0, 0, 0, 0.04)',
+      '--glass-border':      'rgba(0, 0, 0, 0.07)',
+      '--shadow-sm':         '0 1px 3px rgba(0, 0, 0, 0.06)',
+      '--shadow-md':         '0 4px 16px rgba(0, 0, 0, 0.08)',
+      '--shadow-lg':         '0 8px 32px rgba(0, 0, 0, 0.1)',
     },
   },
   {
@@ -201,7 +233,7 @@ export class ThemeService {
     }
 
     // Toggle dark-mode class for PrimeNG
-    if (id === 'light') {
+    if (id === 'light' || id === 'sand') {
       root.classList.remove('dark-mode');
     } else {
       root.classList.add('dark-mode');

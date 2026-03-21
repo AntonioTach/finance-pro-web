@@ -163,7 +163,7 @@ interface NavItem {
 
     .sidebar-nav::-webkit-scrollbar { width: 3px; }
     .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 99px; }
 
     .nav-section {
       display: flex;
@@ -192,7 +192,7 @@ interface NavItem {
     }
 
     .nav-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-hover);
       color: var(--text-color);
     }
 
