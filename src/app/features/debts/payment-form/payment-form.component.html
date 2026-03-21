@@ -1,0 +1,131 @@
+<div class="payment-form">
+
+  <!-- Summary banner -->
+  <div class="debt-summary">
+    <div class="summary-row">
+      <span class="summary-label">{{ 'debts.payment.totalDebt' | translate }}</span>
+      <span class="summary-value">{{ debt.totalAmount | currencyFormat:currency }}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">{{ 'debts.payment.paid' | translate }}</span>
+      <span class="summary-value paid">{{ paidAmount | currencyFormat:currency }}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">{{ 'debts.payment.remaining' | translate }}</span>
+      <span class="summary-value remaining">{{ remaining | currencyFormat:currency }}</span>
+    </div>
+    @if (debt.installments) {
+      <div class="summary-row">
+        <span class="summary-label">{{ 'debts.payment.installmentProgress' | translate }}</span>
+        <span class="summary-value">{{ debt.payments.length }}/{{ debt.installments }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Transaction notice -->
+  <div class="tx-notice">
+    <i class="pi pi-link"></i>
+    <span>{{ 'debts.payment.txNotice' | translate }}</span>
+  </div>
+
+  <!-- Amount -->
+  <div class="form-field">
+    <label for="payAmount">{{ 'debts.payment.amount' | translate }}</label>
+    <p-inputNumber
+      inputId="payAmount"
+      [(ngModel)]="dto.amount"
+      mode="decimal"
+      [minFractionDigits]="2"
+      [maxFractionDigits]="2"
+      [min]="0.01"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Date -->
+  <div class="form-field">
+    <label for="payDate">{{ 'debts.payment.date' | translate }}</label>
+    <p-datepicker
+      inputId="payDate"
+      [(ngModel)]="paymentDateObj"
+      dateFormat="dd/mm/yy"
+      [showIcon]="true"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Category -->
+  <div class="form-field">
+    <label for="payCategory">{{ 'debts.payment.category' | translate }}</label>
+    <p-select
+      inputId="payCategory"
+      [(ngModel)]="dto.categoryId"
+      [options]="categories()"
+      optionLabel="name"
+      optionValue="id"
+      [placeholder]="'debts.payment.categoryPlaceholder' | translate"
+      [fluid]="true"
+      [showClear]="true"
+    >
+      <ng-template #item let-cat>
+        <div class="cat-option">
+          <span>{{ cat.icon }}</span>
+          <span>{{ cat.name }}</span>
+        </div>
+      </ng-template>
+      <ng-template #selectedItem let-cat>
+        <div class="cat-option" *ngIf="cat">
+          <span>{{ cat.icon }}</span>
+          <span>{{ cat.name }}</span>
+        </div>
+      </ng-template>
+    </p-select>
+  </div>
+
+  <!-- Installment number -->
+  @if (debt.installments) {
+    <div class="form-field">
+      <label for="payInstallment">{{ 'debts.payment.installmentNumber' | translate }}</label>
+      <p-inputNumber
+        inputId="payInstallment"
+        [(ngModel)]="dto.installmentNumber"
+        [min]="1"
+        [max]="debt.installments"
+        [fluid]="true"
+      />
+    </div>
+  }
+
+  <!-- Notes -->
+  <div class="form-field">
+    <label for="payNotes">
+      {{ 'debts.payment.notes' | translate }}
+      <span class="label-hint">({{ 'common.optional' | translate }})</span>
+    </label>
+    <textarea
+      id="payNotes"
+      pTextarea
+      [(ngModel)]="dto.notes"
+      rows="2"
+      [placeholder]="'debts.form.notesPlaceholder' | translate"
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <p-button
+      [label]="'common.cancel' | translate"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="cancel()"
+    />
+    <p-button
+      [label]="'debts.payment.register' | translate"
+      [loading]="saving()"
+      [disabled]="!isValid()"
+      (onClick)="submit()"
+    />
+  </div>
+
+</div>

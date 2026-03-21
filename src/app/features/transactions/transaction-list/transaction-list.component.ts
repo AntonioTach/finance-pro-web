@@ -142,6 +142,23 @@ export class TransactionListComponent implements OnInit {
     });
   }
 
+  isMsi(transaction: Transaction): boolean {
+    return !!(transaction.installmentMonths && transaction.installmentMonths > 0);
+  }
+
+  getMsiProgress(transaction: Transaction): number {
+    if (!transaction.installmentMonths || !transaction.installmentCurrent) return 0;
+    return Math.round((transaction.installmentCurrent / transaction.installmentMonths) * 100);
+  }
+
+  getMsiLabel(transaction: Transaction): string {
+    if (!transaction.installmentMonths) return '';
+    if (transaction.installmentCurrent) {
+      return `${transaction.installmentCurrent}/${transaction.installmentMonths}`;
+    }
+    return `${transaction.installmentMonths} meses`;
+  }
+
   getTransactionSeverity(type: string): 'success' | 'danger' | 'info' | 'warn' {
     switch (type) {
       case 'income':       return 'success';

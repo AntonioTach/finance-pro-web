@@ -1,0 +1,144 @@
+<div class="debt-form">
+
+  <!-- Direction toggle -->
+  <div class="direction-toggle-wrapper">
+    <p-selectButton
+      [options]="directionOptions"
+      [(ngModel)]="form.direction"
+      optionLabel="label"
+      optionValue="value"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Counterparty -->
+  <div class="form-field">
+    <label for="counterparty">{{ 'debts.form.counterparty' | translate }}</label>
+    <input
+      id="counterparty"
+      pInputText
+      [(ngModel)]="form.counterparty"
+      [placeholder]="'debts.form.counterpartyPlaceholder' | translate"
+      class="w-full"
+    />
+  </div>
+
+  <!-- Description -->
+  <div class="form-field">
+    <label for="description">{{ 'debts.form.description' | translate }}</label>
+    <input
+      id="description"
+      pInputText
+      [(ngModel)]="form.description"
+      [placeholder]="'debts.form.descriptionPlaceholder' | translate"
+      class="w-full"
+    />
+  </div>
+
+  <!-- Amount + Installments -->
+  <div class="form-row">
+    <div class="form-field">
+      <label for="totalAmount">{{ 'debts.form.totalAmount' | translate }}</label>
+      <p-inputNumber
+        inputId="totalAmount"
+        [(ngModel)]="form.totalAmount"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [min]="0.01"
+        [fluid]="true"
+      />
+    </div>
+    <div class="form-field">
+      <label for="installments">
+        {{ 'debts.form.installments' | translate }}
+        <span class="label-hint">({{ 'common.optional' | translate }})</span>
+      </label>
+      <p-inputNumber
+        inputId="installments"
+        [(ngModel)]="form.installments"
+        [min]="1"
+        [placeholder]="'debts.form.installmentsPlaceholder' | translate"
+        [fluid]="true"
+      />
+    </div>
+  </div>
+
+  <!-- Interest rate -->
+  <div class="form-field">
+    <label for="interestRate">
+      {{ 'debts.form.interestRate' | translate }}
+      <span class="label-hint">({{ 'common.optional' | translate }})</span>
+    </label>
+    <p-inputNumber
+      inputId="interestRate"
+      [(ngModel)]="form.interestRate"
+      suffix=" %"
+      mode="decimal"
+      [minFractionDigits]="2"
+      [maxFractionDigits]="2"
+      [min]="0"
+      [placeholder]="'debts.form.interestRatePlaceholder' | translate"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Dates -->
+  <div class="form-field">
+    <label for="startDate">{{ 'debts.form.startDate' | translate }}</label>
+    <p-datepicker
+      inputId="startDate"
+      [(ngModel)]="startDateObj"
+      dateFormat="dd/mm/yy"
+      [showIcon]="true"
+      [fluid]="true"
+    />
+  </div>
+
+  <div class="form-field">
+    <label for="dueDate">
+      {{ 'debts.form.dueDate' | translate }}
+      <span class="label-hint">({{ 'common.optional' | translate }})</span>
+    </label>
+    <p-datepicker
+      inputId="dueDate"
+      [(ngModel)]="dueDateObj"
+      dateFormat="dd/mm/yy"
+      [showIcon]="true"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Notes -->
+  <div class="form-field">
+    <label for="notes">
+      {{ 'debts.form.notes' | translate }}
+      <span class="label-hint">({{ 'common.optional' | translate }})</span>
+    </label>
+    <textarea
+      id="notes"
+      pTextarea
+      [(ngModel)]="form.notes"
+      rows="3"
+      [placeholder]="'debts.form.notesPlaceholder' | translate"
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <p-button
+      [label]="'common.cancel' | translate"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="cancel()"
+    />
+    <p-button
+      [label]="isEdit ? ('common.save' | translate) : ('common.add' | translate)"
+      [loading]="saving()"
+      [disabled]="!isValid()"
+      (onClick)="submit()"
+    />
+  </div>
+
+</div>

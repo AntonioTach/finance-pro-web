@@ -358,6 +358,7 @@ export class SidebarComponent {
     { labelKey: 'nav.cashFlow',     icon: 'pi-dollar',        route: '/cash-flow' },
     { labelKey: 'nav.calendar',     icon: 'pi-calendar-plus', route: '/calendar' },
     { labelKey: 'nav.subscriptions',icon: 'pi-sync',          route: '/subscriptions' },
+    { labelKey: 'nav.debts',        icon: 'pi-arrows-h',      route: '/debts' },
     { labelKey: 'nav.categories',   icon: 'pi-tags',          route: '/categories' },
     { labelKey: 'nav.budgets',      icon: 'pi-wallet',        route: '/budgets' },
     { labelKey: 'nav.reports',      icon: 'pi-chart-bar',     route: '/reports' },

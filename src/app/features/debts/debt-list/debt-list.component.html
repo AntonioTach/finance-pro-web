@@ -1,0 +1,209 @@
+<p-toast />
+
+<div class="debts-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-text">
+      <h1>{{ 'debts.title' | translate }}</h1>
+      <p>{{ 'debts.subtitle' | translate }}</p>
+    </div>
+    <p-button
+      [label]="'debts.add' | translate"
+      icon="pi pi-plus"
+      (onClick)="openAddDialog()"
+    />
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid">
+    <div class="summary-card owe">
+      <div class="summary-icon"><i class="pi pi-arrow-circle-up"></i></div>
+      <div class="summary-info">
+        <span class="summary-label">{{ 'debts.summary.iOwe' | translate }}</span>
+        <span class="summary-amount">{{ totalIOwe() | currencyFormat:currency() }}</span>
+      </div>
+    </div>
+    <div class="summary-card owed">
+      <div class="summary-icon"><i class="pi pi-arrow-circle-down"></i></div>
+      <div class="summary-info">
+        <span class="summary-label">{{ 'debts.summary.owedToMe' | translate }}</span>
+        <span class="summary-amount">{{ totalOwedToMe() | currencyFormat:currency() }}</span>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner />
+  } @else {
+    <p-tabs [value]="0">
+      <p-tablist>
+        <p-tab [value]="0">{{ 'debts.tab.iOwe' | translate }}</p-tab>
+        <p-tab [value]="1">{{ 'debts.tab.owedToMe' | translate }}</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+
+        <!-- Panel: I Owe -->
+        <p-tabpanel [value]="0">
+          @if (iOwe().length === 0) {
+            <div class="empty-state">
+              <i class="pi pi-check-circle"></i>
+              <p>{{ 'debts.empty.iOwe' | translate }}</p>
+            </div>
+          } @else {
+            <div class="debt-grid">
+              @for (debt of iOwe(); track debt.id) {
+                <ng-container *ngTemplateOutlet="debtCard; context: { $implicit: debt }" />
+              }
+            </div>
+          }
+        </p-tabpanel>
+
+        <!-- Panel: Owed to Me -->
+        <p-tabpanel [value]="1">
+          @if (owedToMe().length === 0) {
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>{{ 'debts.empty.owedToMe' | translate }}</p>
+            </div>
+          } @else {
+            <div class="debt-grid">
+              @for (debt of owedToMe(); track debt.id) {
+                <ng-container *ngTemplateOutlet="debtCard; context: { $implicit: debt }" />
+              }
+            </div>
+          }
+        </p-tabpanel>
+
+      </p-tabpanels>
+    </p-tabs>
+  }
+</div>
+
+<!-- Debt card template -->
+<ng-template #debtCard let-debt>
+  <div class="debt-card" [class.completed]="debt.status === 'completed'" [class.overdue]="isOverdue(debt)">
+
+    <!-- Card header -->
+    <div class="card-header">
+      <div class="card-title-group">
+        <span class="card-counterparty">{{ debt.counterparty }}</span>
+        <span class="card-description">{{ debt.description }}</span>
+      </div>
+      <div class="card-badges">
+        @if (isOverdue(debt)) {
+          <p-tag value="Vencida" severity="danger" />
+        }
+        <p-tag [value]="statusLabel(debt.status)" [severity]="statusSeverity(debt.status)" />
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-section">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" [style.width.%]="progress(debt)"></div>
+      </div>
+      <div class="progress-labels">
+        <span>{{ 'debts.paid' | translate }}: {{ paid(debt) | currencyFormat:currency() }}</span>
+        <span>{{ progress(debt) }}%</span>
+        <span>{{ 'debts.remaining' | translate }}: {{ remaining(debt) | currencyFormat:currency() }}</span>
+      </div>
+    </div>
+
+    <!-- Info row -->
+    <div class="card-meta">
+      <span class="meta-item">
+        <i class="pi pi-dollar"></i>
+        {{ 'debts.total' | translate }}: {{ debt.totalAmount | currencyFormat:currency() }}
+      </span>
+      @if (debt.installments) {
+        <span class="meta-item installments">
+          <i class="pi pi-list"></i>
+          {{ installmentProgress(debt) }} {{ 'debts.payments' | translate }}
+        </span>
+      }
+      @if (debt.interestRate) {
+        <span class="meta-item">
+          <i class="pi pi-percentage"></i>
+          {{ debt.interestRate }}% anual
+        </span>
+      }
+      @if (debt.dueDate) {
+        <span class="meta-item" [class.overdue-text]="isOverdue(debt)">
+          <i class="pi pi-calendar"></i>
+          {{ debt.dueDate }}
+        </span>
+      }
+    </div>
+
+    <!-- Payment history -->
+    @if (debt.payments.length > 0) {
+      <div class="payments-section">
+        <span class="payments-title">{{ 'debts.paymentHistory' | translate }}</span>
+        <div class="payments-list">
+          @for (p of debt.payments; track p.id) {
+            <div class="payment-item">
+              <span class="payment-dot"></span>
+              <span class="payment-date">{{ p.paymentDate }}</span>
+              @if (p.installmentNumber) {
+                <span class="payment-installment">Cuota {{ p.installmentNumber }}</span>
+              }
+              <span class="payment-amount">{{ p.amount | currencyFormat:currency() }}</span>
+              @if (p.notes) {
+                <span class="payment-notes">{{ p.notes }}</span>
+              }
+              <button
+                class="payment-delete-btn"
+                (click)="confirmDeletePayment(debt, p)"
+                pTooltip="Eliminar pago"
+                tooltipPosition="top"
+              >
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Card actions -->
+    <div class="card-actions">
+      @if (debt.status === 'active') {
+        <p-button
+          icon="pi pi-plus"
+          [label]="'debts.addPayment' | translate"
+          size="small"
+          severity="success"
+          [outlined]="true"
+          (onClick)="openPaymentDialog(debt)"
+        />
+        <p-button
+          icon="pi pi-check"
+          [label]="'debts.markComplete' | translate"
+          size="small"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="markComplete(debt)"
+        />
+      }
+      <p-button
+        icon="pi pi-pencil"
+        size="small"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="openEditDialog(debt)"
+        pTooltip="{{ 'common.edit' | translate }}"
+        tooltipPosition="top"
+      />
+      <p-button
+        icon="pi pi-trash"
+        size="small"
+        severity="danger"
+        [outlined]="true"
+        (onClick)="confirmDelete(debt)"
+        pTooltip="{{ 'common.delete' | translate }}"
+        tooltipPosition="top"
+      />
+    </div>
+  </div>
+</ng-template>

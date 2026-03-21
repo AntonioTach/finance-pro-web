@@ -94,6 +94,47 @@
   font-size: 0.72rem;
 }
 
+// ── MSI badge ─────────────────────────────────────────────────
+.msi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem 0.15rem 0.4rem;
+  margin-top: 0.2rem;
+  width: fit-content;
+
+  i {
+    font-size: 0.7rem;
+    color: var(--primary-light, #818cf8);
+  }
+}
+
+.msi-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary-light, #818cf8);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.msi-bar-track {
+  width: 40px;
+  height: 4px;
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.msi-bar-fill {
+  height: 100%;
+  background: var(--primary-light, #818cf8);
+  border-radius: 99px;
+  transition: width 300ms ease;
+}
+
 .amount {
   font-weight: 700;
   font-size: 0.95rem;

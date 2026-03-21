@@ -1,0 +1,58 @@
+.debt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Direction toggle */
+.direction-toggle-wrapper {
+  :host ::ng-deep .p-selectbutton {
+    width: 100%;
+    display: flex;
+
+    .p-togglebutton {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+}
+
+/* Fields */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: var(--text-color);
+  }
+}
+
+.label-hint {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  margin-left: 0.25rem;
+}
+
+/* Two-column row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.w-full {
+  width: 100%;
+}

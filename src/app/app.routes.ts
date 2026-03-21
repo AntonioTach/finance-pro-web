@@ -79,6 +79,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'debts',
+        loadChildren: () =>
+          import('./features/debts/debts.routes').then((m) => m.DEBT_ROUTES),
+      },
+      {
         path: 'profile',
         loadChildren: () =>
           import('./features/profile/profile.routes').then(

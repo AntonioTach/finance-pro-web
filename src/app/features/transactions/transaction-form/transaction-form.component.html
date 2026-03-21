@@ -83,110 +83,22 @@
     }
   </div>
 
-  <!-- MSI Section - Create Mode -->
-  @if (showMsiSection && !isEditMode) {
-    <div class="msi-section">
-      <div class="form-field msi-toggle">
-        <label class="toggle-label">
-          <input
-            type="checkbox"
-            [checked]="isMsiEnabled()"
-            (change)="isMsiEnabled.set(!isMsiEnabled()); onMsiToggle()"
-          />
-          <span class="toggle-text">
-            <i class="pi pi-calendar"></i>
-            Meses sin intereses (MSI)
-          </span>
-        </label>
+  <!-- MSI — WIP notice -->
+  @if (isCardTransaction() && selectedType() === 'card_purchase') {
+    <div class="msi-wip">
+      <div class="msi-wip-left">
+        <span class="msi-wip-badge">
+          <span class="msi-wip-dot"></span>
+          En desarrollo
+        </span>
+        <span class="msi-wip-title">
+          <i class="pi pi-calendar"></i>
+          Meses sin intereses (MSI)
+        </span>
       </div>
-
-      @if (isMsiEnabled()) {
-        <div class="form-field">
-          <label for="installmentMonths">Plazo</label>
-          <p-select
-            id="installmentMonths"
-            formControlName="installmentMonths"
-            [options]="msiOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecciona el plazo"
-            [fluid]="true"
-            (onChange)="onInstallmentMonthsChange()"
-          />
-        </div>
-
-        @if (monthlyPaymentAmount()) {
-          <div class="msi-preview">
-            <div class="msi-preview-content">
-              <span class="msi-preview-label">Pago mensual:</span>
-              <span class="msi-preview-amount">{{ monthlyPaymentAmount() | currency:'MXN':'symbol':'1.2-2':'es-MX' }}</span>
-            </div>
-            <small class="msi-preview-note">
-              Se generarán {{ transactionForm.get('installmentMonths')?.value }} cargos mensuales
-            </small>
-          </div>
-        }
-      }
-    </div>
-  }
-
-  <!-- MSI Section - Edit Mode (with MSI) -->
-  @if (isEditMode && isMsiTransaction) {
-    <div class="msi-info-section">
-      <div class="info-header">
-        <i class="pi pi-calendar"></i>
-        <span class="info-title">Meses sin intereses (MSI)</span>
-      </div>
-      
-      <div class="msi-details">
-        <div class="detail-item">
-          <span class="detail-label">Pago:</span>
-          <span class="detail-value">{{ transaction?.installmentCurrent }} de {{ transaction?.installmentMonths }}</span>
-        </div>
-        <div class="detail-item">
-          <span class="detail-label">Monto mensual:</span>
-          <span class="detail-value">{{ getMsiMonthlyAmount() | currency:'MXN':'symbol':'1.2-2':'es-MX' }}</span>
-        </div>
-      </div>
-
-      <div class="msi-actions">
-        <p-button
-          label="Ver grupo completo"
-          icon="pi pi-eye"
-          [outlined]="true"
-          severity="secondary"
-          size="small"
-          (onClick)="viewMsiGroup()"
-        />
-        @if (transaction?.parentTransactionId) {
-          <p-button
-            label="Cancelar MSI"
-            icon="pi pi-times"
-            [outlined]="true"
-            severity="danger"
-            size="small"
-            (onClick)="cancelMsiGroup()"
-          />
-        }
-      </div>
-
-      <small class="msi-note">
-        No puedes editar el monto de una transacción MSI. Para cancelar todas las parcialidades, usa "Cancelar MSI".
-      </small>
-    </div>
-  }
-
-  <!-- MSI Info - Edit Mode (without MSI) -->
-  @if (isEditMode && !isMsiTransaction && isCardTransaction() && selectedType() === 'card_purchase') {
-    <div class="msi-disabled-info">
-      <div class="info-icon">
-        <i class="pi pi-info-circle"></i>
-      </div>
-      <div class="info-content">
-        <strong>¿Quieres agregar MSI?</strong>
-        <p>Las opciones de MSI solo están disponibles al crear una transacción nueva. No se pueden agregar a transacciones existentes.</p>
-        <p class="hint">💡 Si necesitas convertir esta compra a MSI, elimina esta transacción y créala de nuevo con la opción MSI activada.</p>
-      </div>
+      <p class="msi-wip-desc">
+        Próximamente podrás dividir compras en mensualidades sin intereses directamente desde aquí.
+      </p>
     </div>
   }
 

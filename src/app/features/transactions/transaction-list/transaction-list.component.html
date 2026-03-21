@@ -57,6 +57,15 @@
           <td>
             <div class="description-cell">
               <span class="description">{{ transaction.description }}</span>
+              @if (isMsi(transaction)) {
+                <div class="msi-badge">
+                  <i class="pi pi-calendar"></i>
+                  <span class="msi-label">MSI {{ getMsiLabel(transaction) }}</span>
+                  <div class="msi-bar-track">
+                    <div class="msi-bar-fill" [style.width.%]="getMsiProgress(transaction)"></div>
+                  </div>
+                </div>
+              }
               @if (transaction.notes) {
                 <small class="notes">{{ transaction.notes }}</small>
               }

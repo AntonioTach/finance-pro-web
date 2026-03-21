@@ -1,0 +1,90 @@
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Summary */
+.debt-summary {
+  background: var(--bg-hover, rgba(99, 102, 241, 0.05));
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.summary-label {
+  color: var(--text-color-secondary);
+}
+
+.summary-value {
+  font-weight: 600;
+  color: var(--text-color);
+
+  &.paid   { color: var(--green-500); }
+  &.remaining { color: var(--yellow-500); }
+}
+
+/* Transaction notice */
+.tx-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 8px;
+  padding: 0.6rem 0.875rem;
+  font-size: 0.82rem;
+  color: var(--primary-color);
+
+  i { font-size: 0.85rem; flex-shrink: 0; }
+}
+
+/* Fields */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: var(--text-color);
+  }
+}
+
+.label-hint {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  margin-left: 0.25rem;
+}
+
+/* Category option */
+.cat-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.w-full {
+  width: 100%;
+}
