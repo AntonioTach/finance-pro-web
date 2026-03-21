@@ -1,112 +1,172 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h1>Register</h1>
-    <form [formGroup]="registerForm" (ngSubmit)="handleSubmit()">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input
-          id="name"
-          type="text"
-          formControlName="name"
-          class="form-control"
-          [class.error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
-        />
-        <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="error-message">
-          Name is required
+<div class="auth-page">
+
+  <!-- Left: Brand panel -->
+  <div class="brand-panel">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <div class="brand-logo-mark">
+          <i class="pi pi-chart-line"></i>
         </div>
+        <span class="brand-logo-text">FinancePro</span>
       </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          class="form-control"
-          [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
-        />
-        <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
-          Valid email is required
-        </div>
+      <div class="brand-headline">
+        <h2>{{ 'auth.brand.register.tagline' | translate }}<br><span class="headline-accent">{{ 'auth.brand.register.taglineAccent' | translate }}</span></h2>
+        <p>{{ 'auth.brand.register.description' | translate }}</p>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="password-input-wrapper">
-          <input
-            id="password"
-            [type]="showPassword ? 'text' : 'password'"
-            formControlName="password"
-            class="form-control"
-            [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
-          />
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="togglePasswordVisibility()"
-            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
-            tabindex="0"
-          >
-            <svg
-              *ngIf="showPassword"
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-              <line x1="1" y1="1" x2="23" y2="23"></line>
-            </svg>
-            <svg
-              *ngIf="!showPassword"
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
-        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
-          Password must be at least 6 characters
-        </div>
-      </div>
+      <ul class="brand-features">
+        <li>
+          <span class="feature-icon"><i class="pi pi-shield"></i></span>
+          <span>{{ 'auth.brand.register.f1' | translate }}</span>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="pi pi-bolt"></i></span>
+          <span>{{ 'auth.brand.register.f2' | translate }}</span>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="pi pi-chart-bar"></i></span>
+          <span>{{ 'auth.brand.register.f3' | translate }}</span>
+        </li>
+        <li>
+          <span class="feature-icon"><i class="pi pi-tags"></i></span>
+          <span>{{ 'auth.brand.register.f4' | translate }}</span>
+        </li>
+      </ul>
+    </div>
 
-      <div class="form-group">
-        <label for="currency">Currency</label>
-        <select
-          id="currency"
-          formControlName="currency"
-          class="form-control"
-        >
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-          <option value="MXN">MXN</option>
-        </select>
-      </div>
-
-      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-      <button type="submit" class="btn-primary" [disabled]="registerForm.invalid || isLoading">
-        {{ isLoading ? 'Registering...' : 'Register' }}
-      </button>
-    </form>
-
-    <p class="auth-link">
-      Already have an account? <a routerLink="/auth/login">Login</a>
-    </p>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="brand-grid"></div>
   </div>
+
+  <!-- Right: Form panel -->
+  <div class="form-panel">
+    <div class="form-container">
+
+      <div class="form-top-bar">
+        <app-lang-switcher [compact]="true" />
+      </div>
+
+      <div class="form-header">
+        <div class="form-logo-mobile">
+          <div class="brand-logo-mark small"><i class="pi pi-chart-line"></i></div>
+          <span>FinancePro</span>
+        </div>
+        <h1>{{ 'auth.register.title' | translate }}</h1>
+        <p>{{ 'auth.register.subtitle' | translate }}</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="handleSubmit()" novalidate>
+
+        <div class="field">
+          <label for="name">{{ 'auth.register.name' | translate }}</label>
+          <div class="input-wrapper" [class.has-error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
+            <span class="input-prefix"><i class="pi pi-user"></i></span>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              [placeholder]="'auth.register.namePlaceholder' | translate"
+              autocomplete="name"
+            />
+          </div>
+          @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+            <div class="field-error">
+              <i class="pi pi-exclamation-circle"></i> {{ 'auth.register.nameError' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="field">
+          <label for="email">{{ 'auth.register.email' | translate }}</label>
+          <div class="input-wrapper" [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            <span class="input-prefix"><i class="pi pi-envelope"></i></span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              [placeholder]="'auth.login.emailPlaceholder' | translate"
+              autocomplete="email"
+            />
+          </div>
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <div class="field-error">
+              <i class="pi pi-exclamation-circle"></i> {{ 'auth.register.emailError' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">{{ 'auth.register.password' | translate }}</label>
+          <div class="input-wrapper" [class.has-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            <span class="input-prefix"><i class="pi pi-lock"></i></span>
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              [placeholder]="'auth.register.passwordPlaceholder' | translate"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="input-suffix-btn"
+              (click)="togglePasswordVisibility()"
+            >
+              <i class="pi" [class.pi-eye]="!showPassword" [class.pi-eye-slash]="showPassword"></i>
+            </button>
+          </div>
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+            <div class="field-error">
+              <i class="pi pi-exclamation-circle"></i> {{ 'auth.register.passwordError' | translate }}
+            </div>
+          }
+        </div>
+
+        <div class="field">
+          <label for="currency">{{ 'auth.register.currency' | translate }}</label>
+          <div class="input-wrapper select-wrapper">
+            <span class="input-prefix"><i class="pi pi-dollar"></i></span>
+            <select id="currency" formControlName="currency">
+              <option value="USD">USD — Dollar</option>
+              <option value="EUR">EUR — Euro</option>
+              <option value="GBP">GBP — Pound</option>
+              <option value="MXN">MXN — Peso</option>
+            </select>
+          </div>
+        </div>
+
+        @if (errorMessage) {
+          <div class="alert-error">
+            <i class="pi pi-shield"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="registerForm.invalid || isLoading"
+          [class.loading]="isLoading"
+        >
+          @if (isLoading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          }
+          <span>{{ (isLoading ? 'auth.register.submitting' : 'auth.register.submit') | translate }}</span>
+          @if (!isLoading) {
+            <i class="pi pi-arrow-right"></i>
+          }
+        </button>
+
+      </form>
+
+      <p class="form-footer">
+        {{ 'auth.register.hasAccount' | translate }}
+        <a routerLink="/auth/login">{{ 'auth.register.login' | translate }}</a>
+      </p>
+
+    </div>
+  </div>
+
 </div>

@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/lang-switcher.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, LangSwitcherComponent],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
 })
@@ -15,6 +18,7 @@ export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ts = inject(TranslationService);
 
   registerForm: FormGroup;
   isLoading = false;
@@ -46,7 +50,7 @@ export class RegisterComponent {
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          this.errorMessage = error.error?.message || 'Registration failed';
+          this.errorMessage = error.error?.message || this.ts.t('auth.register.error');
           this.isLoading = false;
         },
       });

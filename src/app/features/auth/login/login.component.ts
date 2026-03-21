@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { LangSwitcherComponent } from '../../../shared/components/lang-switcher/lang-switcher.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, LangSwitcherComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -15,6 +18,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ts = inject(TranslationService);
 
   loginForm: FormGroup;
   isLoading = false;
@@ -55,7 +59,7 @@ export class LoginComponent {
             } else if (error.message) {
               this.errorMessage = error.message;
             } else {
-              this.errorMessage = 'Login failed. Please check your credentials and try again.';
+              this.errorMessage = this.ts.t('auth.login.error');
             }
           },
         });

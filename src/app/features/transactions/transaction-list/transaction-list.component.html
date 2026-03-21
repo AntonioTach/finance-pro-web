@@ -3,9 +3,9 @@
 
 <div class="transaction-list-page">
   <div class="page-header">
-    <h1>Transactions</h1>
+    <h1>{{ 'transactions.title' | translate }}</h1>
     <p-button
-      label="Add Transaction"
+      [label]="'transactions.add' | translate"
       icon="pi pi-plus"
       (onClick)="openAddDialog()"
     />
@@ -18,10 +18,10 @@
   } @else if (transactions().length === 0) {
     <div class="empty-state">
       <i class="pi pi-wallet empty-icon"></i>
-      <h3>No transactions yet</h3>
-      <p>Start tracking your finances by adding your first transaction</p>
+      <h3>{{ 'transactions.noTransactions' | translate }}</h3>
+      <p>{{ 'transactions.startTracking' | translate }}</p>
       <p-button
-        label="Add Transaction"
+        [label]="'transactions.add' | translate"
         icon="pi pi-plus"
         (onClick)="openAddDialog()"
       />
@@ -33,17 +33,17 @@
       [rows]="10"
       [rowsPerPageOptions]="[10, 25, 50]"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} transactions"
+      [currentPageReportTemplate]="'transactions.showing' | translate"
       styleClass="p-datatable-striped"
     >
       <ng-template #header>
         <tr>
-          <th>Category</th>
-          <th>Description</th>
-          <th>Date</th>
-          <th>Type</th>
-          <th class="text-right">Amount</th>
-          <th class="text-center">Actions</th>
+          <th>{{ 'transactions.category' | translate }}</th>
+          <th>{{ 'transactions.description' | translate }}</th>
+          <th>{{ 'transactions.date' | translate }}</th>
+          <th>{{ 'transactions.type' | translate }}</th>
+          <th class="text-right">{{ 'transactions.amount' | translate }}</th>
+          <th class="text-center">{{ 'transactions.actions' | translate }}</th>
         </tr>
       </ng-template>
       <ng-template #body let-transaction>
@@ -65,7 +65,7 @@
           <td>{{ transaction.date | dateFormat }}</td>
           <td>
             <p-tag
-              [value]="transaction.type | titlecase"
+              [value]="'transactions.type.' + transaction.type | translate"
               [severity]="getTransactionSeverity(transaction.type)"
             />
           </td>
@@ -86,7 +86,7 @@
                 [text]="true"
                 severity="secondary"
                 (onClick)="openEditDialog(transaction)"
-                pTooltip="Edit"
+                [pTooltip]="'common.edit' | translate"
               />
               <p-button
                 icon="pi pi-trash"
@@ -94,7 +94,7 @@
                 [text]="true"
                 severity="danger"
                 (onClick)="confirmDelete(transaction)"
-                pTooltip="Delete"
+                [pTooltip]="'common.delete' | translate"
               />
             </div>
           </td>
@@ -103,7 +103,7 @@
       <ng-template #emptymessage>
         <tr>
           <td colspan="6" class="text-center">
-            No transactions found.
+            {{ 'transactions.noTransactions' | translate }}
           </td>
         </tr>
       </ng-template>

@@ -5,6 +5,7 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { TransactionService } from '../services/transaction.service';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
@@ -14,6 +15,8 @@ import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { Transaction } from '../../../core/models/transaction.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-transaction-list',
@@ -25,9 +28,11 @@ import { AuthService } from '../../../core/services/auth.service';
     ToastModule,
     ConfirmDialogModule,
     TagModule,
+    TooltipModule,
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
+    TranslatePipe,
   ],
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.scss'],
@@ -37,6 +42,7 @@ export class TransactionListComponent implements OnInit {
   private authService = inject(AuthService);
   private dialogService = inject(AppDialogService);
   private messageService = inject(MessageService);
+  private ts = inject(TranslationService);
 
   isLoading = signal(false);
   transactions = signal<Transaction[]>([]);
@@ -59,7 +65,7 @@ export class TransactionListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load transactions',
+          detail: this.ts.t('transactions.error.load'),
         });
       },
     });
@@ -67,7 +73,7 @@ export class TransactionListComponent implements OnInit {
 
   openAddDialog(): void {
     const ref = this.dialogService.open(TransactionFormComponent, {
-      header: 'New Transaction',
+      header: this.ts.t('transactions.dialogNew'),
       width: '500px',
     });
 
@@ -76,8 +82,7 @@ export class TransactionListComponent implements OnInit {
         this.loadTransactions();
         this.messageService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Transaction created successfully',
+          summary: this.ts.t('transactions.success.created'),
         });
       }
     });
@@ -85,7 +90,7 @@ export class TransactionListComponent implements OnInit {
 
   openEditDialog(transaction: Transaction): void {
     const ref = this.dialogService.open(TransactionFormComponent, {
-      header: 'Edit Transaction',
+      header: this.ts.t('transactions.dialogEdit'),
       width: '500px',
       data: { transaction },
     });
@@ -95,8 +100,7 @@ export class TransactionListComponent implements OnInit {
         this.loadTransactions();
         this.messageService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Transaction updated successfully',
+          summary: this.ts.t('transactions.success.updated'),
         });
       }
     });
@@ -105,10 +109,10 @@ export class TransactionListComponent implements OnInit {
   confirmDelete(transaction: Transaction): void {
     this.dialogService
       .confirm({
-        title: 'Delete Transaction',
-        message: `Are you sure you want to delete "${transaction.description}"? This action cannot be undone.`,
-        acceptLabel: 'Delete',
-        rejectLabel: 'Cancel',
+        title: this.ts.t('transactions.deleteTitle'),
+        message: this.ts.t('transactions.deleteMsg'),
+        acceptLabel: this.ts.t('transactions.deleteAccept'),
+        rejectLabel: this.ts.t('common.cancel'),
         severity: 'danger',
       })
       .subscribe((confirmed) => {
@@ -124,8 +128,7 @@ export class TransactionListComponent implements OnInit {
         this.loadTransactions();
         this.messageService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Transaction deleted successfully',
+          summary: this.ts.t('transactions.success.deleted'),
         });
       },
       error: (error) => {
@@ -133,13 +136,19 @@ export class TransactionListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to delete transaction',
+          detail: this.ts.t('transactions.error.delete'),
         });
       },
     });
   }
 
-  getTransactionSeverity(type: string): 'success' | 'danger' {
-    return type === 'income' ? 'success' : 'danger';
+  getTransactionSeverity(type: string): 'success' | 'danger' | 'info' | 'warn' {
+    switch (type) {
+      case 'income':       return 'success';
+      case 'expense':      return 'danger';
+      case 'card_purchase': return 'warn';
+      case 'card_payment':  return 'info';
+      default:             return 'danger';
+    }
   }
 }

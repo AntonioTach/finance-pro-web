@@ -1,11 +1,15 @@
-import { Component, inject, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, input, output, computed } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FinancialTipComponent } from '../financial-tip/financial-tip.component';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: string;
   route: string;
 }
@@ -13,13 +17,15 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipModule, TranslatePipe, FinancialTipComponent],
   template: `
     <aside class="sidebar" [class.collapsed]="isCollapsed()">
-      <!-- Logo Section -->
+      <!-- Logo -->
       <div class="sidebar-header">
-        <div class="logo">
-          <span class="logo-icon">💰</span>
+        <div class="logo" [class.logo-centered]="isCollapsed()">
+          <div class="logo-mark">
+            <i class="pi pi-chart-line"></i>
+          </div>
           @if (!isCollapsed()) {
             <span class="logo-text">FinancePro</span>
           }
@@ -28,33 +34,51 @@ interface NavItem {
 
       <!-- Navigation -->
       <nav class="sidebar-nav">
-        @for (item of navItems; track item.route) {
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="active"
-            class="nav-item"
-            [pTooltip]="isCollapsed() ? item.label : ''"
-            tooltipPosition="right"
-          >
-            <i class="nav-icon pi" [ngClass]="item.icon"></i>
-            @if (!isCollapsed()) {
-              <span class="nav-label">{{ item.label }}</span>
-            }
-          </a>
-        }
+        <div class="nav-section">
+          @for (item of navItems; track item.route) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              class="nav-item"
+              [pTooltip]="isCollapsed() ? (item.labelKey | translate) : ''"
+              tooltipPosition="right"
+            >
+              <span class="nav-icon-wrap">
+                <i class="pi" [ngClass]="item.icon"></i>
+              </span>
+              @if (!isCollapsed()) {
+                <span class="nav-label">{{ item.labelKey | translate }}</span>
+              }
+              @if (!isCollapsed()) {
+                <span class="nav-active-indicator"></span>
+              }
+            </a>
+          }
+        </div>
       </nav>
+
+      <!-- Financial Tip -->
+      @if (showTip()) {
+        <div class="sidebar-tip" [class.tip-collapsed]="isCollapsed()">
+          <div class="tip-divider"></div>
+          <app-financial-tip [isCollapsed]="isCollapsed()" />
+        </div>
+      }
 
       <!-- Footer -->
       <div class="sidebar-footer">
+        <div class="sidebar-divider"></div>
         <button
           class="nav-item logout-btn"
           (click)="handleLogout()"
-          [pTooltip]="isCollapsed() ? 'Cerrar sesión' : ''"
+          [pTooltip]="isCollapsed() ? ('nav.logout' | translate) : ''"
           tooltipPosition="right"
         >
-          <i class="nav-icon pi pi-sign-out"></i>
+          <span class="nav-icon-wrap logout-icon">
+            <i class="pi pi-sign-out"></i>
+          </span>
           @if (!isCollapsed()) {
-            <span class="nav-label">Cerrar sesión</span>
+            <span class="nav-label">{{ 'nav.logout' | translate }}</span>
           }
         </button>
       </div>
@@ -66,148 +90,279 @@ interface NavItem {
       left: 0;
       top: 0;
       bottom: 0;
-      width: 280px;
-      background: var(--surface-card);
-      border-right: 1px solid var(--surface-border);
+      width: 260px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      transition: width 0.3s ease;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: radial-gradient(ellipse at top left, rgba(99,102,241,0.08) 0%, transparent 70%);
+      pointer-events: none;
     }
 
     .sidebar.collapsed {
-      width: 80px;
+      width: 72px;
     }
 
+    /* Header */
     .sidebar-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid var(--surface-border);
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      padding: 0.25rem 0.25rem;
     }
 
-    .logo-icon {
-      font-size: 1.75rem;
+    .logo.logo-centered {
+      justify-content: center;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    .logo-mark i {
+      color: #fff;
+      font-size: 1rem;
     }
 
     .logo-text {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary-color), var(--primary-400));
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       white-space: nowrap;
     }
 
-    .sidebar.collapsed .logo {
-      justify-content: center;
-    }
-
+    /* Nav */
     .sidebar-nav {
       flex: 1;
-      padding: 1rem;
+      padding: 0.75rem 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 2px;
       overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 99px; }
+
+    .nav-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .nav-item {
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 0.875rem;
-      padding: 0.875rem 1rem;
-      color: var(--text-color-secondary);
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      color: var(--text-secondary);
       text-decoration: none;
-      border-radius: var(--border-radius);
-      transition: all 0.2s ease;
+      border-radius: 10px;
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
       border: none;
       background: transparent;
       width: 100%;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: inherit;
+      white-space: nowrap;
     }
 
     .nav-item:hover {
-      background: var(--surface-hover);
+      background: var(--bg-hover);
       color: var(--text-color);
     }
 
-    .nav-item.active {
-      background: var(--primary-color);
-      color: var(--primary-contrast-color, #fff);
+    .nav-item:hover .nav-icon-wrap {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary-light);
     }
 
-    .nav-item.active .nav-icon {
-      color: var(--primary-contrast-color, #fff);
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--primary-light);
+    }
+
+    .nav-item.active .nav-icon-wrap {
+      background: var(--gradient-primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .nav-item.active .nav-active-indicator {
+      opacity: 1;
+    }
+
+    .nav-icon-wrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 200ms ease;
+    }
+
+    .nav-icon-wrap i {
+      font-size: 1rem;
+    }
+
+    .logout-icon {
+      color: var(--danger-color);
+    }
+
+    .nav-label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.875rem;
+    }
+
+    .nav-active-indicator {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      opacity: 0;
+      margin-left: auto;
+      flex-shrink: 0;
+      transition: opacity 200ms ease;
     }
 
     .sidebar.collapsed .nav-item {
       justify-content: center;
-      padding: 0.875rem;
+      padding: 0.625rem;
     }
 
-    .nav-icon {
-      font-size: 1.25rem;
-      width: 1.5rem;
-      text-align: center;
+    .sidebar.collapsed .nav-item:hover .nav-label,
+    .sidebar.collapsed .nav-item .nav-label {
+      display: none;
+    }
+
+    /* Tip section — always visible, never scrolls with nav items */
+    .sidebar-tip {
+      padding: 0 0.75rem 0.625rem;
+      flex-shrink: 0;   /* never compressed regardless of nav item count */
+    }
+
+    .sidebar-tip.tip-collapsed {
+      padding: 0 0.75rem 0.625rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       flex-shrink: 0;
     }
 
-    .nav-label {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .tip-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin-bottom: 0.75rem;
     }
 
+    /* Footer */
     .sidebar-footer {
-      padding: 1rem;
-      border-top: 1px solid var(--surface-border);
+      padding: 0.75rem;
+      flex-shrink: 0;
     }
 
-    .logout-btn {
-      color: var(--red-500);
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin-bottom: 0.75rem;
     }
 
     .logout-btn:hover {
-      background: var(--red-50);
-      color: var(--red-600);
+      background: rgba(244, 63, 94, 0.1) !important;
+      color: var(--danger-color) !important;
+    }
+
+    .logout-btn:hover .logout-icon {
+      background: rgba(244, 63, 94, 0.15);
     }
 
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
+        box-shadow: none;
       }
 
       .sidebar:not(.collapsed) {
         transform: translateX(0);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
       }
     }
   `],
 })
 export class SidebarComponent {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   isCollapsed = input<boolean>(false);
   toggleCollapse = output<void>();
 
+  private currentUrl = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => (e as NavigationEnd).urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  showTip = computed(() => {
+    const url = this.currentUrl() ?? '';
+    return !url.startsWith('/profile') && !url.startsWith('/settings');
+  });
+
   navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'pi-home', route: '/dashboard' },
-    { label: 'Transacciones', icon: 'pi-money-bill', route: '/transactions' },
-    { label: 'Tarjetas', icon: 'pi-credit-card', route: '/cards' },
-    { label: 'Cash Flow', icon: 'pi-dollar', route: '/cash-flow' },
-    { label: 'Calendario', icon: 'pi-calendar-plus', route: '/calendar' },
-    { label: 'Suscripciones', icon: 'pi-sync', route: '/subscriptions' },
-    { label: 'Categorías', icon: 'pi-tags', route: '/categories' },
-    { label: 'Presupuestos', icon: 'pi-wallet', route: '/budgets' },
-    { label: 'Reportes', icon: 'pi-chart-bar', route: '/reports' },
-    { label: 'Perfil', icon: 'pi-user', route: '/profile' },
+    { labelKey: 'nav.dashboard',    icon: 'pi-home',          route: '/dashboard' },
+    { labelKey: 'nav.transactions', icon: 'pi-money-bill',    route: '/transactions' },
+    { labelKey: 'nav.cards',        icon: 'pi-credit-card',   route: '/cards' },
+    { labelKey: 'nav.cashFlow',     icon: 'pi-dollar',        route: '/cash-flow' },
+    { labelKey: 'nav.calendar',     icon: 'pi-calendar-plus', route: '/calendar' },
+    { labelKey: 'nav.subscriptions',icon: 'pi-sync',          route: '/subscriptions' },
+    { labelKey: 'nav.categories',   icon: 'pi-tags',          route: '/categories' },
+    { labelKey: 'nav.budgets',      icon: 'pi-wallet',        route: '/budgets' },
+    { labelKey: 'nav.reports',      icon: 'pi-chart-bar',     route: '/reports' },
+    { labelKey: 'nav.profile',      icon: 'pi-user',          route: '/profile' },
+    { labelKey: 'nav.settings',     icon: 'pi-palette',       route: '/settings' },
   ];
 
   handleLogout(): void {

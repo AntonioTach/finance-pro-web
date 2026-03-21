@@ -22,6 +22,8 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 import { CurrencyFormatPipe } from '../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { Transaction, TransactionType } from '../../core/models/transaction.model';
 import { Card, CardType } from '../../core/models/card.model';
 import { Subscription } from '../../core/models/subscription.model';
@@ -71,6 +73,7 @@ interface UpcomingPayment {
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
+    TranslatePipe,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
@@ -83,6 +86,7 @@ export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private dialogService = inject(AppDialogService);
   private messageService = inject(MessageService);
+  private ts = inject(TranslationService);
 
   isLoading = signal(true);
   summary = signal<DashboardSummary | null>(null);
@@ -309,7 +313,7 @@ export class DashboardComponent implements OnInit {
       labels: dataPoints.map((p) => p.label),
       datasets: [
         {
-          label: 'Income',
+          label: this.ts.t('dashboard.income'),
           data: dataPoints.map((p) => Number(p.income || 0)),
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -319,7 +323,7 @@ export class DashboardComponent implements OnInit {
           pointHoverRadius: 6,
         },
         {
-          label: 'Expenses',
+          label: this.ts.t('dashboard.expenses'),
           data: dataPoints.map((p) => Number(p.expenses || 0)),
           borderColor: '#ef4444',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -359,7 +363,7 @@ export class DashboardComponent implements OnInit {
 
   openAddTransaction(): void {
     const ref = this.dialogService.open(TransactionFormComponent, {
-      header: 'New Transaction',
+      header: this.ts.t('transactions.dialogNew'),
       width: '500px',
     });
 
@@ -384,9 +388,9 @@ export class DashboardComponent implements OnInit {
 
   getGreeting(): string {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return this.ts.t('dashboard.greeting.morning');
+    if (hour < 18) return this.ts.t('dashboard.greeting.afternoon');
+    return this.ts.t('dashboard.greeting.evening');
   }
 
   formatCurrency(value: number | undefined | null): string {
