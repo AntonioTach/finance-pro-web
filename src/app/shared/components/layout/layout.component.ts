@@ -14,17 +14,32 @@ import { AuthService } from '../../../core/services/auth.service';
         [isCollapsed]="isSidebarCollapsed()"
         (toggleCollapse)="toggleSidebar()"
       />
+
+      <!-- Mobile overlay -->
+      @if (!isSidebarCollapsed()) {
+        <div class="mobile-overlay" (click)="toggleSidebar()"></div>
+      }
+
       <main class="main-content">
         <header class="top-header">
-          <button class="menu-toggle" (click)="toggleSidebar()">
-            <i class="pi" [class.pi-bars]="isSidebarCollapsed()" [class.pi-times]="!isSidebarCollapsed()"></i>
+          <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="pi pi-bars"></i>
           </button>
+
           <div class="header-right">
-            <span class="user-greeting">
-              Hola, {{ currentUser()?.name }}
-            </span>
+            <div class="header-sep"></div>
+            <div class="user-chip">
+              <div class="user-avatar">
+                {{ getInitials() }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ currentUser()?.name }}</span>
+                <span class="user-role">Personal</span>
+              </div>
+            </div>
           </div>
         </header>
+
         <div class="page-content">
           <router-outlet></router-outlet>
         </div>
@@ -35,78 +50,149 @@ import { AuthService } from '../../../core/services/auth.service';
     .layout {
       display: flex;
       min-height: 100vh;
-      background: var(--surface-ground);
+      background: var(--bg-color);
     }
 
     .main-content {
       flex: 1;
       display: flex;
       flex-direction: column;
-      margin-left: 280px;
-      transition: margin-left 0.3s ease;
+      margin-left: 260px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 0;
     }
 
     .layout.sidebar-collapsed .main-content {
-      margin-left: 80px;
+      margin-left: 72px;
     }
 
+    /* Header */
     .top-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 1.5rem;
-      background: var(--surface-card);
-      border-bottom: 1px solid var(--surface-border);
+      padding: 0 1.5rem;
+      height: 60px;
+      background: rgba(8, 12, 20, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       position: sticky;
       top: 0;
       z-index: 100;
+      flex-shrink: 0;
     }
 
     .menu-toggle {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: var(--border-radius);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       cursor: pointer;
-      color: var(--text-color);
-      transition: background 0.2s;
+      color: var(--text-secondary);
+      transition: all 200ms ease;
+      font-family: inherit;
     }
 
     .menu-toggle:hover {
-      background: var(--surface-hover);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--border-color);
+      color: var(--text-color);
     }
 
-    .menu-toggle i {
-      font-size: 1.25rem;
-    }
+    .menu-toggle i { font-size: 1rem; }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
-    .user-greeting {
-      font-weight: 500;
-      color: var(--text-color-secondary);
+    .header-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--border-color);
     }
 
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.375rem 0.75rem 0.375rem 0.375rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .user-chip:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: 0.05em;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .user-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-color);
+      line-height: 1;
+    }
+
+    .user-role {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    /* Page content */
     .page-content {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Mobile overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 999;
     }
 
     @media (max-width: 768px) {
       .main-content {
-        margin-left: 0;
+        margin-left: 0 !important;
       }
 
-      .layout.sidebar-collapsed .main-content {
-        margin-left: 0;
+      .mobile-overlay {
+        display: block;
       }
     }
   `],
@@ -119,5 +205,10 @@ export class LayoutComponent {
 
   toggleSidebar(): void {
     this.isSidebarCollapsed.update((v) => !v);
+  }
+
+  getInitials(): string {
+    const name = this.currentUser()?.name ?? '';
+    return name.split(' ').slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('');
   }
 }

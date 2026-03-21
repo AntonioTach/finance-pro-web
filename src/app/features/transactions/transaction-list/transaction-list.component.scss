@@ -1,87 +1,107 @@
+// ============================================================
+// Transactions — Modern Dark
+// ============================================================
+
 .transaction-list-page {
-  padding: 1.5rem;
+  padding: 1.75rem;
+
+  @media (max-width: 768px) { padding: 1rem; }
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-}
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 
-.page-header h1 {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
+  h1 {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-color);
+    letter-spacing: -0.03em;
+  }
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
-  padding: 3rem;
+  padding: 4rem;
 }
 
+// ── Empty state ───────────────────────────────────────────────
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: var(--surface-card);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .empty-icon {
-  font-size: 4rem;
-  color: var(--text-color-secondary);
-  margin-bottom: 1rem;
+  font-size: 3.5rem;
+  color: var(--text-muted);
+  opacity: 0.3;
+  margin-bottom: 0.5rem;
 }
 
 .empty-state h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-secondary);
 }
 
 .empty-state p {
-  margin: 0 0 1.5rem 0;
-  color: var(--text-color-secondary);
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  max-width: 320px;
 }
 
+// ── Table cells ───────────────────────────────────────────────
 .category-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .category-icon {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
+  line-height: 1;
 }
 
 .description-cell {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .description {
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-color);
 }
 
 .notes {
-  color: var(--text-color-secondary);
-  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
 }
 
 .amount {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
 }
 
-.amount.income {
-  color: var(--green-500);
-}
-
-.amount.expense {
-  color: var(--red-500);
-}
+.amount.income { color: var(--success-color); }
+.amount.expense { color: var(--danger-color); }
 
 .action-buttons {
   display: flex;
@@ -89,16 +109,16 @@
   justify-content: center;
 }
 
-.text-right {
-  text-align: right;
-}
+.text-right  { text-align: right; }
+.text-center { text-align: center; }
 
-.text-center {
-  text-align: center;
-}
-
+// ── PrimeNG table overrides ───────────────────────────────────
 :host ::ng-deep {
   .p-datatable {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+
     .p-datatable-header {
       background: transparent;
       border: none;
@@ -106,8 +126,63 @@
     }
 
     .p-datatable-thead > tr > th {
-      background: var(--surface-ground);
-      font-weight: 600;
+      background: var(--bg-secondary) !important;
+      color: var(--text-muted) !important;
+      font-size: 0.7rem !important;
+      font-weight: 700 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-color: var(--border-color) !important;
+      padding: 0.875rem 1rem !important;
+    }
+
+    .p-datatable-tbody > tr {
+      background: var(--bg-elevated) !important;
+      color: var(--text-color) !important;
+      border-color: rgba(255,255,255,0.04) !important;
+
+      td {
+        border-color: rgba(255,255,255,0.04) !important;
+        padding: 1rem !important;
+      }
+
+      &:hover {
+        background: var(--bg-hover) !important;
+      }
+    }
+
+    .p-datatable-tbody > tr:nth-child(even) {
+      background: rgba(255,255,255,0.015) !important;
+    }
+  }
+
+  // Paginator
+  .p-paginator {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.85rem !important;
+    color: var(--text-secondary) !important;
+
+    .p-paginator-current {
+      color: var(--text-muted) !important;
+      font-size: 0.8rem !important;
+    }
+
+    .p-paginator-element {
+      color: var(--text-secondary) !important;
+      border-radius: 8px !important;
+      min-width: 32px !important;
+      height: 32px !important;
+
+      &:hover {
+        background: var(--bg-hover) !important;
+      }
+
+      &.p-highlight {
+        background: var(--primary-subtle) !important;
+        color: var(--primary-light) !important;
+      }
     }
   }
 }

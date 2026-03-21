@@ -1,0 +1,135 @@
+<p-toast />
+
+<div class="settings-page">
+
+  <header class="settings-header">
+    <div class="header-icon">
+      <i class="pi pi-palette"></i>
+    </div>
+    <div>
+      <h1>Configuración</h1>
+      <p>Personaliza la apariencia de FinancePro</p>
+    </div>
+  </header>
+
+  <!-- Theme selector section -->
+  <section class="settings-section">
+    <div class="section-header">
+      <div class="section-title">
+        <i class="pi pi-palette"></i>
+        <h2>Tema de la interfaz</h2>
+      </div>
+      <span class="section-badge">{{ themes.length }} temas disponibles</span>
+    </div>
+    <p class="section-description">
+      Elige el tema visual que mejor se adapte a tu estilo. El cambio se aplica de forma instantánea y se guarda automáticamente.
+    </p>
+
+    <div class="themes-grid">
+      @for (theme of themes; track theme.id) {
+        <button
+          class="theme-card"
+          [class.active]="isActive(theme.id)"
+          (click)="selectTheme(theme.id)"
+          [attr.aria-pressed]="isActive(theme.id)"
+          [attr.aria-label]="'Aplicar tema ' + theme.name"
+        >
+          <!-- Preview -->
+          <div class="theme-preview" [style.background]="theme.preview.bg">
+            <!-- Mini sidebar -->
+            <div class="preview-sidebar" [style.background]="darken(theme.preview.bg)">
+              <div class="preview-logo-dot" [style.background]="theme.preview.accent"></div>
+              <div class="preview-nav-item preview-nav-active" [style.background]="theme.preview.accent + '22'">
+                <div class="preview-nav-dot" [style.background]="theme.preview.accent"></div>
+              </div>
+              @for (i of [1,2,3]; track i) {
+                <div class="preview-nav-item">
+                  <div class="preview-nav-dot preview-nav-dot-muted"></div>
+                </div>
+              }
+            </div>
+
+            <!-- Mini content -->
+            <div class="preview-content">
+              <!-- Top bar -->
+              <div class="preview-topbar" [style.border-color]="theme.preview.accent + '20'">
+                <div class="preview-topbar-dot" [style.background]="theme.preview.accent + '60'"></div>
+              </div>
+
+              <!-- Cards row -->
+              <div class="preview-cards">
+                @for (color of [theme.preview.accent + '25', theme.preview.accent + '15', theme.preview.accent + '10']; track color) {
+                  <div class="preview-card" [style.background]="theme.preview.card" [style.border-color]="theme.preview.accent + '15'">
+                    <div class="preview-card-dot" [style.background]="color"></div>
+                    <div class="preview-card-line" [style.background]="theme.preview.text + '20'"></div>
+                    <div class="preview-card-line preview-card-line-sm" [style.background]="theme.preview.text + '10'"></div>
+                  </div>
+                }
+              </div>
+
+              <!-- Chart bar -->
+              <div class="preview-chart" [style.background]="theme.preview.card" [style.border-color]="theme.preview.accent + '15'">
+                <div class="preview-bars">
+                  @for (h of ['60%','80%','45%','90%','70%','55%','85%']; track h) {
+                    <div class="preview-bar" [style.height]="h" [style.background]="theme.preview.accent + '70'"></div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="theme-info">
+            <div class="theme-meta">
+              <span class="theme-name">{{ theme.name }}</span>
+              @if (isActive(theme.id)) {
+                <span class="theme-active-badge">
+                  <i class="pi pi-check"></i> Activo
+                </span>
+              }
+            </div>
+            <p class="theme-description">{{ theme.description }}</p>
+
+            <!-- Color dots -->
+            <div class="theme-colors">
+              <div class="color-dot" [style.background]="theme.preview.bg" title="Fondo"></div>
+              <div class="color-dot" [style.background]="theme.preview.card" title="Tarjeta"></div>
+              <div class="color-dot" [style.background]="theme.preview.accent" title="Acento"></div>
+              <div class="color-dot" [style.background]="theme.preview.text" title="Texto"></div>
+            </div>
+          </div>
+
+          <!-- Active border glow -->
+          @if (isActive(theme.id)) {
+            <div class="active-glow" [style.background]="theme.preview.accent"></div>
+          }
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- About section -->
+  <section class="settings-section">
+    <div class="section-header">
+      <div class="section-title">
+        <i class="pi pi-info-circle"></i>
+        <h2>Acerca de FinancePro</h2>
+      </div>
+    </div>
+    <div class="about-card">
+      <div class="about-logo">
+        <i class="pi pi-chart-line"></i>
+      </div>
+      <div class="about-info">
+        <h3>FinancePro</h3>
+        <p>Plataforma de gestión de finanzas personales</p>
+        <div class="about-tags">
+          <span class="about-tag">v1.0.0</span>
+          <span class="about-tag">Angular 20</span>
+          <span class="about-tag">NestJS</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

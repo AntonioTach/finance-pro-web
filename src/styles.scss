@@ -2,47 +2,362 @@
 @use './assets/styles/reset';
 @use './assets/styles/mixins' as *;
 
-* {
+// ============================================================
+// Global Base
+// ============================================================
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-color);
   color: var(--text-color);
+  overflow-x: hidden;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+// ── Selection ─────────────────────────────────────────────────
+::selection {
+  background: var(--primary-subtle);
+  color: var(--text-color);
 }
 
-// PrimeNG Dialog Customization
+// ── Scrollbar ─────────────────────────────────────────────────
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+// ── PrimeNG: Override surface variables (dark mode) ───────────
+.dark-mode {
+  --surface-ground:           var(--bg-color);
+  --surface-card:             var(--bg-elevated);
+  --surface-section:          var(--bg-elevated);
+  --surface-header:           var(--bg-secondary);
+  --surface-overlay:          rgba(8, 12, 20, 0.95);
+  --surface-border:           var(--border-color);
+  --surface-hover:            var(--bg-hover);
+  --text-color:               var(--text-color);
+  --text-color-secondary:     var(--text-secondary);
+  --primary-color:            var(--primary-color);
+  --primary-contrast-color:   #ffffff;
+  --primary-400:              var(--primary-light);
+  --border-radius:            var(--border-radius);
+  --red-500:                  var(--danger-color);
+  --red-50:                   var(--danger-bg);
+  --red-600:                  #e11d48;
+  --green-500:                var(--success-color);
+  --card-shadow:              var(--shadow-md);
+}
+
+// ── PrimeNG: Toast ────────────────────────────────────────────
+.p-toast {
+  .p-toast-message {
+    border-radius: var(--border-radius) !important;
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-lg) !important;
+
+    .p-toast-message-icon,
+    .p-toast-summary,
+    .p-toast-detail { color: var(--text-color) !important; }
+
+    &.p-toast-message-success {
+      border-left: 4px solid var(--success-color) !important;
+      .p-toast-message-icon { color: var(--success-color) !important; }
+    }
+
+    &.p-toast-message-error {
+      border-left: 4px solid var(--danger-color) !important;
+      .p-toast-message-icon { color: var(--danger-color) !important; }
+    }
+
+    &.p-toast-message-warn {
+      border-left: 4px solid var(--warning-color) !important;
+      .p-toast-message-icon { color: var(--warning-color) !important; }
+    }
+
+    &.p-toast-message-info {
+      border-left: 4px solid var(--info-color) !important;
+      .p-toast-message-icon { color: var(--info-color) !important; }
+    }
+  }
+}
+
+// ── PrimeNG: Dialog ───────────────────────────────────────────
 .p-dialog {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-xl) !important;
+  box-shadow: var(--shadow-xl) !important;
+  overflow: hidden;
+
   .p-dialog-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--surface-border);
+    background: var(--bg-elevated) !important;
+    padding: 1.5rem !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+
+    .p-dialog-title { font-weight: var(--font-weight-bold) !important; }
+    .p-dialog-header-icon { color: var(--text-secondary) !important; }
+    .p-dialog-header-icon:hover { background: var(--bg-hover) !important; }
   }
 
   .p-dialog-content {
-    padding: 1.5rem;
+    background: var(--bg-elevated) !important;
+    padding: 1.5rem !important;
+    color: var(--text-color) !important;
   }
 
   .p-dialog-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--surface-border);
+    background: var(--bg-elevated) !important;
+    padding: 1rem 1.5rem !important;
+    border-top: 1px solid var(--border-color) !important;
   }
 }
 
-// App Dialog Custom Class
-.app-dialog {
-  .p-dialog-content {
-    padding: 1.25rem;
+// ── PrimeNG: DataTable ────────────────────────────────────────
+.p-datatable {
+  .p-datatable-thead > tr > th {
+    background: var(--bg-secondary) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    font-size: var(--font-size-xs) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.875rem 1rem !important;
+  }
+
+  .p-datatable-tbody > tr {
+    background: var(--bg-elevated) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+    transition: background var(--transition-fast) !important;
+
+    td {
+      border-color: var(--border-color) !important;
+      padding: 1rem !important;
+    }
+
+    &:hover { background: var(--bg-hover) !important; }
+  }
+
+  .p-datatable-tbody > tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02) !important;
+  }
+
+  .p-paginator {
+    background: var(--bg-elevated) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-secondary) !important;
+
+    .p-paginator-element { color: var(--text-secondary) !important; }
+    .p-paginator-element:hover { background: var(--bg-hover) !important; }
+    .p-highlight { background: var(--primary-subtle) !important; color: var(--primary-light) !important; }
   }
 }
 
+// ── PrimeNG: Button ───────────────────────────────────────────
+.p-button {
+  border-radius: var(--border-radius) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  font-family: var(--font-family) !important;
+  letter-spacing: 0.01em !important;
+  transition: all var(--transition-base) !important;
+
+  &.p-button-primary,
+  &:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) {
+    background: var(--gradient-primary) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px var(--primary-glow) !important;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 20px var(--primary-glow) !important;
+    }
+  }
+
+  &.p-button-text, &.p-button-outlined {
+    background: transparent !important;
+  }
+
+  &.p-button-rounded { border-radius: var(--border-radius-full) !important; }
+}
+
+// ── PrimeNG: InputText / Input ────────────────────────────────
+.p-inputtext,
+.p-dropdown,
+.p-calendar .p-inputtext,
+.p-multiselect {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-color) !important;
+  font-family: var(--font-family) !important;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base) !important;
+
+  &:focus,
+  &.p-focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--primary-subtle) !important;
+    outline: none !important;
+  }
+
+  &::placeholder { color: var(--text-muted) !important; }
+}
+
+// ── PrimeNG: Dropdown / Select ────────────────────────────────
+.p-dropdown-panel,
+.p-multiselect-panel {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-lg) !important;
+
+  .p-dropdown-item,
+  .p-multiselect-item {
+    color: var(--text-color) !important;
+    &:hover { background: var(--bg-hover) !important; }
+    &.p-highlight { background: var(--primary-subtle) !important; color: var(--primary-light) !important; }
+  }
+}
+
+// ── PrimeNG: Tag ──────────────────────────────────────────────
+.p-tag {
+  border-radius: var(--border-radius-full) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  padding: 0.25rem 0.625rem !important;
+
+  &.p-tag-success { background: var(--success-bg) !important; color: var(--success-color) !important; }
+  &.p-tag-danger  { background: var(--danger-bg)  !important; color: var(--danger-color)  !important; }
+  &.p-tag-warning { background: var(--warning-bg) !important; color: var(--warning-color) !important; }
+  &.p-tag-info    { background: var(--info-bg)    !important; color: var(--info-color)    !important; }
+}
+
+// ── PrimeNG: ConfirmDialog ────────────────────────────────────
+.p-confirmdialog {
+  border-radius: var(--border-radius-xl) !important;
+
+  .p-confirmdialog-icon { color: var(--warning-color) !important; }
+}
+
+// ── PrimeNG: Tooltip ─────────────────────────────────────────
+.p-tooltip .p-tooltip-text {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+  border-radius: var(--border-radius-sm) !important;
+  font-size: var(--font-size-xs) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+// ── PrimeNG: Calendar ─────────────────────────────────────────
+.p-datepicker {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  color: var(--text-color) !important;
+
+  .p-datepicker-header {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+  }
+
+  td > span {
+    color: var(--text-color) !important;
+    &:hover { background: var(--bg-hover) !important; }
+    &.p-highlight { background: var(--primary-subtle) !important; color: var(--primary-light) !important; }
+    &.p-disabled { opacity: 0.3 !important; }
+  }
+}
+
+// ── PrimeNG: Progress Bar ────────────────────────────────────
+.p-progressbar {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-radius: var(--border-radius-full) !important;
+  height: 6px !important;
+  overflow: hidden;
+
+  .p-progressbar-value {
+    background: var(--gradient-primary) !important;
+    border-radius: var(--border-radius-full) !important;
+  }
+}
+
+// ── App common page layout ────────────────────────────────────
+.page-container {
+  padding: var(--spacing-lg);
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.page-header {
+  @include page-header;
+}
+
+.section-card {
+  @include section-card;
+}
+
+// ── Empty / loading states ────────────────────────────────────
+.empty-state,
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  color: var(--text-muted);
+  text-align: center;
+  gap: var(--spacing-sm);
+
+  i {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+    opacity: 0.4;
+  }
+
+  h3 { color: var(--text-secondary); margin: 0; }
+  p  { color: var(--text-muted); margin: 0; font-size: var(--font-size-sm); }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+// ── Utility ───────────────────────────────────────────────────
+.text-success { color: var(--success-color) !important; }
+.text-danger  { color: var(--danger-color)  !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-muted   { color: var(--text-muted)    !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+
+.badge-success { @include badge(var(--success-color), var(--success-bg)); }
+.badge-danger  { @include badge(var(--danger-color),  var(--danger-bg));  }
+.badge-warning { @include badge(var(--warning-color), var(--warning-bg)); }
+.badge-info    { @include badge(var(--info-color),    var(--info-bg));    }
