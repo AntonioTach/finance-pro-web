@@ -3,9 +3,10 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: string;
   route: string;
 }
@@ -13,7 +14,7 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipModule, TranslatePipe],
   template: `
     <aside class="sidebar" [class.collapsed]="isCollapsed()">
       <!-- Logo -->
@@ -36,14 +37,14 @@ interface NavItem {
               [routerLink]="item.route"
               routerLinkActive="active"
               class="nav-item"
-              [pTooltip]="isCollapsed() ? item.label : ''"
+              [pTooltip]="isCollapsed() ? (item.labelKey | translate) : ''"
               tooltipPosition="right"
             >
               <span class="nav-icon-wrap">
                 <i class="pi" [ngClass]="item.icon"></i>
               </span>
               @if (!isCollapsed()) {
-                <span class="nav-label">{{ item.label }}</span>
+                <span class="nav-label">{{ item.labelKey | translate }}</span>
               }
               @if (!isCollapsed()) {
                 <span class="nav-active-indicator"></span>
@@ -59,14 +60,14 @@ interface NavItem {
         <button
           class="nav-item logout-btn"
           (click)="handleLogout()"
-          [pTooltip]="isCollapsed() ? 'Cerrar sesión' : ''"
+          [pTooltip]="isCollapsed() ? ('nav.logout' | translate) : ''"
           tooltipPosition="right"
         >
           <span class="nav-icon-wrap logout-icon">
             <i class="pi pi-sign-out"></i>
           </span>
           @if (!isCollapsed()) {
-            <span class="nav-label">Cerrar sesión</span>
+            <span class="nav-label">{{ 'nav.logout' | translate }}</span>
           }
         </button>
       </div>
@@ -306,17 +307,17 @@ export class SidebarComponent {
   toggleCollapse = output<void>();
 
   navItems: NavItem[] = [
-    { label: 'Dashboard',      icon: 'pi-home',          route: '/dashboard' },
-    { label: 'Transacciones',  icon: 'pi-money-bill',    route: '/transactions' },
-    { label: 'Tarjetas',       icon: 'pi-credit-card',   route: '/cards' },
-    { label: 'Cash Flow',      icon: 'pi-dollar',        route: '/cash-flow' },
-    { label: 'Calendario',     icon: 'pi-calendar-plus', route: '/calendar' },
-    { label: 'Suscripciones',  icon: 'pi-sync',          route: '/subscriptions' },
-    { label: 'Categorías',     icon: 'pi-tags',          route: '/categories' },
-    { label: 'Presupuestos',   icon: 'pi-wallet',        route: '/budgets' },
-    { label: 'Reportes',       icon: 'pi-chart-bar',     route: '/reports' },
-    { label: 'Perfil',         icon: 'pi-user',          route: '/profile' },
-    { label: 'Configuración',  icon: 'pi-palette',       route: '/settings' },
+    { labelKey: 'nav.dashboard',    icon: 'pi-home',          route: '/dashboard' },
+    { labelKey: 'nav.transactions', icon: 'pi-money-bill',    route: '/transactions' },
+    { labelKey: 'nav.cards',        icon: 'pi-credit-card',   route: '/cards' },
+    { labelKey: 'nav.cashFlow',     icon: 'pi-dollar',        route: '/cash-flow' },
+    { labelKey: 'nav.calendar',     icon: 'pi-calendar-plus', route: '/calendar' },
+    { labelKey: 'nav.subscriptions',icon: 'pi-sync',          route: '/subscriptions' },
+    { labelKey: 'nav.categories',   icon: 'pi-tags',          route: '/categories' },
+    { labelKey: 'nav.budgets',      icon: 'pi-wallet',        route: '/budgets' },
+    { labelKey: 'nav.reports',      icon: 'pi-chart-bar',     route: '/reports' },
+    { labelKey: 'nav.profile',      icon: 'pi-user',          route: '/profile' },
+    { labelKey: 'nav.settings',     icon: 'pi-palette',       route: '/settings' },
   ];
 
   handleLogout(): void {

@@ -5,21 +5,22 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { Budget } from '../../../core/models/budget.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-budget-list',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent, CurrencyFormatPipe],
+  imports: [CommonModule, LoadingSpinnerComponent, CurrencyFormatPipe, TranslatePipe],
   template: `
     <div class="budget-page">
       <header class="budget-header">
         <div class="header-left">
-          <h1>Presupuestos</h1>
-          <p>Controla y planifica tus gastos por categoría</p>
+          <h1>{{ 'budgets.title' | translate }}</h1>
+          <p>{{ 'budgets.subtitle' | translate }}</p>
         </div>
         <span class="wip-badge">
           <span class="wip-dot"></span>
-          En desarrollo
+          {{ 'budgets.wip.badge' | translate }}
         </span>
       </header>
 
@@ -60,36 +61,32 @@ import { AuthService } from '../../../core/services/auth.service';
           </div>
 
           <div class="wip-text">
-            <h2>Sección en construcción</h2>
-            <p>
-              Estamos trabajando en el módulo de presupuestos.<br>
-              Pronto podrás crear, gestionar y hacer seguimiento<br>
-              de tus metas de gasto por categoría.
-            </p>
+            <h2>{{ 'budgets.wip.title' | translate }}</h2>
+            <p>{{ 'budgets.wip.desc' | translate }}</p>
           </div>
 
           <div class="wip-features">
             <div class="wip-feature">
               <i class="pi pi-check-circle"></i>
-              <span>Presupuestos por categoría</span>
+              <span>{{ 'budgets.wip.f1' | translate }}</span>
             </div>
             <div class="wip-feature">
               <i class="pi pi-check-circle"></i>
-              <span>Alertas al superar el límite</span>
+              <span>{{ 'budgets.wip.f2' | translate }}</span>
             </div>
             <div class="wip-feature">
               <i class="pi pi-check-circle"></i>
-              <span>Progreso visual en tiempo real</span>
+              <span>{{ 'budgets.wip.f3' | translate }}</span>
             </div>
             <div class="wip-feature">
               <i class="pi pi-check-circle"></i>
-              <span>Resumen mensual / anual</span>
+              <span>{{ 'budgets.wip.f4' | translate }}</span>
             </div>
           </div>
 
           <div class="wip-progress">
             <div class="progress-label">
-              <span>Progreso del desarrollo</span>
+              <span>{{ 'budgets.wip.progress' | translate }}</span>
               <span class="progress-pct">65%</span>
             </div>
             <div class="progress-track">

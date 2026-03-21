@@ -11,26 +11,26 @@
       </div>
 
       <div class="brand-headline">
-        <h2>Empieza hoy,<br><span class="headline-accent">gratis</span></h2>
-        <p>Crea tu cuenta y toma el control absoluto de tus finanzas personales en minutos.</p>
+        <h2>{{ 'auth.brand.register.tagline' | translate }}<br><span class="headline-accent">{{ 'auth.brand.register.taglineAccent' | translate }}</span></h2>
+        <p>{{ 'auth.brand.register.description' | translate }}</p>
       </div>
 
       <ul class="brand-features">
         <li>
           <span class="feature-icon"><i class="pi pi-shield"></i></span>
-          <span>100% seguro y privado</span>
+          <span>{{ 'auth.brand.register.f1' | translate }}</span>
         </li>
         <li>
           <span class="feature-icon"><i class="pi pi-bolt"></i></span>
-          <span>Configuración en 2 minutos</span>
+          <span>{{ 'auth.brand.register.f2' | translate }}</span>
         </li>
         <li>
           <span class="feature-icon"><i class="pi pi-chart-bar"></i></span>
-          <span>Reportes desde el primer día</span>
+          <span>{{ 'auth.brand.register.f3' | translate }}</span>
         </li>
         <li>
           <span class="feature-icon"><i class="pi pi-tags"></i></span>
-          <span>Categorías predefinidas incluidas</span>
+          <span>{{ 'auth.brand.register.f4' | translate }}</span>
         </li>
       </ul>
     </div>
@@ -45,93 +45,104 @@
   <div class="form-panel">
     <div class="form-container">
 
+      <div class="form-top-bar">
+        <app-lang-switcher [compact]="true" />
+      </div>
+
       <div class="form-header">
         <div class="form-logo-mobile">
           <div class="brand-logo-mark small"><i class="pi pi-chart-line"></i></div>
           <span>FinancePro</span>
         </div>
-        <h1>Crear cuenta</h1>
-        <p>Rellena tus datos para comenzar</p>
+        <h1>{{ 'auth.register.title' | translate }}</h1>
+        <p>{{ 'auth.register.subtitle' | translate }}</p>
       </div>
 
       <form [formGroup]="registerForm" (ngSubmit)="handleSubmit()" novalidate>
 
         <div class="field">
-          <label for="name">Nombre completo</label>
+          <label for="name">{{ 'auth.register.name' | translate }}</label>
           <div class="input-wrapper" [class.has-error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
             <span class="input-prefix"><i class="pi pi-user"></i></span>
             <input
               id="name"
               type="text"
               formControlName="name"
-              placeholder="Tu nombre"
+              [placeholder]="'auth.register.namePlaceholder' | translate"
               autocomplete="name"
             />
           </div>
-          <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="field-error">
-            <i class="pi pi-exclamation-circle"></i> El nombre es requerido
-          </div>
+          @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+            <div class="field-error">
+              <i class="pi pi-exclamation-circle"></i> {{ 'auth.register.nameError' | translate }}
+            </div>
+          }
         </div>
 
         <div class="field">
-          <label for="email">Correo electrónico</label>
+          <label for="email">{{ 'auth.register.email' | translate }}</label>
           <div class="input-wrapper" [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
             <span class="input-prefix"><i class="pi pi-envelope"></i></span>
             <input
               id="email"
               type="email"
               formControlName="email"
-              placeholder="tu@correo.com"
+              [placeholder]="'auth.login.emailPlaceholder' | translate"
               autocomplete="email"
             />
           </div>
-          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="field-error">
-            <i class="pi pi-exclamation-circle"></i> Correo electrónico válido requerido
-          </div>
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <div class="field-error">
+              <i class="pi pi-exclamation-circle"></i> {{ 'auth.register.emailError' | translate }}
+            </div>
+          }
         </div>
 
         <div class="field">
-          <label for="password">Contraseña</label>
+          <label for="password">{{ 'auth.register.password' | translate }}</label>
           <div class="input-wrapper" [class.has-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
             <span class="input-prefix"><i class="pi pi-lock"></i></span>
             <input
               id="password"
               [type]="showPassword ? 'text' : 'password'"
               formControlName="password"
-              placeholder="Mínimo 6 caracteres"
+              [placeholder]="'auth.register.passwordPlaceholder' | translate"
               autocomplete="new-password"
             />
             <button
               type="button"
               class="input-suffix-btn"
               (click)="togglePasswordVisibility()"
-              [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
             >
               <i class="pi" [class.pi-eye]="!showPassword" [class.pi-eye-slash]="showPassword"></i>
             </button>
           </div>
-          <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="field-error">
-            <i class="pi pi-exclamation-circle"></i> La contraseña debe tener al menos 6 caracteres
-          </div>
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+            <div class="field-error">
+              <i class="pi pi-exclamation-circle"></i> {{ 'auth.register.passwordError' | translate }}
+            </div>
+          }
         </div>
 
         <div class="field">
-          <label for="currency">Moneda principal</label>
+          <label for="currency">{{ 'auth.register.currency' | translate }}</label>
           <div class="input-wrapper select-wrapper">
             <span class="input-prefix"><i class="pi pi-dollar"></i></span>
             <select id="currency" formControlName="currency">
-              <option value="USD">USD — Dólar estadounidense</option>
+              <option value="USD">USD — Dollar</option>
               <option value="EUR">EUR — Euro</option>
-              <option value="GBP">GBP — Libra esterlina</option>
-              <option value="MXN">MXN — Peso mexicano</option>
+              <option value="GBP">GBP — Pound</option>
+              <option value="MXN">MXN — Peso</option>
             </select>
           </div>
         </div>
 
-        <div *ngIf="errorMessage" class="alert-error">
-          <i class="pi pi-shield"></i>
-          <span>{{ errorMessage }}</span>
-        </div>
+        @if (errorMessage) {
+          <div class="alert-error">
+            <i class="pi pi-shield"></i>
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
 
         <button
           type="submit"
@@ -139,16 +150,20 @@
           [disabled]="registerForm.invalid || isLoading"
           [class.loading]="isLoading"
         >
-          <i *ngIf="isLoading" class="pi pi-spin pi-spinner"></i>
-          <span>{{ isLoading ? 'Creando cuenta...' : 'Crear cuenta gratis' }}</span>
-          <i *ngIf="!isLoading" class="pi pi-arrow-right"></i>
+          @if (isLoading) {
+            <i class="pi pi-spin pi-spinner"></i>
+          }
+          <span>{{ (isLoading ? 'auth.register.submitting' : 'auth.register.submit') | translate }}</span>
+          @if (!isLoading) {
+            <i class="pi pi-arrow-right"></i>
+          }
         </button>
 
       </form>
 
       <p class="form-footer">
-        ¿Ya tienes cuenta?
-        <a routerLink="/auth/login">Iniciar sesión</a>
+        {{ 'auth.register.hasAccount' | translate }}
+        <a routerLink="/auth/login">{{ 'auth.register.login' | translate }}</a>
       </p>
 
     </div>

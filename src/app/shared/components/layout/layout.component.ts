@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, TranslatePipe],
   template: `
     <div class="layout" [class.sidebar-collapsed]="isSidebarCollapsed()">
       <app-sidebar
@@ -34,7 +35,7 @@ import { AuthService } from '../../../core/services/auth.service';
               </div>
               <div class="user-info">
                 <span class="user-name">{{ currentUser()?.name }}</span>
-                <span class="user-role">Personal</span>
+                <span class="user-role">{{ 'common.personal' | translate }}</span>
               </div>
             </div>
           </div>

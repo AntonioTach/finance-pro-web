@@ -343,6 +343,84 @@
   opacity: 0.9;
 }
 
+// ── Language cards ────────────────────────────────────────────
+.lang-cards {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.lang-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-family: inherit;
+  min-width: 160px;
+  position: relative;
+
+  &:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    background: var(--bg-elevated);
+  }
+
+  &.active {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(99, 102, 241, 0.06);
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+  }
+}
+
+.lang-flag {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.lang-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.lang-code-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-color);
+  letter-spacing: 0.06em;
+}
+
+.lang-name-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.lang-active-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  background: var(--primary-subtle);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  i { font-size: 0.6rem; }
+}
+
 // ── About card ────────────────────────────────────────────────
 .about-card {
   display: flex;

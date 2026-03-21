@@ -194,6 +194,12 @@
   max-width: 380px;
 }
 
+.form-top-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
 .form-header {
   margin-bottom: 2.5rem;
   text-align: center;

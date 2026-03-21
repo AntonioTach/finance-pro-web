@@ -7,23 +7,54 @@
       <i class="pi pi-palette"></i>
     </div>
     <div>
-      <h1>Configuración</h1>
-      <p>Personaliza la apariencia de FinancePro</p>
+      <h1>{{ 'settings.title' | translate }}</h1>
+      <p>{{ 'settings.subtitle' | translate }}</p>
     </div>
   </header>
+
+  <!-- Language section -->
+  <section class="settings-section">
+    <div class="section-header">
+      <div class="section-title">
+        <i class="pi pi-globe"></i>
+        <h2>{{ 'settings.language' | translate }}</h2>
+      </div>
+    </div>
+    <p class="section-description">{{ 'settings.language.description' | translate }}</p>
+
+    <div class="lang-cards">
+      @for (lang of languages; track lang.code) {
+        <button
+          class="lang-card"
+          [class.active]="isLangActive(lang.code)"
+          (click)="selectLanguage(lang.code)"
+          [attr.aria-pressed]="isLangActive(lang.code)"
+        >
+          <div class="lang-flag">{{ lang.code === 'es' ? '🇪🇸' : '🇺🇸' }}</div>
+          <div class="lang-info">
+            <span class="lang-code-label">{{ lang.code | uppercase }}</span>
+            <span class="lang-name-label">{{ lang.labelKey | translate }}</span>
+          </div>
+          @if (isLangActive(lang.code)) {
+            <span class="lang-active-badge">
+              <i class="pi pi-check"></i> {{ 'settings.active' | translate }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+  </section>
 
   <!-- Theme selector section -->
   <section class="settings-section">
     <div class="section-header">
       <div class="section-title">
         <i class="pi pi-palette"></i>
-        <h2>Tema de la interfaz</h2>
+        <h2>{{ 'settings.appearance' | translate }}</h2>
       </div>
-      <span class="section-badge">{{ themes.length }} temas disponibles</span>
+      <span class="section-badge">{{ themes.length }} {{ 'settings.themes.count' | translate }}</span>
     </div>
-    <p class="section-description">
-      Elige el tema visual que mejor se adapte a tu estilo. El cambio se aplica de forma instantánea y se guarda automáticamente.
-    </p>
+    <p class="section-description">{{ 'settings.appearance.description' | translate }}</p>
 
     <div class="themes-grid">
       @for (theme of themes; track theme.id) {
@@ -84,7 +115,7 @@
               <span class="theme-name">{{ theme.name }}</span>
               @if (isActive(theme.id)) {
                 <span class="theme-active-badge">
-                  <i class="pi pi-check"></i> Activo
+                  <i class="pi pi-check"></i> {{ 'settings.active' | translate }}
                 </span>
               }
             </div>
@@ -113,7 +144,7 @@
     <div class="section-header">
       <div class="section-title">
         <i class="pi pi-info-circle"></i>
-        <h2>Acerca de FinancePro</h2>
+        <h2>{{ 'settings.about' | translate }}</h2>
       </div>
     </div>
     <div class="about-card">
@@ -122,7 +153,7 @@
       </div>
       <div class="about-info">
         <h3>FinancePro</h3>
-        <p>Plataforma de gestión de finanzas personales</p>
+        <p>{{ 'settings.subtitle' | translate }}</p>
         <div class="about-tags">
           <span class="about-tag">v1.0.0</span>
           <span class="about-tag">Angular 20</span>
