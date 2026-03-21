@@ -1,9 +1,12 @@
-import { Component, inject, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, input, output, computed } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { FinancialTipComponent } from '../financial-tip/financial-tip.component';
 
 interface NavItem {
   labelKey: string;
@@ -14,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipModule, TranslatePipe],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TooltipModule, TranslatePipe, FinancialTipComponent],
   template: `
     <aside class="sidebar" [class.collapsed]="isCollapsed()">
       <!-- Logo -->
@@ -53,6 +56,14 @@ interface NavItem {
           }
         </div>
       </nav>
+
+      <!-- Financial Tip -->
+      @if (showTip()) {
+        <div class="sidebar-tip" [class.tip-collapsed]="isCollapsed()">
+          <div class="tip-divider"></div>
+          <app-financial-tip [isCollapsed]="isCollapsed()" />
+        </div>
+      }
 
       <!-- Footer -->
       <div class="sidebar-footer">
@@ -266,6 +277,26 @@ interface NavItem {
       display: none;
     }
 
+    /* Tip section — always visible, never scrolls with nav items */
+    .sidebar-tip {
+      padding: 0 0.75rem 0.625rem;
+      flex-shrink: 0;   /* never compressed regardless of nav item count */
+    }
+
+    .sidebar-tip.tip-collapsed {
+      padding: 0 0.75rem 0.625rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .tip-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin-bottom: 0.75rem;
+    }
+
     /* Footer */
     .sidebar-footer {
       padding: 0.75rem;
@@ -302,9 +333,23 @@ interface NavItem {
 })
 export class SidebarComponent {
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   isCollapsed = input<boolean>(false);
   toggleCollapse = output<void>();
+
+  private currentUrl = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => (e as NavigationEnd).urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  showTip = computed(() => {
+    const url = this.currentUrl() ?? '';
+    return !url.startsWith('/profile') && !url.startsWith('/settings');
+  });
 
   navItems: NavItem[] = [
     { labelKey: 'nav.dashboard',    icon: 'pi-home',          route: '/dashboard' },

@@ -98,6 +98,22 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'transactions.type.card_purchase': 'Card Purchase',
     'transactions.type.card_payment':  'Card Payment',
 
+    // ── Financial Tips ───────────────────────────────────────
+    'tips.label':  'Financial Tip',
+    'tips.next':   'Next tip',
+    'tips.tip1':   'Apply the 50/30/20 rule: 50% for needs, 30% for wants, 20% for savings.',
+    'tips.tip2':   'Build an emergency fund covering 3–6 months of expenses before investing.',
+    'tips.tip3':   'Automate your savings on payday — pay yourself first.',
+    'tips.tip4':   'Track every expense, even small ones. They add up faster than you think.',
+    'tips.tip5':   'Avoid lifestyle inflation: when income grows, increase savings first.',
+    'tips.tip6':   'Credit card debt can cost 20%+ per year. Pay it off as fast as possible.',
+    'tips.tip7':   'Diversify your investments to spread risk across different assets.',
+    'tips.tip8':   'Review your subscriptions monthly and cancel what you no longer use.',
+    'tips.tip9':   'Set specific financial goals with deadlines to stay motivated.',
+    'tips.tip10':  'Compound interest works in your favor — start investing as early as possible.',
+    'tips.tip11':  'Keep fixed monthly expenses below 50% of your net income.',
+    'tips.tip12':  'Before a big purchase, wait 48 hours to avoid impulsive decisions.',
+
     // ── Auth — Login ─────────────────────────────────────────
     'auth.login.title':              'Welcome back',
     'auth.login.subtitle':           'Enter your credentials to continue',
@@ -301,6 +317,22 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'transactions.type.expense':       'Gasto',
     'transactions.type.card_purchase': 'Compra con tarjeta',
     'transactions.type.card_payment':  'Pago de tarjeta',
+
+    // ── Consejos financieros ──────────────────────────────────
+    'tips.label':  'Consejo financiero',
+    'tips.next':   'Siguiente consejo',
+    'tips.tip1':   'Aplica la regla 50/30/20: 50% para necesidades, 30% para deseos, 20% para ahorro.',
+    'tips.tip2':   'Crea un fondo de emergencia de 3 a 6 meses de gastos antes de invertir.',
+    'tips.tip3':   'Automatiza tus ahorros el día de pago — págate a ti mismo primero.',
+    'tips.tip4':   'Registra cada gasto, incluso los pequeños. Se acumulan más rápido de lo que crees.',
+    'tips.tip5':   'Evita la inflación de estilo de vida: cuando suba tu ingreso, aumenta primero el ahorro.',
+    'tips.tip6':   'La deuda de tarjeta puede costar más del 20% anual. Liquídala cuanto antes.',
+    'tips.tip7':   'Diversifica tus inversiones para distribuir el riesgo entre distintos activos.',
+    'tips.tip8':   'Revisa tus suscripciones cada mes y cancela las que ya no uses.',
+    'tips.tip9':   'Define metas financieras concretas con fecha límite para mantenerte motivado.',
+    'tips.tip10':  'El interés compuesto juega a tu favor — empieza a invertir cuanto antes.',
+    'tips.tip11':  'Mantén tus gastos fijos por debajo del 50% de tu ingreso neto mensual.',
+    'tips.tip12':  'Antes de una compra grande, espera 48 horas para evitar decisiones impulsivas.',
 
     // ── Auth — Login ─────────────────────────────────────────
     'auth.login.title':              'Bienvenido de vuelta',
