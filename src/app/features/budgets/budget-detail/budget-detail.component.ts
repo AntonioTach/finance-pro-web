@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import { BudgetService } from '../services/budget.service';
 import { BudgetProgress } from '../../../core/models/budget.model';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
@@ -10,7 +12,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-budget-detail',
   standalone: true,
-  imports: [CommonModule, CurrencyFormatPipe, TranslatePipe, LoadingSpinnerComponent],
+  imports: [CommonModule, CurrencyFormatPipe, TranslatePipe, LoadingSpinnerComponent, BaseChartDirective],
   template: `
     <div class="detail-wrap">
       @if (isLoading()) {
@@ -42,23 +44,46 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
           </div>
         </div>
 
-        <!-- Progress bar -->
-        <div class="progress-section">
-          <div class="progress-header">
-            <span class="progress-pct"
-              [class.text-warning]="progress()!.percentage >= progress()!.budget.alertThreshold && !progress()!.isExceeded"
-              [class.text-danger]="progress()!.isExceeded">
-              {{ progress()!.percentage | number:'1.0-1' }}%
-            </span>
-            <span class="progress-label">{{ statusText() }}</span>
+        <!-- Doughnut chart -->
+        <div class="donut-section">
+          <div class="donut-wrap">
+            <canvas baseChart
+              width="140"
+              height="140"
+              [data]="doughnutData()"
+              [type]="'doughnut'"
+              [options]="doughnutOptions">
+            </canvas>
+            <div class="donut-center">
+              <span class="donut-pct"
+                [class.text-warning]="progress()!.percentage >= progress()!.budget.alertThreshold && !progress()!.isExceeded"
+                [class.text-danger]="progress()!.isExceeded">
+                {{ progress()!.percentage | number:'1.0-1' }}%
+              </span>
+              <span class="donut-status">{{ statusText() }}</span>
+            </div>
           </div>
-          <div class="progress-track">
-            <div
-              class="progress-fill"
-              [class.fill-warning]="progress()!.percentage >= progress()!.budget.alertThreshold && !progress()!.isExceeded"
-              [class.fill-danger]="progress()!.isExceeded"
-              [style.width.%]="min100(progress()!.percentage)"
-            ></div>
+          <div class="donut-legend">
+            <div class="legend-item">
+              <span class="legend-dot" [style.background]="categoryColor()"></span>
+              <span class="legend-label">Gastado</span>
+              <span class="legend-val">{{ progress()!.spent | currencyFormat:currency }}</span>
+            </div>
+            @if (!progress()!.isExceeded) {
+              <div class="legend-item">
+                <span class="legend-dot legend-dot--muted"></span>
+                <span class="legend-label">Disponible</span>
+                <span class="legend-val">{{ progress()!.remaining | currencyFormat:currency }}</span>
+              </div>
+            } @else {
+              <div class="legend-item">
+                <span class="legend-dot legend-dot--danger"></span>
+                <span class="legend-label">Excedido</span>
+                <span class="legend-val text-danger">
+                  +{{ (progress()!.spent - progress()!.budget.amount) | currencyFormat:currency }}
+                </span>
+              </div>
+            }
           </div>
         </div>
 
@@ -107,6 +132,20 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
             </button>
 
             @if (showHistory()) {
+              <!-- History bar chart -->
+              @if (history().length > 1) {
+                <div class="hist-chart-wrap">
+                  <canvas baseChart
+                    width="560"
+                    height="200"
+                    [data]="historyChartData()"
+                    [type]="'bar'"
+                    [options]="historyChartOptions">
+                  </canvas>
+                </div>
+              }
+
+              <!-- History table -->
               <div class="hist-table">
                 <div class="hist-row hist-head">
                   <span>Periodo</span>
@@ -178,15 +217,77 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
     .metric-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
     .metric-value { font-size: 1.3rem; font-weight: 800; color: var(--text-color); }
 
-    .progress-section { display: flex; flex-direction: column; gap: 0.5rem; }
-    .progress-header { display: flex; justify-content: space-between; align-items: center; }
-    .progress-pct { font-size: 1.1rem; font-weight: 800; color: var(--text-color); }
-    .progress-label { font-size: 0.8rem; color: var(--text-muted); }
-    .progress-track { height: 12px; background: var(--bg-secondary); border-radius: 999px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--gradient-primary); border-radius: 999px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
-    .fill-warning { background: linear-gradient(90deg, #f59e0b, #f97316) !important; }
-    .fill-danger  { background: linear-gradient(90deg, #ef4444, #dc2626) !important; }
+    /* ── Doughnut ── */
+    .donut-section {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
 
+    .donut-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      flex-shrink: 0;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .donut-pct {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--text-color);
+      line-height: 1;
+    }
+
+    .donut-status {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.2rem;
+    }
+
+    .donut-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-dot--muted   { background: rgba(255,255,255,0.12); border: 1px solid var(--border-color); }
+    .legend-dot--danger  { background: #ef4444; }
+
+    .legend-label { font-size: 0.8rem; color: var(--text-secondary); flex: 1; }
+    .legend-val   { font-size: 0.82rem; font-weight: 700; color: var(--text-color); }
+
+    /* ── Projection card ── */
     .projection-card {
       background: var(--bg-secondary); border: 1px solid var(--border-color);
       border-radius: 12px; padding: 1rem 1.25rem;
@@ -198,6 +299,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
     .proj-value { font-size: 0.9rem; font-weight: 700; color: var(--text-color); }
     .overshoot { font-size: 0.78rem; font-weight: 600; margin-left: 0.25rem; }
 
+    /* ── History ── */
     .hist-section { display: flex; flex-direction: column; gap: 0; }
     .hist-toggle {
       display: flex; justify-content: space-between; align-items: center;
@@ -208,6 +310,16 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       border-bottom: 1px solid var(--border-color);
     }
     .hist-toggle i { font-size: 0.75rem; }
+
+    .hist-chart-wrap {
+      padding: 1rem 0 0.5rem;
+      overflow-x: auto;
+    }
+
+    .hist-chart-wrap canvas {
+      max-width: 100%;
+    }
+
     .hist-table { display: flex; flex-direction: column; }
     .hist-row {
       display: grid; grid-template-columns: 1fr 1fr 1fr auto;
@@ -223,6 +335,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
     .badge-ok     { background: rgba(34,197,94,0.12); color: var(--success-color, #22c55e); }
     .badge-danger { background: rgba(239,68,68,0.12); color: var(--danger-color, #ef4444); }
 
+    /* ── Transactions ── */
     .tx-section { display: flex; flex-direction: column; gap: 0.75rem; }
     .tx-title { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
     .tx-empty { font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 1.5rem 0; margin: 0; }
@@ -246,6 +359,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 
     @media (max-width: 480px) {
       .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .donut-section { flex-direction: column; align-items: center; }
     }
   `],
 })
@@ -261,6 +375,122 @@ export class BudgetDetailComponent implements OnInit {
   history      = signal<any[]>([]);
   showHistory  = signal(false);
   currency     = 'MXN';
+
+  // ── Chart options ────────────────────────────────────────────
+
+  doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: false,
+    cutout: '72%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.label}: ${Number(ctx.raw || 0).toLocaleString('es-MX', { style: 'currency', currency: this.currency })}`,
+        },
+      },
+    },
+  };
+
+  historyChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: false,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 12, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.dataset.label}: ${Number(ctx.raw || 0).toLocaleString('es-MX', { style: 'currency', currency: this.currency })}`,
+        },
+      },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(255,255,255,0.05)' },
+        ticks: {
+          font: { size: 10 },
+          callback: (v) => Number(v).toLocaleString('es-MX', { style: 'currency', currency: this.currency, maximumFractionDigits: 0 }),
+        },
+      },
+    },
+  };
+
+  // ── Computed chart data ──────────────────────────────────────
+
+  categoryColor = computed(() => this.progress()?.budget.category?.color || '#6366f1');
+
+  doughnutData = computed((): ChartData<'doughnut'> => {
+    const p = this.progress();
+    if (!p) return { labels: [], datasets: [{ data: [] }] };
+
+    const color = this.categoryColor();
+    const warnColor = '#f59e0b';
+    const dangerColor = '#ef4444';
+
+    const spentColor = p.isExceeded
+      ? dangerColor
+      : p.percentage >= p.budget.alertThreshold
+        ? warnColor
+        : color;
+
+    if (p.isExceeded) {
+      return {
+        labels: ['Presupuestado', 'Excedido'],
+        datasets: [{
+          data: [p.budget.amount, p.spent - p.budget.amount],
+          backgroundColor: [color, dangerColor],
+          borderWidth: 0,
+          hoverOffset: 4,
+        }],
+      };
+    }
+
+    return {
+      labels: ['Gastado', 'Disponible'],
+      datasets: [{
+        data: [p.spent, Math.max(0, p.remaining)],
+        backgroundColor: [spentColor, 'rgba(255,255,255,0.08)'],
+        borderWidth: 0,
+        hoverOffset: 4,
+      }],
+    };
+  });
+
+  historyChartData = computed((): ChartData<'bar'> => {
+    const h = this.history().slice(-8); // últimos 8 periodos
+    if (!h.length) return { labels: [], datasets: [] };
+
+    const labels = h.map(s =>
+      new Date(s.periodStart).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' })
+    );
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Presupuestado',
+          data: h.map(s => Number(s.budgetedAmount)),
+          backgroundColor: 'rgba(99,102,241,0.65)',
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+        {
+          label: 'Gastado',
+          data: h.map(s => Number(s.spentAmount)),
+          backgroundColor: h.map(s =>
+            Number(s.spentAmount) > Number(s.budgetedAmount)
+              ? 'rgba(239,68,68,0.7)'
+              : 'rgba(34,197,94,0.7)'
+          ),
+          borderRadius: 5,
+          borderSkipped: false,
+        },
+      ],
+    };
+  });
+
+  // ── Lifecycle ────────────────────────────────────────────────
 
   ngOnInit(): void {
     const initial: BudgetProgress | undefined = this.config.data?.progress;
@@ -308,8 +538,6 @@ export class BudgetDetailComponent implements OnInit {
   isOver(snap: any): boolean {
     return Number(snap.spentAmount) > Number(snap.budgetedAmount);
   }
-
-  min100(v: number): number { return Math.min(v, 100); }
 
   statusText(): string {
     const p = this.progress();
