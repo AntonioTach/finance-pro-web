@@ -257,7 +257,7 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 export class BudgetInfoComponent {
   compact = input(false);
 
-  isCollapsed = signal(false);
+  isCollapsed = signal(true);
 
   toggle(): void {
     this.isCollapsed.update(v => !v);

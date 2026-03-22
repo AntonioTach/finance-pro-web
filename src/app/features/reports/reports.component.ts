@@ -7,6 +7,7 @@ import { TransactionReportComponent } from './transaction-report/transaction-rep
 import { CardReportComponent } from './card-report/card-report.component';
 import { SubscriptionReportComponent } from './subscription-report/subscription-report.component';
 import { TrendReportComponent } from './trend-report/trend-report.component';
+import { BudgetReportComponent } from './budget-report/budget-report.component';
 
 @Component({
   selector: 'app-reports',
@@ -20,6 +21,7 @@ import { TrendReportComponent } from './trend-report/trend-report.component';
     CardReportComponent,
     SubscriptionReportComponent,
     TrendReportComponent,
+    BudgetReportComponent,
   ],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.scss'],

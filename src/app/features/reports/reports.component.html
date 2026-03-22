@@ -33,6 +33,10 @@
         <i class="pi pi-replay"></i>
         <span>Subscriptions</span>
       </p-tab>
+      <p-tab [value]="6">
+        <i class="pi pi-wallet"></i>
+        <span>Budgets</span>
+      </p-tab>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel [value]="0">
@@ -52,6 +56,9 @@
       </p-tabpanel>
       <p-tabpanel [value]="5">
         <app-subscription-report />
+      </p-tabpanel>
+      <p-tabpanel [value]="6">
+        <app-budget-report />
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

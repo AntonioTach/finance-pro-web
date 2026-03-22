@@ -1,0 +1,273 @@
+<div class="budget-report">
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-spinner />
+    </div>
+  } @else if (!dashboard()) {
+    <div class="empty-state">
+      <i class="pi pi-wallet"></i>
+      <p>No se pudieron cargar los datos de presupuestos.</p>
+    </div>
+  } @else if (dashboard()!.budgets.length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-wallet"></i>
+      <h3>Sin presupuestos activos</h3>
+      <p>Crea presupuestos para ver sus reportes aquí.</p>
+    </div>
+  } @else {
+
+    <!-- ── KPI Cards ─────────────────────────────────────────── -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon--primary"><i class="pi pi-wallet"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Total presupuestado</span>
+          <span class="kpi-value">{{ dashboard()!.totalBudgeted | currencyFormat:currency() }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon--info"><i class="pi pi-credit-card"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Total gastado</span>
+          <span class="kpi-value" [class.kpi-value--danger]="dashboard()!.globalPercentage >= 100">
+            {{ dashboard()!.totalSpent | currencyFormat:currency() }}
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon"
+          [class.kpi-icon--ok]="dashboard()!.globalPercentage < 80"
+          [class.kpi-icon--warning]="dashboard()!.globalPercentage >= 80 && dashboard()!.globalPercentage < 100"
+          [class.kpi-icon--danger]="dashboard()!.globalPercentage >= 100">
+          <i class="pi pi-chart-pie"></i>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Uso global</span>
+          <span class="kpi-value"
+            [class.kpi-value--ok]="dashboard()!.globalPercentage < 80"
+            [class.kpi-value--warning]="dashboard()!.globalPercentage >= 80 && dashboard()!.globalPercentage < 100"
+            [class.kpi-value--danger]="dashboard()!.globalPercentage >= 100">
+            {{ dashboard()!.globalPercentage | number:'1.0-1' }}%
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" [class.kpi-icon--danger]="exceededCount() > 0" [class.kpi-icon--ok]="exceededCount() === 0">
+          <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Excedidos</span>
+          <span class="kpi-value" [class.kpi-value--danger]="exceededCount() > 0">
+            {{ exceededCount() }} / {{ dashboard()!.budgets.length }}
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon" [class.kpi-icon--ok]="projectedSavings() >= 0" [class.kpi-icon--danger]="projectedSavings() < 0">
+          <i class="pi pi-arrow-right-arrow-left"></i>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Proyección fin de periodo</span>
+          <span class="kpi-value"
+            [class.kpi-value--ok]="projectedSavings() >= 0"
+            [class.kpi-value--danger]="projectedSavings() < 0"
+            [pTooltip]="projectedSavings() >= 0 ? 'Se proyecta un ahorro respecto al total presupuestado' : 'Se proyecta un exceso respecto al total presupuestado'"
+            tooltipPosition="top">
+            {{ projectedSavings() >= 0 ? '+' : '' }}{{ projectedSavings() | currencyFormat:currency() }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Charts row ────────────────────────────────────────── -->
+    <div class="charts-row">
+
+      <!-- Compliance bar chart -->
+      <p-card styleClass="chart-card chart-card--wide">
+        <ng-template pTemplate="header">
+          <div class="card-header-custom">
+            <span class="card-title"><i class="pi pi-bars"></i> Cumplimiento por presupuesto</span>
+            <span class="card-subtitle">Ordenado por % de uso · Verde = Al día · Amarillo = En riesgo · Rojo = Excedido</span>
+          </div>
+        </ng-template>
+        <div class="chart-container chart-container--compliance">
+          @if (complianceChartData().labels?.length) {
+            <canvas baseChart
+              [data]="complianceChartData()"
+              [type]="'bar'"
+              [options]="complianceChartOptions">
+            </canvas>
+          }
+        </div>
+      </p-card>
+
+      <!-- Spending distribution doughnut -->
+      <p-card styleClass="chart-card">
+        <ng-template pTemplate="header">
+          <div class="card-header-custom">
+            <span class="card-title"><i class="pi pi-chart-pie"></i> Distribución del gasto</span>
+            <span class="card-subtitle">Qué parte del gasto total va a cada presupuesto</span>
+          </div>
+        </ng-template>
+
+        @if (distributionChartData().datasets[0]?.data?.length) {
+          <div class="chart-container chart-container--donut">
+            <canvas baseChart
+              [data]="distributionChartData()"
+              [type]="'doughnut'"
+              [options]="distributionChartOptions">
+            </canvas>
+          </div>
+          <div class="donut-legend">
+            @for (b of dashboard()!.budgets; track b.budget.id) {
+              @if (b.spent > 0) {
+                <div class="donut-legend-item">
+                  <span class="legend-dot" [style.background]="b.budget.category?.color || '#6366f1'"></span>
+                  <span class="legend-name">{{ b.budget.name || b.budget.category?.name }}</span>
+                  <span class="legend-val">{{ b.spent | currencyFormat:currency() }}</span>
+                </div>
+              }
+            }
+          </div>
+        } @else {
+          <div class="no-data">
+            <i class="pi pi-chart-pie"></i>
+            <p>Sin gastos registrados aún</p>
+          </div>
+        }
+      </p-card>
+    </div>
+
+    <!-- ── History section ───────────────────────────────────── -->
+    <p-card styleClass="section-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom">
+          <span class="card-title"><i class="pi pi-history"></i> Historial de periodos</span>
+          <p-select
+            [options]="budgetOptions()"
+            [(ngModel)]="selectedBudgetId"
+            (ngModelChange)="onBudgetSelect($event)"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar presupuesto"
+            [showClear]="true"
+            styleClass="budget-select"
+          />
+        </div>
+      </ng-template>
+
+      @if (histLoading()) {
+        <div class="loading-container"><app-loading-spinner /></div>
+      } @else if (!selectedBudgetId) {
+        <div class="no-data">
+          <i class="pi pi-hand-pointer"></i>
+          <p>Selecciona un presupuesto para ver su historial de periodos</p>
+        </div>
+      } @else if (selectedHistory().length === 0) {
+        <div class="no-data">
+          <i class="pi pi-inbox"></i>
+          <p>Sin historial disponible para este presupuesto</p>
+        </div>
+      } @else {
+        <div class="chart-container chart-container--history">
+          <canvas baseChart
+            [data]="historyChartData()"
+            [type]="'bar'"
+            [options]="historyChartOptions">
+          </canvas>
+        </div>
+
+        <!-- History mini table -->
+        <div class="hist-summary-table">
+          <div class="hist-head-row">
+            <span>Periodo</span>
+            <span>Presupuestado</span>
+            <span>Gastado</span>
+            <span>Diferencia</span>
+            <span>Cumpl.</span>
+          </div>
+          @for (snap of selectedHistory().slice().reverse(); track snap.id) {
+            <div class="hist-data-row" [class.row-exceeded]="isOver(snap)">
+              <span class="period-cell">{{ snap.periodStart | date:'MMM yyyy' }}</span>
+              <span>{{ snap.budgetedAmount | currencyFormat:currency() }}</span>
+              <span [class.txt-danger]="isOver(snap)">{{ snap.spentAmount | currencyFormat:currency() }}</span>
+              <span [class.txt-ok]="!isOver(snap)" [class.txt-danger]="isOver(snap)">
+                {{ isOver(snap) ? '+' : '-' }}{{ diffAbs(snap) | currencyFormat:currency() }}
+              </span>
+              <span class="compliance-badge" [class.badge-ok]="!isOver(snap)" [class.badge-danger]="isOver(snap)">
+                {{ complianceRate(snap) }}%
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </p-card>
+
+    <!-- ── Status table ──────────────────────────────────────── -->
+    <p-card styleClass="section-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom">
+          <span class="card-title"><i class="pi pi-table"></i> Estado de presupuestos — periodo actual</span>
+        </div>
+      </ng-template>
+
+      <p-table
+        [value]="dashboard()!.budgets"
+        [tableStyle]="{ 'min-width': '100%' }"
+        styleClass="p-datatable-sm"
+        [sortField]="'percentage'"
+        [sortOrder]="-1"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="budget.name">Presupuesto <p-sortIcon field="budget.name" /></th>
+            <th>Periodo</th>
+            <th pSortableColumn="budget.amount" style="text-align:right">Presupuestado <p-sortIcon field="budget.amount" /></th>
+            <th pSortableColumn="spent" style="text-align:right">Gastado <p-sortIcon field="spent" /></th>
+            <th pSortableColumn="percentage" style="text-align:right">% <p-sortIcon field="percentage" /></th>
+            <th pSortableColumn="burnRate" style="text-align:right">Burn rate/día <p-sortIcon field="burnRate" /></th>
+            <th pSortableColumn="projected" style="text-align:right">Proyección <p-sortIcon field="projected" /></th>
+            <th pSortableColumn="daysLeft" style="text-align:right">Días restantes <p-sortIcon field="daysLeft" /></th>
+            <th>Estado</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-b>
+          <tr>
+            <td>
+              <div class="name-cell">
+                <span class="cat-dot" [style.background]="b.budget.category?.color || '#6366f1'"></span>
+                <span>{{ b.budget.name || b.budget.category?.name }}</span>
+              </div>
+            </td>
+            <td class="txt-muted">{{ periodLabel(b.budget.period) }}</td>
+            <td style="text-align:right">{{ b.budget.amount | currencyFormat:currency() }}</td>
+            <td style="text-align:right" [class.txt-danger]="b.isExceeded">{{ b.spent | currencyFormat:currency() }}</td>
+            <td style="text-align:right">
+              <span class="pct-badge" [class.pct-ok]="b.percentage < b.budget.alertThreshold"
+                [class.pct-warning]="b.percentage >= b.budget.alertThreshold && !b.isExceeded"
+                [class.pct-danger]="b.isExceeded">
+                {{ b.percentage | number:'1.0-1' }}%
+              </span>
+            </td>
+            <td style="text-align:right" class="txt-muted">{{ b.burnRate | currencyFormat:currency() }}</td>
+            <td style="text-align:right" [class.txt-danger]="b.projected > b.budget.amount">
+              {{ b.projected | currencyFormat:currency() }}
+            </td>
+            <td style="text-align:right" class="txt-muted">{{ b.daysLeft }}</td>
+            <td>
+              <span class="status-chip" [class]="statusClass(b)">{{ statusLabel(b) }}</span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr><td colspan="9" class="text-center txt-muted">Sin presupuestos</td></tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  }
+</div>
