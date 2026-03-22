@@ -234,6 +234,75 @@
           }
         </div>
 
+        <!-- Budget Widget -->
+        <div class="budget-widget">
+          <div class="card-header">
+            <h3>{{ 'dashboard.budgets.title' | translate }}</h3>
+            <a routerLink="/budgets" class="view-link">{{ 'dashboard.budgets.viewAll' | translate }} <i class="pi pi-arrow-right"></i></a>
+          </div>
+
+          @if (!budgetDashboard()) {
+            <div class="no-data small">
+              <i class="pi pi-wallet"></i>
+              <p>{{ 'dashboard.budgets.noData' | translate }}</p>
+            </div>
+          } @else {
+            <!-- Global progress -->
+            <div class="bw-global">
+              <div class="bw-global-row">
+                <span class="bw-global-label">{{ 'dashboard.budgets.global' | translate }}</span>
+                <span class="bw-global-pct"
+                  [class.text-warning]="budgetDashboard()!.globalPercentage >= 80 && budgetDashboard()!.globalPercentage < 100"
+                  [class.text-danger]="budgetDashboard()!.globalPercentage >= 100">
+                  {{ budgetDashboard()!.globalPercentage | number:'1.0-0' }}%
+                </span>
+              </div>
+              <div class="bw-track">
+                <div class="bw-fill"
+                  [class.bw-fill--warning]="budgetDashboard()!.globalPercentage >= 80 && budgetDashboard()!.globalPercentage < 100"
+                  [class.bw-fill--danger]="budgetDashboard()!.globalPercentage >= 100"
+                  [style.width.%]="budgetDashboard()!.globalPercentage > 100 ? 100 : budgetDashboard()!.globalPercentage">
+                </div>
+              </div>
+            </div>
+
+            <!-- At-risk budgets -->
+            @if (atRiskBudgets().length === 0) {
+              <p class="bw-ok">
+                <i class="pi pi-check-circle"></i>
+                {{ 'dashboard.budgets.noRisk' | translate }}
+              </p>
+            } @else {
+              <div class="bw-risk-list">
+                <span class="bw-risk-label">{{ 'dashboard.budgets.atRisk' | translate }}</span>
+                @for (b of atRiskBudgets(); track b.budget.id) {
+                  <div class="bw-budget-row">
+                    <div class="bw-budget-icon" [style.background]="(b.budget.category?.color || '#6366f1') + '22'">
+                      <i [class]="'pi pi-' + (b.budget.category?.icon || 'tag')"
+                         [style.color]="b.budget.category?.color || 'var(--primary-color)'"></i>
+                    </div>
+                    <div class="bw-budget-info">
+                      <span class="bw-budget-name">{{ b.budget.name || b.budget.category?.name }}</span>
+                      <div class="bw-mini-track">
+                        <div class="bw-mini-fill"
+                          [class.bw-mini-fill--warning]="!b.isExceeded"
+                          [class.bw-mini-fill--danger]="b.isExceeded"
+                          [style.width.%]="b.percentage > 100 ? 100 : b.percentage">
+                        </div>
+                      </div>
+                    </div>
+                    <span class="bw-budget-pct"
+                      [class.text-warning]="!b.isExceeded"
+                      [class.text-danger]="b.isExceeded">
+                      {{ b.percentage | number:'1.0-0' }}%
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
+
         <!-- Credit Cards -->
         @if (cards().length > 0) {
           <div class="cards-section">

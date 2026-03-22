@@ -684,6 +684,149 @@
   }
 }
 
+// ── Budget Widget ─────────────────────────────────────────────
+.budget-widget {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .card-header {
+    padding: 0;
+    border: none;
+  }
+}
+
+.bw-global {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bw-global-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bw-global-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bw-global-pct {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-color);
+}
+
+.bw-track {
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bw-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+
+  &--warning { background: linear-gradient(90deg, #f59e0b, #f97316) !important; }
+  &--danger  { background: linear-gradient(90deg, #ef4444, #dc2626) !important; }
+}
+
+.bw-ok {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--success-color, #22c55e);
+  margin: 0;
+  padding: 0.5rem 0;
+
+  i { font-size: 0.8rem; }
+}
+
+.bw-risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bw-risk-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bw-budget-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bw-budget-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 0.75rem; }
+}
+
+.bw-budget-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bw-budget-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bw-mini-track {
+  height: 5px;
+  background: var(--bg-secondary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bw-mini-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+
+  &--warning { background: linear-gradient(90deg, #f59e0b, #f97316); }
+  &--danger  { background: linear-gradient(90deg, #ef4444, #dc2626); }
+}
+
+.bw-budget-pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 36px;
+  text-align: right;
+}
+
 // ── Quick Actions ─────────────────────────────────────────────
 .quick-actions {
   background: var(--bg-elevated);
@@ -784,6 +927,10 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+// ── Utility colors ────────────────────────────────────────────
+.text-warning { color: var(--warning-color, #f59e0b) !important; }
+.text-danger  { color: var(--danger-color, #ef4444) !important; }
 
 // ── PrimeNG overrides ─────────────────────────────────────────
 :host ::ng-deep {

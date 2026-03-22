@@ -1,4 +1,4 @@
-import { Component, inject, input, output, computed } from '@angular/core';
+import { Component, inject, input, output, computed, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
@@ -7,11 +7,13 @@ import { filter, map } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { FinancialTipComponent } from '../financial-tip/financial-tip.component';
+import { BudgetAlertStateService } from '../../../features/budgets/services/budget-alert-state.service';
 
 interface NavItem {
   labelKey: string;
   icon: string;
   route: string;
+  badgeRoute?: string; // route prefix that shows this nav item's badge
 }
 
 @Component({
@@ -45,6 +47,9 @@ interface NavItem {
             >
               <span class="nav-icon-wrap">
                 <i class="pi" [ngClass]="item.icon"></i>
+                @if (item.badgeRoute && alertState.unreadCount() > 0) {
+                  <span class="nav-badge">{{ alertState.unreadCount() }}</span>
+                }
               </span>
               @if (!isCollapsed()) {
                 <span class="nav-label">{{ item.labelKey | translate }}</span>
@@ -244,6 +249,25 @@ interface NavItem {
       font-size: 1rem;
     }
 
+    .nav-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: var(--danger-color, #ef4444);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
     .logout-icon {
       color: var(--danger-color);
     }
@@ -331,9 +355,10 @@ interface NavItem {
     }
   `],
 })
-export class SidebarComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+export class SidebarComponent implements OnInit {
+  private authService         = inject(AuthService);
+  private router              = inject(Router);
+  readonly alertState         = inject(BudgetAlertStateService);
 
   isCollapsed = input<boolean>(false);
   toggleCollapse = output<void>();
@@ -345,6 +370,10 @@ export class SidebarComponent {
     ),
     { initialValue: this.router.url },
   );
+
+  ngOnInit(): void {
+    this.alertState.refresh();
+  }
 
   showTip = computed(() => {
     const url = this.currentUrl() ?? '';
@@ -360,7 +389,7 @@ export class SidebarComponent {
     { labelKey: 'nav.subscriptions',icon: 'pi-sync',          route: '/subscriptions' },
     { labelKey: 'nav.debts',        icon: 'pi-arrows-h',      route: '/debts' },
     { labelKey: 'nav.categories',   icon: 'pi-tags',          route: '/categories' },
-    { labelKey: 'nav.budgets',      icon: 'pi-wallet',        route: '/budgets' },
+    { labelKey: 'nav.budgets',      icon: 'pi-wallet',        route: '/budgets', badgeRoute: '/budgets' },
     { labelKey: 'nav.reports',      icon: 'pi-chart-bar',     route: '/reports' },
     { labelKey: 'nav.profile',      icon: 'pi-user',          route: '/profile' },
     { labelKey: 'nav.settings',     icon: 'pi-palette',       route: '/settings' },

@@ -98,6 +98,39 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
           </div>
         </div>
 
+        <!-- History -->
+        @if (history().length > 0) {
+          <div class="hist-section">
+            <button class="hist-toggle" (click)="showHistory.set(!showHistory())">
+              <span>Historial de periodos ({{ history().length }})</span>
+              <i class="pi" [ngClass]="showHistory() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+
+            @if (showHistory()) {
+              <div class="hist-table">
+                <div class="hist-row hist-head">
+                  <span>Periodo</span>
+                  <span>Presupuestado</span>
+                  <span>Gastado</span>
+                  <span>Cumpl.</span>
+                </div>
+                @for (snap of history(); track snap.id) {
+                  <div class="hist-row" [class.hist-exceeded]="isOver(snap)">
+                    <span class="hist-period">{{ snap.periodStart | date:'MMM yyyy' }}</span>
+                    <span>{{ snap.budgetedAmount | currencyFormat:currency }}</span>
+                    <span [class.text-danger]="isOver(snap)">
+                      {{ snap.spentAmount | currencyFormat:currency }}
+                    </span>
+                    <span class="hist-badge" [class]="complianceRate(snap) >= 100 ? 'badge-danger' : 'badge-ok'">
+                      {{ complianceRate(snap) }}%
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+
         <!-- Transactions -->
         <div class="tx-section">
           <h3 class="tx-title">{{ 'budgets.detail.transactions' | translate }}</h3>
@@ -165,6 +198,31 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
     .proj-value { font-size: 0.9rem; font-weight: 700; color: var(--text-color); }
     .overshoot { font-size: 0.78rem; font-weight: 600; margin-left: 0.25rem; }
 
+    .hist-section { display: flex; flex-direction: column; gap: 0; }
+    .hist-toggle {
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%; background: none; border: none; cursor: pointer;
+      padding: 0.75rem 0; font-size: 0.82rem; font-weight: 700;
+      color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .hist-toggle i { font-size: 0.75rem; }
+    .hist-table { display: flex; flex-direction: column; }
+    .hist-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 0.5rem; padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.8rem; align-items: center;
+    }
+    .hist-row:last-child { border-bottom: none; }
+    .hist-head { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .hist-period { font-weight: 600; color: var(--text-color); }
+    .hist-exceeded { background: rgba(239,68,68,0.04); }
+    .hist-badge { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-align: center; }
+    .badge-ok     { background: rgba(34,197,94,0.12); color: var(--success-color, #22c55e); }
+    .badge-danger { background: rgba(239,68,68,0.12); color: var(--danger-color, #ef4444); }
+
     .tx-section { display: flex; flex-direction: column; gap: 0.75rem; }
     .tx-title { margin: 0; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
     .tx-empty { font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 1.5rem 0; margin: 0; }
@@ -195,11 +253,14 @@ export class BudgetDetailComponent implements OnInit {
   private config        = inject(DynamicDialogConfig);
   private budgetService = inject(BudgetService);
 
-  isLoading  = signal(false);
-  txLoading  = signal(false);
-  progress   = signal<BudgetProgress | null>(null);
+  isLoading    = signal(false);
+  txLoading    = signal(false);
+  histLoading  = signal(false);
+  progress     = signal<BudgetProgress | null>(null);
   transactions = signal<any[]>([]);
-  currency   = 'MXN';
+  history      = signal<any[]>([]);
+  showHistory  = signal(false);
+  currency     = 'MXN';
 
   ngOnInit(): void {
     const initial: BudgetProgress | undefined = this.config.data?.progress;
@@ -209,10 +270,10 @@ export class BudgetDetailComponent implements OnInit {
       this.progress.set(initial);
       this.loadFresh(initial.budget.id);
       this.loadTransactions(initial.budget.id);
+      this.loadHistory(initial.budget.id);
     }
   }
 
-  /** Refresh progress from API to get latest numbers */
   loadFresh(id: string): void {
     this.isLoading.set(true);
     this.budgetService.getProgress(id).subscribe({
@@ -227,6 +288,25 @@ export class BudgetDetailComponent implements OnInit {
       next: (data) => { this.transactions.set(data.transactions ?? []); this.txLoading.set(false); },
       error: () => this.txLoading.set(false),
     });
+  }
+
+  loadHistory(id: string): void {
+    this.histLoading.set(true);
+    this.budgetService.getHistory(id).subscribe({
+      next: (h) => { this.history.set(h); this.histLoading.set(false); },
+      error: () => this.histLoading.set(false),
+    });
+  }
+
+  complianceRate(snap: any): number {
+    const budgeted = Number(snap.budgetedAmount);
+    const spent    = Number(snap.spentAmount);
+    if (!budgeted) return 100;
+    return Math.min(100, Math.round((spent / budgeted) * 100));
+  }
+
+  isOver(snap: any): boolean {
+    return Number(snap.spentAmount) > Number(snap.budgetedAmount);
   }
 
   min100(v: number): number { return Math.min(v, 100); }

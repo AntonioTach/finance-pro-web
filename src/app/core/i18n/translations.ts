@@ -334,6 +334,28 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'budgets.wip.f3':       'Real-time visual progress',
     'budgets.wip.f4':       'Monthly / annual summary',
     'budgets.wip.progress': 'Development progress',
+
+    // ── Budget info panel ────────────────────────────────────
+    'budgets.info.title':       'What is a budget?',
+    'budgets.info.subtitle':    'A spending limit per category and period. FinancePro tracks it automatically from your transactions.',
+    'budgets.info.dismiss':     'Dismiss',
+    'budgets.info.feature1':    'By category',
+    'budgets.info.feature2':    'Smart alerts',
+    'budgets.info.feature3':    'Projections',
+    'budgets.info.feature4':    'Period history',
+    'budgets.info.how.title':   'How it works',
+    'budgets.info.how.step1':   'Choose a category (e.g. Food) and set a monthly limit.',
+    'budgets.info.how.step2':   'FinancePro adds up your transactions automatically.',
+    'budgets.info.how.step3':   'You receive an alert when you reach the configured threshold (e.g. 80%).',
+    'budgets.info.how.step4':   'At period end, review your history and adjust the limit if needed.',
+
+    // ── Dashboard budget widget ──────────────────────────────
+    'dashboard.budgets.title':    'Budgets',
+    'dashboard.budgets.global':   'Overall',
+    'dashboard.budgets.atRisk':   'At risk / exceeded',
+    'dashboard.budgets.noData':   'No active budgets',
+    'dashboard.budgets.viewAll':  'See all budgets',
+    'dashboard.budgets.noRisk':   'All budgets on track',
   },
 
   // ──────────────────────────────────────────────────────────
@@ -664,5 +686,27 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'budgets.wip.f3':       'Progreso visual en tiempo real',
     'budgets.wip.f4':       'Resumen mensual / anual',
     'budgets.wip.progress': 'Progreso del desarrollo',
+
+    // ── Panel informativo de presupuestos ────────────────────
+    'budgets.info.title':       '¿Qué es un presupuesto?',
+    'budgets.info.subtitle':    'Un límite de gasto por categoría y periodo. FinancePro lo rastrea automáticamente desde tus transacciones.',
+    'budgets.info.dismiss':     'Entendido',
+    'budgets.info.feature1':    'Por categoría',
+    'budgets.info.feature2':    'Alertas inteligentes',
+    'budgets.info.feature3':    'Proyecciones',
+    'budgets.info.feature4':    'Historial de periodos',
+    'budgets.info.how.title':   'Cómo funciona',
+    'budgets.info.how.step1':   'Elige una categoría (ej. Comida) y establece un límite mensual.',
+    'budgets.info.how.step2':   'FinancePro suma tus transacciones de esa categoría automáticamente.',
+    'budgets.info.how.step3':   'Recibes una alerta al alcanzar el umbral configurado (ej. 80%).',
+    'budgets.info.how.step4':   'Al cierre del periodo, revisa tu historial y ajusta el límite si hace falta.',
+
+    // ── Widget de presupuestos en dashboard ──────────────────
+    'dashboard.budgets.title':    'Presupuestos',
+    'dashboard.budgets.global':   'Global',
+    'dashboard.budgets.atRisk':   'En riesgo / excedidos',
+    'dashboard.budgets.noData':   'Sin presupuestos activos',
+    'dashboard.budgets.viewAll':  'Ver todos los presupuestos',
+    'dashboard.budgets.noRisk':   'Todos los presupuestos al día',
   },
 };

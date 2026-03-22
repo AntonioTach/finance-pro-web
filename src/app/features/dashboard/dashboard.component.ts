@@ -11,11 +11,14 @@ import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { TransactionService } from '../transactions/services/transaction.service';
 import { CardService } from '../cards/services/card.service';
 import { SubscriptionService } from '../subscriptions/services/subscription.service';
 import { ReportService } from '../reports/services/report.service';
+import { BudgetService } from '../budgets/services/budget.service';
+import { BudgetDashboard } from '../../core/models/budget.model';
 import { TransactionFormComponent } from '../transactions/transaction-form/transaction-form.component';
 import { AppDialogService } from '../../shared/services/dialog.service';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
@@ -83,6 +86,7 @@ export class DashboardComponent implements OnInit {
   private cardService = inject(CardService);
   private subscriptionService = inject(SubscriptionService);
   private reportService = inject(ReportService);
+  private budgetService = inject(BudgetService);
   private authService = inject(AuthService);
   private dialogService = inject(AppDialogService);
   private messageService = inject(MessageService);
@@ -90,6 +94,7 @@ export class DashboardComponent implements OnInit {
 
   isLoading = signal(true);
   summary = signal<DashboardSummary | null>(null);
+  budgetDashboard = signal<BudgetDashboard | null>(null);
   cashFlow = signal<CashFlowSummary | null>(null);
   recentTransactions = signal<Transaction[]>([]);
   cards = signal<Card[]>([]);
@@ -148,6 +153,12 @@ export class DashboardComponent implements OnInit {
 
   categoryBreakdown = signal<{ name: string; color: string; percentage: number; amount: number }[]>([]);
 
+  atRiskBudgets = computed(() =>
+    (this.budgetDashboard()?.budgets ?? [])
+      .filter(b => b.isExceeded || b.percentage >= b.budget.alertThreshold)
+      .slice(0, 3)
+  );
+
   ngOnInit(): void {
     this.loadDashboardData();
   }
@@ -161,8 +172,9 @@ export class DashboardComponent implements OnInit {
       subscriptions: this.subscriptionService.getAll(),
       trendReport: this.reportService.generateTrendReport(ReportPeriod.MONTHLY, 6),
       categoryReport: this.reportService.generateCategoryReport(),
+      budgets: this.budgetService.getDashboard().pipe(catchError(() => of(null))),
     }).subscribe({
-      next: ({ transactions, cards, subscriptions, trendReport, categoryReport }) => {
+      next: ({ transactions, cards, subscriptions, trendReport, categoryReport, budgets }) => {
         // Process summary
         this.processSummary(transactions);
 
@@ -184,6 +196,9 @@ export class DashboardComponent implements OnInit {
 
         // Category chart
         this.processCategoryChart(categoryReport.expenseByCategory);
+
+        // Budgets
+        if (budgets) this.budgetDashboard.set(budgets);
 
         this.isLoading.set(false);
       },

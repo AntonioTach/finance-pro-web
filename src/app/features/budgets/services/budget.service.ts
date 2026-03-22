@@ -53,6 +53,10 @@ export class BudgetService {
     return this.api.get<any>(`/budgets/${id}/transactions`);
   }
 
+  getHistory(id: string): Observable<any[]> {
+    return this.api.get<any[]>(`/budgets/${id}/history`);
+  }
+
   // ── Alerts ─────────────────────────────────────────────────
   getAlerts(): Observable<BudgetAlert[]> {
     return this.api.get<BudgetAlert[]>('/budgets/alerts');

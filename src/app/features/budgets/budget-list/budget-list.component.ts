@@ -11,7 +11,9 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { AuthService } from '../../../core/services/auth.service';
-import { BudgetDashboard, BudgetProgress } from '../../../core/models/budget.model';
+import { BudgetDashboard, BudgetProgress, BudgetAlert } from '../../../core/models/budget.model';
+import { BudgetAlertStateService } from '../services/budget-alert-state.service';
+import { BudgetInfoComponent } from '../components/budget-info/budget-info.component';
 
 @Component({
   selector: 'app-budget-list',
@@ -23,6 +25,7 @@ import { BudgetDashboard, BudgetProgress } from '../../../core/models/budget.mod
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     TranslatePipe,
+    BudgetInfoComponent,
   ],
   providers: [MessageService],
   template: `
@@ -41,6 +44,9 @@ import { BudgetDashboard, BudgetProgress } from '../../../core/models/budget.mod
           (onClick)="openForm()"
         />
       </header>
+
+      <!-- Info panel -->
+      <app-budget-info />
 
       <!-- Loading -->
       @if (isLoading()) {
@@ -87,12 +93,45 @@ import { BudgetDashboard, BudgetProgress } from '../../../core/models/budget.mod
           </div>
 
           @if (dashboard()!.unreadAlerts > 0) {
-            <div class="alert-badge-wrap" (click)="showAlerts = !showAlerts">
+            <div class="alert-badge-wrap" (click)="toggleAlerts()">
               <i class="pi pi-bell"></i>
               <span class="alert-count">{{ dashboard()!.unreadAlerts }}</span>
             </div>
           }
         </div>
+
+        <!-- Alerts panel -->
+        @if (showAlerts()) {
+          <div class="alerts-panel">
+            <div class="alerts-header">
+              <span class="alerts-title">
+                <i class="pi pi-bell"></i>
+                {{ 'budgets.alerts.title' | translate }}
+              </span>
+              <button class="mark-all-btn" (click)="markAllRead()">
+                {{ 'budgets.alerts.markAll' | translate }}
+              </button>
+            </div>
+
+            @if (alertsLoading()) {
+              <app-loading-spinner />
+            }
+
+            @if (!alertsLoading() && alerts().length === 0) {
+              <p class="alerts-empty">{{ 'budgets.alerts.empty' | translate }}</p>
+            }
+
+            @for (alert of alerts(); track alert.id) {
+              <div class="alert-row" [class]="'alert-row--' + alertSeverity(alert.type)">
+                <i class="pi" [ngClass]="alertIcon(alert.type)"></i>
+                <span class="alert-msg">{{ alert.message }}</span>
+                <button class="alert-dismiss" (click)="markAlertRead(alert)" title="Marcar como leída">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+        }
 
         <!-- Budget grid -->
         @if (dashboard()!.budgets.length === 0) {
@@ -327,6 +366,41 @@ import { BudgetDashboard, BudgetProgress } from '../../../core/models/budget.mod
     .empty-state h2 { margin: 0; font-size: 1.4rem; font-weight: 700; color: var(--text-color); }
     .empty-state p  { margin: 0; color: var(--text-secondary); max-width: 380px; }
 
+    /* ── Alerts panel ────────────────────────────── */
+    .alerts-panel {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      animation: slide-down 0.2s ease;
+    }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .alerts-header { display: flex; justify-content: space-between; align-items: center; }
+    .alerts-title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--text-color); text-transform: uppercase; letter-spacing: 0.04em; }
+    .alerts-title i { color: var(--warning-color, #f59e0b); }
+    .mark-all-btn { background: none; border: none; cursor: pointer; font-size: 0.78rem; font-weight: 600; color: var(--primary-color); padding: 0; }
+    .alerts-empty { margin: 0; font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0; }
+
+    .alert-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.83rem; color: var(--text-secondary); }
+    .alert-row--warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); }
+    .alert-row--warning i { color: var(--warning-color, #f59e0b); }
+    .alert-row--danger  { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2); }
+    .alert-row--danger  i { color: var(--danger-color, #ef4444); }
+    .alert-row--success { background: rgba(34,197,94,0.08);  border: 1px solid rgba(34,197,94,0.2); }
+    .alert-row--success i { color: var(--success-color, #22c55e); }
+    .alert-row--info    { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); }
+    .alert-row--info    i { color: var(--primary-color); }
+    .alert-msg { flex: 1; line-height: 1.4; }
+    .alert-dismiss { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 0.25rem; border-radius: 6px; display: flex; align-items: center; font-size: 0.75rem; flex-shrink: 0; transition: color 0.15s; }
+    .alert-dismiss:hover { color: var(--text-color); }
+
     /* ── Utilities ───────────────────────────────── */
     .text-danger { color: var(--danger-color, #ef4444) !important; }
 
@@ -344,12 +418,19 @@ export class BudgetListComponent implements OnInit {
   private dialogService  = inject(AppDialogService);
   private messageService = inject(MessageService);
 
-  isLoading = signal(false);
-  dashboard = signal<BudgetDashboard | null>(null);
-  currency  = signal(this.authService.currentUser()?.currency ?? 'MXN');
-  showAlerts = false;
+  private alertState = inject(BudgetAlertStateService);
 
-  ngOnInit(): void { this.load(); }
+  isLoading    = signal(false);
+  dashboard    = signal<BudgetDashboard | null>(null);
+  currency     = signal(this.authService.currentUser()?.currency ?? 'MXN');
+  showAlerts   = signal(false);
+  alerts       = signal<BudgetAlert[]>([]);
+  alertsLoading = signal(false);
+
+  ngOnInit(): void {
+    this.load();
+    this.alertState.refresh();
+  }
 
   load(): void {
     this.isLoading.set(true);
@@ -410,7 +491,63 @@ export class BudgetListComponent implements OnInit {
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────
+  // ── Alerts ────────────────────────────────────────────────
+
+  toggleAlerts(): void {
+    const next = !this.showAlerts();
+    this.showAlerts.set(next);
+    if (next && this.alerts().length === 0) {
+      this.loadAlerts();
+    }
+  }
+
+  loadAlerts(): void {
+    this.alertsLoading.set(true);
+    this.budgetService.getAlerts().subscribe({
+      next: (a) => { this.alerts.set(a); this.alertsLoading.set(false); },
+      error: () => this.alertsLoading.set(false),
+    });
+  }
+
+  markAlertRead(alert: BudgetAlert): void {
+    this.budgetService.markAlertRead(alert.id).subscribe({
+      next: () => {
+        this.alerts.update(list => list.filter(a => a.id !== alert.id));
+        this.alertState.decrement();
+        if (this.alerts().length === 0) {
+          this.showAlerts.set(false);
+          this.load(); // refresh dashboard unread count
+        }
+      },
+    });
+  }
+
+  markAllRead(): void {
+    this.budgetService.markAllAlertsRead().subscribe({
+      next: () => {
+        this.alerts.set([]);
+        this.alertState.reset();
+        this.showAlerts.set(false);
+        this.load();
+      },
+    });
+  }
+
+  alertSeverity(type: string): string {
+    if (type === 'renewal') return 'success';
+    if (type === 'threshold_50') return 'info';
+    if (type === 'burn_rate' || type === 'threshold_80') return 'warning';
+    return 'danger'; // threshold_100, exceeded
+  }
+
+  alertIcon(type: string): string {
+    if (type === 'renewal') return 'pi-refresh';
+    if (type === 'burn_rate') return 'pi-chart-line';
+    if (type === 'exceeded' || type === 'threshold_100') return 'pi-exclamation-triangle';
+    return 'pi-bell';
+  }
+
+  // ── Helpers ────────────────────────────────────────────────
 
   min100(v: number): number { return Math.min(v, 100); }
 
