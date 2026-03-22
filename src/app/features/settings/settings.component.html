@@ -30,7 +30,7 @@
           (click)="selectLanguage(lang.code)"
           [attr.aria-pressed]="isLangActive(lang.code)"
         >
-          <div class="lang-flag">{{ lang.code === 'es' ? '🇪🇸' : '🇺🇸' }}</div>
+          <div class="lang-flag">{{ lang.code === 'es' ? 'mx' : '🇺🇸' }}</div>
           <div class="lang-info">
             <span class="lang-code-label">{{ lang.code | uppercase }}</span>
             <span class="lang-name-label">{{ lang.labelKey | translate }}</span>
@@ -153,11 +153,11 @@
       </div>
       <div class="about-info">
         <h3>FinancePro</h3>
-        <p>{{ 'settings.subtitle' | translate }}</p>
+        <!-- <p>{{ 'settings.subtitle' | translate }}</p> -->
         <div class="about-tags">
-          <span class="about-tag">v1.0.0</span>
+          <!-- <span class="about-tag">v1.0.0</span>
           <span class="about-tag">Angular 20</span>
-          <span class="about-tag">NestJS</span>
+          <span class="about-tag">NestJS</span> -->
         </div>
       </div>
     </div>
