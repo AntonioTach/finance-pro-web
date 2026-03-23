@@ -14,6 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { BudgetDashboard, BudgetProgress, BudgetAlert } from '../../../core/models/budget.model';
 import { BudgetAlertStateService } from '../services/budget-alert-state.service';
 import { BudgetInfoComponent } from '../components/budget-info/budget-info.component';
+import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 
 @Component({
   selector: 'app-budget-list',
@@ -26,6 +27,7 @@ import { BudgetInfoComponent } from '../components/budget-info/budget-info.compo
     CurrencyFormatPipe,
     TranslatePipe,
     BudgetInfoComponent,
+    CategoryIconComponent,
   ],
   providers: [MessageService],
   template: `
@@ -158,8 +160,7 @@ import { BudgetInfoComponent } from '../components/budget-info/budget-info.compo
                 <!-- Card header -->
                 <div class="card-header">
                   <div class="card-icon" [style.background]="item.budget.category?.color + '22'">
-                    <i [class]="'pi pi-' + (item.budget.category?.icon || 'tag')"
-                       [style.color]="item.budget.category?.color || 'var(--primary-color)'"></i>
+                    <app-cat-icon [icon]="item.budget.category?.icon" />
                   </div>
                   <div class="card-title-wrap">
                     <span class="card-name">{{ item.budget.name || item.budget.category?.name }}</span>

@@ -155,7 +155,7 @@
             <td>
               @if (transaction.category) {
                 <span class="category-badge" [style.background-color]="(transaction.category.color ?? '#666') + '20'" [style.color]="transaction.category.color ?? '#666'">
-                  <i class="pi" [class]="'pi-' + transaction.category.icon"></i>
+                  <app-cat-icon [icon]="transaction.category.icon" />
                   {{ transaction.category.name }}
                 </span>
               } @else {

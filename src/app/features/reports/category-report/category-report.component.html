@@ -134,7 +134,7 @@
               <td>
                 <div class="category-cell">
                   <span class="category-icon" [style.background-color]="category.categoryColor">
-                    <i class="pi" [class]="'pi-' + category.categoryIcon"></i>
+                    <app-cat-icon [icon]="category.categoryIcon" />
                   </span>
                   <span>{{ category.categoryName }}</span>
                 </div>
@@ -182,7 +182,7 @@
               <td>
                 <div class="category-cell">
                   <span class="category-icon" [style.background-color]="category.categoryColor">
-                    <i class="pi" [class]="'pi-' + category.categoryIcon"></i>
+                    <app-cat-icon [icon]="category.categoryIcon" />
                   </span>
                   <span>{{ category.categoryName }}</span>
                 </div>

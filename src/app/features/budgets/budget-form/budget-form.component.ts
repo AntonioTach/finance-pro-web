@@ -22,6 +22,7 @@ import { ApiService } from '../../../core/services/api.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
+import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 
 @Component({
   selector: 'app-budget-form',
@@ -38,6 +39,7 @@ import { TranslationService } from '../../../core/services/translation.service';
     CheckboxModule,
     TranslatePipe,
     CurrencyFormatPipe,
+    CategoryIconComponent,
   ],
   template: `
     <div class="budget-form">
@@ -58,7 +60,7 @@ import { TranslationService } from '../../../core/services/translation.service';
           <ng-template #item let-cat>
             <div class="cat-option">
               <span class="cat-dot" [style.background]="cat.color"></span>
-              <i [class]="'pi pi-' + cat.icon" [style.color]="cat.color"></i>
+              <app-cat-icon [icon]="cat.icon" />
               {{ cat.name }}
             </div>
           </ng-template>

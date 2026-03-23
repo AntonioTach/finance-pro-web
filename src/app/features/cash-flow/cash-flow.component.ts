@@ -16,6 +16,7 @@ import { CashFlowService, CashFlowSummary, CashFlowFilters } from './services/ca
 import { CategoryService } from '../categories/services/category.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { CategoryIconComponent } from '../../shared/components/category-icon/category-icon.component';
 import { CurrencyFormatPipe } from '../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 import { Transaction, TransactionType } from '../../core/models/transaction.model';
@@ -45,6 +46,7 @@ interface SelectOption {
     TooltipModule,
     BaseChartDirective,
     LoadingSpinnerComponent,
+    CategoryIconComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
   ],

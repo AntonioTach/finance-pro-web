@@ -22,6 +22,7 @@ import { BudgetDashboard } from '../../core/models/budget.model';
 import { TransactionFormComponent } from '../transactions/transaction-form/transaction-form.component';
 import { AppDialogService } from '../../shared/services/dialog.service';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { CategoryIconComponent } from '../../shared/components/category-icon/category-icon.component';
 import { CurrencyFormatPipe } from '../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 import { AuthService } from '../../core/services/auth.service';
@@ -74,6 +75,7 @@ interface UpcomingPayment {
     TagModule,
     BaseChartDirective,
     LoadingSpinnerComponent,
+    CategoryIconComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
     TranslatePipe,

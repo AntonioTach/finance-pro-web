@@ -169,7 +169,7 @@
             <td>
               @if (item.subscription.category) {
                 <span class="category-badge" [style.background-color]="(item.subscription.category.color ?? '#666') + '20'" [style.color]="item.subscription.category.color ?? '#666'">
-                  <i class="pi" [class]="'pi-' + item.subscription.category.icon"></i>
+                  <app-cat-icon [icon]="item.subscription.category.icon" />
                   {{ item.subscription.category.name }}
                 </span>
               } @else {

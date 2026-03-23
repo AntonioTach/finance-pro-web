@@ -17,6 +17,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 import { TransactionReportFilters } from '../../../core/models/report.model';
 import { Category } from '../../../core/models/category.model';
@@ -46,6 +47,7 @@ interface SelectOption {
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
+    CategoryIconComponent,
   ],
   templateUrl: './transaction-report.component.html',
   styleUrls: ['./transaction-report.component.scss'],

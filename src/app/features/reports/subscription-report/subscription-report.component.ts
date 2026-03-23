@@ -10,6 +10,7 @@ import { ReportService } from '../services/report.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
+import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 import { SubscriptionReport } from '../../../core/models/report.model';
 
 @Component({
@@ -24,6 +25,7 @@ import { SubscriptionReport } from '../../../core/models/report.model';
     BaseChartDirective,
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
+    CategoryIconComponent,
   ],
   templateUrl: './subscription-report.component.html',
   styleUrls: ['./subscription-report.component.scss'],

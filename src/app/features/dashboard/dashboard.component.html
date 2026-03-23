@@ -278,8 +278,7 @@
                 @for (b of atRiskBudgets(); track b.budget.id) {
                   <div class="bw-budget-row">
                     <div class="bw-budget-icon" [style.background]="(b.budget.category?.color || '#6366f1') + '22'">
-                      <i [class]="'pi pi-' + (b.budget.category?.icon || 'tag')"
-                         [style.color]="b.budget.category?.color || 'var(--primary-color)'"></i>
+                      <app-cat-icon [icon]="b.budget.category?.icon" />
                     </div>
                     <div class="bw-budget-info">
                       <span class="bw-budget-name">{{ b.budget.name || b.budget.category?.name }}</span>
