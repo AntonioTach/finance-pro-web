@@ -63,12 +63,10 @@ interface NavItem {
       </nav>
 
       <!-- Financial Tip -->
-      @if (showTip()) {
-        <div class="sidebar-tip" [class.tip-collapsed]="isCollapsed()">
-          <div class="tip-divider"></div>
-          <app-financial-tip [isCollapsed]="isCollapsed()" />
-        </div>
-      }
+      <div class="sidebar-tip" [class.tip-collapsed]="isCollapsed()">
+        <div class="tip-divider"></div>
+        <app-financial-tip [isCollapsed]="isCollapsed()" />
+      </div>
 
       <!-- Footer -->
       <div class="sidebar-footer">
@@ -375,10 +373,10 @@ export class SidebarComponent implements OnInit {
     this.alertState.refresh();
   }
 
-  showTip = computed(() => {
-    const url = this.currentUrl() ?? '';
-    return !url.startsWith('/profile') && !url.startsWith('/settings');
-  });
+  // showTip = computed(() => {
+  //   const url = this.currentUrl() ?? '';
+  //   return !url.startsWith('/profile') && !url.startsWith('/settings');
+  // });
 
   navItems: NavItem[] = [
     { labelKey: 'nav.dashboard',    icon: 'pi-home',          route: '/dashboard' },
