@@ -431,7 +431,7 @@ export class ProfileComponent {
       this.savedSuccess.set(false);
       this.apiService.patch<User>('/users/profile', this.profileForm.value).subscribe({
         next: (user) => {
-          this.authService.setAuthData(user, this.authService.getToken()!);
+          this.authService.updateCurrentUser(user);
           this.isLoading.set(false);
           this.savedSuccess.set(true);
           this.messageService.add({

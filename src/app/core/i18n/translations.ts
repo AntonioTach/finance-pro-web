@@ -214,6 +214,12 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'settings.theme.ocean.desc':       'Deep sea with glacial cyan',
     'settings.theme.aurora.name':      'Aurora',
     'settings.theme.aurora.desc':      'Boreal dusk with emerald green',
+    'settings.theme.graphite.name':    'Graphite',
+    'settings.theme.graphite.desc':    'Sleek and minimal with dark tones and metallic accents',
+    'settings.theme.ice.name': 'Ice',
+    'settings.theme.ice.desc': 'Cool and clean with icy blue tones and subtle glow',
+    'settings.theme.pink-light.name': 'Pink Light',
+    'settings.theme.pink-light.desc': 'Soft and bright with delicate pink tones',
 
     // ── Debts ────────────────────────────────────────────────
     'debts.title':                    'Debts',
@@ -566,6 +572,12 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'settings.theme.ocean.desc':       'Profundidades del mar con cyan glaciar',
     'settings.theme.aurora.name':      'Aurora',
     'settings.theme.aurora.desc':      'Anochecer boreal con verde esmeralda',
+    'settings.theme.graphite.name':    'Grafito',
+    'settings.theme.graphite.desc':    'Elegante y sobrio con tonos oscuros y acentos metálicos',
+    'settings.theme.ice.name':         'Hielo',
+    'settings.theme.ice.desc':         'Frío y limpio con tonos azulados y brillo sutil',
+    'settings.theme.pink-light.name':   'Rosa claro',
+    'settings.theme.pink-light.desc':   'Suave y luminoso con tonos rosados delicados',
 
     // ── Deudas ───────────────────────────────────────────────
     'debts.title':                    'Deudas',

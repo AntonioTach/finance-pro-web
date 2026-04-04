@@ -180,10 +180,10 @@
     .p-datatable-tbody > tr {
       background: var(--bg-elevated) !important;
       color: var(--text-color) !important;
-      border-color: rgba(255,255,255,0.04) !important;
+      border-color: var(--border-color) !important;
 
       td {
-        border-color: rgba(255,255,255,0.04) !important;
+        border-color: var(--border-color) !important;
         padding: 1rem !important;
       }
 
@@ -192,8 +192,9 @@
       }
     }
 
-    .p-datatable-tbody > tr:nth-child(even) {
-      background: rgba(255,255,255,0.015) !important;
+    .p-datatable-tbody > tr:nth-child(even),
+    .p-datatable-tbody > tr.p-row-even {
+      background: var(--bg-secondary) !important;
     }
   }
 

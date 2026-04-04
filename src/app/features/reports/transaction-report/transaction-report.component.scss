@@ -85,19 +85,19 @@
   }
 
   &.income .value {
-    color: #22c55e;
+    color: var(--success-color);
   }
 
   &.expense .value {
-    color: #ef4444;
+    color: var(--danger-color);
   }
 
   &.balance.positive .value {
-    color: #22c55e;
+    color: var(--success-color);
   }
 
   &.balance.negative .value {
-    color: #ef4444;
+    color: var(--danger-color);
   }
 }
 
@@ -152,12 +152,12 @@
 }
 
 .income-amount {
-  color: #22c55e;
+  color: var(--success-color);
   font-weight: 600;
 }
 
 .expense-amount {
-  color: #ef4444;
+  color: var(--danger-color);
   font-weight: 600;
 }
 

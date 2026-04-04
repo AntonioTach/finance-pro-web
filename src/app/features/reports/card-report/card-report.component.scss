@@ -35,23 +35,23 @@
     font-size: 1.25rem;
 
     &.total {
-      background: rgba(168, 85, 247, 0.15);
-      color: #a855f7;
+      background: var(--primary-subtle);
+      color: var(--primary-color);
     }
 
     &.spent {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
+      background: var(--danger-bg);
+      color: var(--danger-color);
     }
 
     &.limit {
-      background: rgba(59, 130, 246, 0.15);
-      color: #3b82f6;
+      background: var(--info-bg);
+      color: var(--info-color);
     }
 
     &.available {
-      background: rgba(34, 197, 94, 0.15);
-      color: #22c55e;
+      background: var(--success-bg);
+      color: var(--success-color);
     }
   }
 
@@ -135,11 +135,11 @@
         font-size: 1rem;
 
         &.success {
-          color: #22c55e;
+          color: var(--success-color);
         }
 
         &.expense {
-          color: #ef4444;
+          color: var(--danger-color);
         }
       }
     }
@@ -154,8 +154,8 @@
       font-size: 0.9rem;
 
       &.good {
-        background: rgba(34, 197, 94, 0.15);
-        color: #22c55e;
+        background: var(--success-bg);
+        color: var(--success-color);
       }
 
       &.moderate {
@@ -169,8 +169,8 @@
       }
 
       &.critical {
-        background: rgba(239, 68, 68, 0.15);
-        color: #ef4444;
+        background: var(--danger-bg);
+        color: var(--danger-color);
       }
     }
   }
@@ -231,7 +231,7 @@
 
 .spent-amount {
   font-weight: 600;
-  color: #ef4444;
+  color: var(--danger-color);
 }
 
 .no-limit {
@@ -253,7 +253,7 @@
 
 :host ::ng-deep {
   .util-good .p-progressbar-value {
-    background: #22c55e;
+    background: var(--success-color);
   }
 
   .util-moderate .p-progressbar-value {
@@ -265,7 +265,7 @@
   }
 
   .util-critical .p-progressbar-value {
-    background: #ef4444;
+    background: var(--danger-color);
   }
 }
 
@@ -355,7 +355,7 @@
 
     .amount {
       font-weight: 700;
-      color: #ef4444;
+      color: var(--danger-color);
     }
 
     .transactions {

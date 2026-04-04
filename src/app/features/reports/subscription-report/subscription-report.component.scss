@@ -36,18 +36,18 @@
   }
 
   &.active .card-icon {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
+    background: var(--success-bg);
+    color: var(--success-color);
   }
 
   &.monthly .card-icon {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
+    background: var(--info-bg);
+    color: var(--info-color);
   }
 
   &.yearly .card-icon {
-    background: rgba(168, 85, 247, 0.15);
-    color: #a855f7;
+    background: var(--primary-subtle);
+    color: var(--primary-color);
   }
 
   &.inactive .card-icon {
@@ -151,8 +151,8 @@
   }
 
   &.due-soon {
-    border-left-color: #ef4444;
-    background: rgba(239, 68, 68, 0.05);
+    border-left-color: var(--danger-color);
+    background: var(--danger-bg);
   }
 
   .payment-date {
@@ -175,7 +175,7 @@
   }
 
   &.due-soon .payment-date .days {
-    color: #ef4444;
+    color: var(--danger-color);
   }
 
   .payment-info {
@@ -333,10 +333,10 @@
   }
 
   &.due-soon {
-    color: #ef4444;
+    color: var(--danger-color);
 
     i {
-      color: #ef4444;
+      color: var(--danger-color);
     }
   }
 }
@@ -398,7 +398,7 @@
 
     .savings {
       font-size: 0.75rem;
-      color: #22c55e;
+      color: var(--success-color);
       font-weight: 500;
     }
   }

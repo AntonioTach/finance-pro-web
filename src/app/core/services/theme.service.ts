@@ -184,7 +184,7 @@ export const THEMES: Theme[] = [
       '--glass-border': 'rgba(255, 255, 255, 0.08)',
     },
   },
-   {
+  {
     id: 'graphite',
     name: 'Graphite',
     description: 'Oscuro neutro elegante tipo macOS',
@@ -371,7 +371,8 @@ export class ThemeService {
     }
 
     // Toggle dark-mode class for PrimeNG
-    if (id === 'light' || id === 'sand') {
+    const lightThemes: ThemeId[] = ['light', 'sand', 'pink-light', 'ice'];
+    if (lightThemes.includes(id)) {
       root.classList.remove('dark-mode');
     } else {
       root.classList.add('dark-mode');
@@ -385,17 +386,80 @@ export class ThemeService {
 
   private updatePrimengSurfaces(theme: Theme): void {
     const root = document.documentElement;
-    const vars = theme.vars;
+    const v = theme.vars;
 
-    root.style.setProperty('--surface-ground', vars['--bg-color'] ?? '');
-    root.style.setProperty('--surface-card', vars['--bg-elevated'] ?? '');
-    root.style.setProperty('--surface-section', vars['--bg-elevated'] ?? '');
-    root.style.setProperty('--surface-header', vars['--bg-secondary'] ?? '');
-    root.style.setProperty('--surface-border', vars['--border-color'] ?? '');
-    root.style.setProperty('--surface-hover', vars['--bg-hover'] ?? '');
-    root.style.setProperty('--text-color', vars['--text-color'] ?? '');
-    root.style.setProperty('--text-color-secondary', vars['--text-secondary'] ?? '');
-    root.style.setProperty('--primary-color', vars['--primary-color'] ?? '');
+    // ── Legacy PrimeNG surface tokens (v5/v6 compat) ──────────
+    root.style.setProperty('--surface-ground',    v['--bg-color']     ?? '');
+    root.style.setProperty('--surface-card',      v['--bg-elevated']  ?? '');
+    root.style.setProperty('--surface-section',   v['--bg-elevated']  ?? '');
+    root.style.setProperty('--surface-header',    v['--bg-secondary'] ?? '');
+    root.style.setProperty('--surface-border',    v['--border-color'] ?? '');
+    root.style.setProperty('--surface-hover',     v['--bg-hover']     ?? '');
+    root.style.setProperty('--text-color',            v['--text-color']     ?? '');
+    root.style.setProperty('--text-color-secondary',  v['--text-secondary'] ?? '');
+    root.style.setProperty('--primary-color',         v['--primary-color']  ?? '');
+
+    // ── PrimeNG 21 design tokens ──────────────────────────────
+
+    // DataTable
+    root.style.setProperty('--p-datatable-header-background',          v['--bg-secondary'] ?? '');
+    root.style.setProperty('--p-datatable-header-color',               v['--text-color']   ?? '');
+    root.style.setProperty('--p-datatable-header-border-color',        v['--border-color'] ?? '');
+    root.style.setProperty('--p-datatable-header-cell-background',     v['--bg-secondary'] ?? '');
+    root.style.setProperty('--p-datatable-header-cell-hover-background', v['--bg-hover']   ?? '');
+    root.style.setProperty('--p-datatable-header-cell-color',          v['--text-secondary'] ?? '');
+    root.style.setProperty('--p-datatable-header-cell-border-color',   v['--border-color'] ?? '');
+    root.style.setProperty('--p-datatable-body-background',            v['--bg-elevated']  ?? '');
+    root.style.setProperty('--p-datatable-body-row-background',        v['--bg-elevated']  ?? '');
+    root.style.setProperty('--p-datatable-body-row-color',             v['--text-color']   ?? '');
+    root.style.setProperty('--p-datatable-body-row-hover-background',  v['--bg-hover']     ?? '');
+    root.style.setProperty('--p-datatable-body-row-hover-color',       v['--text-color']   ?? '');
+    root.style.setProperty('--p-datatable-body-cell-border-color',     v['--border-color'] ?? '');
+    root.style.setProperty('--p-datatable-row-striped-background',     v['--bg-secondary'] ?? '');
+    root.style.setProperty('--p-datatable-border-color',               v['--border-color'] ?? '');
+    root.style.setProperty('--p-datatable-footer-background',          v['--bg-secondary'] ?? '');
+    root.style.setProperty('--p-datatable-footer-color',               v['--text-secondary'] ?? '');
+    root.style.setProperty('--p-datatable-footer-border-color',        v['--border-color'] ?? '');
+    root.style.setProperty('--p-datatable-sort-icon-color',            v['--text-muted']   ?? '');
+    root.style.setProperty('--p-datatable-sort-icon-hover-color',      v['--primary-color'] ?? '');
+
+    // Paginator
+    root.style.setProperty('--p-paginator-background',                  v['--bg-elevated']  ?? '');
+    root.style.setProperty('--p-paginator-color',                       v['--text-secondary'] ?? '');
+    root.style.setProperty('--p-paginator-border-color',                v['--border-color'] ?? '');
+    root.style.setProperty('--p-paginator-nav-button-color',            v['--text-secondary'] ?? '');
+    root.style.setProperty('--p-paginator-nav-button-hover-background', v['--bg-hover']     ?? '');
+    root.style.setProperty('--p-paginator-nav-button-hover-color',      v['--text-color']   ?? '');
+    root.style.setProperty('--p-paginator-current-page-report-color',   v['--text-muted']   ?? '');
+
+    // Card
+    root.style.setProperty('--p-card-background',    v['--bg-elevated']  ?? '');
+    root.style.setProperty('--p-card-color',          v['--text-color']   ?? '');
+    root.style.setProperty('--p-card-border-color',   v['--border-color'] ?? '');
+    root.style.setProperty('--p-card-shadow',         v['--shadow-md']    ?? '0 4px 16px rgba(0,0,0,0.1)');
+
+    // ProgressBar
+    root.style.setProperty('--p-progressbar-background',       v['--bg-secondary'] ?? '');
+    root.style.setProperty('--p-progressbar-value-background', v['--primary-color'] ?? '');
+
+    // Select / Dropdown
+    root.style.setProperty('--p-select-background',          v['--bg-input']     ?? '');
+    root.style.setProperty('--p-select-color',               v['--text-color']   ?? '');
+    root.style.setProperty('--p-select-border-color',        v['--border-color'] ?? '');
+    root.style.setProperty('--p-select-hover-border-color',  v['--border-hover'] ?? '');
+    root.style.setProperty('--p-select-focus-border-color',  v['--primary-color'] ?? '');
+    root.style.setProperty('--p-select-overlay-background',  v['--bg-elevated']  ?? '');
+    root.style.setProperty('--p-select-option-color',        v['--text-color']   ?? '');
+    root.style.setProperty('--p-select-option-focus-background', v['--bg-hover'] ?? '');
+
+    // Tabs
+    root.style.setProperty('--p-tabs-tab-active-color',       v['--primary-color'] ?? '');
+    root.style.setProperty('--p-tabs-tab-active-border-color', v['--primary-color'] ?? '');
+    root.style.setProperty('--p-tabs-tab-color',              v['--text-secondary'] ?? '');
+    root.style.setProperty('--p-tabs-tab-hover-color',        v['--text-color']   ?? '');
+    root.style.setProperty('--p-tablist-background',          v['--bg-elevated']  ?? '');
+    root.style.setProperty('--p-tablist-border-color',        v['--border-color'] ?? '');
+    root.style.setProperty('--p-tabpanels-background',        v['--bg-color']     ?? '');
   }
 
   getCurrentThemeData(): Theme {

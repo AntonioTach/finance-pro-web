@@ -135,7 +135,10 @@ body {
 
 // ── PrimeNG: DataTable ────────────────────────────────────────
 .p-datatable {
-  .p-datatable-thead > tr > th {
+  // Header (legacy class names)
+  .p-datatable-thead > tr > th,
+  .p-datatable-column-header-content th,
+  th[data-p-sortable-column] {
     background: var(--bg-secondary) !important;
     color: var(--text-secondary) !important;
     border-color: var(--border-color) !important;
@@ -146,6 +149,7 @@ body {
     padding: 0.875rem 1rem !important;
   }
 
+  // Body rows
   .p-datatable-tbody > tr {
     background: var(--bg-elevated) !important;
     color: var(--text-color) !important;
@@ -155,24 +159,67 @@ body {
     td {
       border-color: var(--border-color) !important;
       padding: 1rem !important;
+      color: var(--text-color) !important;
     }
 
     &:hover { background: var(--bg-hover) !important; }
   }
 
-  .p-datatable-tbody > tr:nth-child(even) {
-    background: rgba(255, 255, 255, 0.02) !important;
+  // Striped: alternate even rows (both nth-child and PrimeNG 21 class)
+  &.p-datatable-striped .p-datatable-tbody > tr:nth-child(even),
+  &.p-datatable-striped .p-datatable-tbody > tr.p-row-even {
+    background: var(--bg-secondary) !important;
+
+    &:hover { background: var(--bg-hover) !important; }
   }
 
+  // Footer
+  .p-datatable-tfoot > tr > td {
+    background: var(--bg-secondary) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  // Paginator
   .p-paginator {
     background: var(--bg-elevated) !important;
     border-color: var(--border-color) !important;
     color: var(--text-secondary) !important;
 
-    .p-paginator-element { color: var(--text-secondary) !important; }
-    .p-paginator-element:hover { background: var(--bg-hover) !important; }
-    .p-highlight { background: var(--primary-subtle) !important; color: var(--primary-light) !important; }
+    .p-paginator-element,
+    .p-paginator-page,
+    .p-paginator-first,
+    .p-paginator-prev,
+    .p-paginator-next,
+    .p-paginator-last {
+      color: var(--text-secondary) !important;
+      border-radius: 8px !important;
+    }
+    .p-paginator-element:hover,
+    .p-paginator-page:hover {
+      background: var(--bg-hover) !important;
+      color: var(--text-color) !important;
+    }
+    .p-highlight,
+    .p-paginator-page.p-highlight {
+      background: var(--primary-subtle) !important;
+      color: var(--primary-light) !important;
+    }
+    .p-paginator-current {
+      color: var(--text-muted) !important;
+    }
   }
+
+  // Sort icons
+  .p-sortable-column-icon { color: var(--text-muted) !important; }
+  .p-sortable-column:hover .p-sortable-column-icon { color: var(--primary-color) !important; }
+}
+
+// PrimeNG 21 DataTable (new component structure)
+p-table,
+.p-datatable-table {
+  background: var(--bg-elevated) !important;
+  color: var(--text-color) !important;
 }
 
 // ── PrimeNG: Button ───────────────────────────────────────────
@@ -301,7 +348,7 @@ body {
 
 // ── PrimeNG: Progress Bar ────────────────────────────────────
 .p-progressbar {
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: var(--bg-secondary) !important;
   border-radius: var(--border-radius-full) !important;
   height: 6px !important;
   overflow: hidden;
