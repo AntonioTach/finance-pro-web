@@ -2,10 +2,13 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService, Theme, ThemeId } from '../../core/services/theme.service';
 import { TranslationService, Lang } from '../../core/services/translation.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ApiService } from '../../core/services/api.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LangSwitcherComponent } from '../../shared/components/lang-switcher/lang-switcher.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-settings',
@@ -16,11 +19,13 @@ import { MessageService } from 'primeng/api';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent {
-  private themeService = inject(ThemeService);
+  private themeService   = inject(ThemeService);
   private messageService = inject(MessageService);
+  private authService    = inject(AuthService);
+  private apiService     = inject(ApiService);
   readonly ts = inject(TranslationService);
 
-  readonly themes = this.themeService.themes;
+  readonly themes       = this.themeService.themes;
   readonly currentTheme = this.themeService.currentTheme;
   readonly languages: { code: Lang; labelKey: string }[] = [
     { code: 'es', labelKey: 'settings.lang.es' },
@@ -28,21 +33,43 @@ export class SettingsComponent {
   ];
 
   selectTheme(id: ThemeId): void {
+    // Apply immediately (optimistic)
     this.themeService.setTheme(id);
-    this.messageService.add({
-      severity: 'success',
-      summary: this.ts.t('settings.theme.applied'),
-      detail: `"${this.ts.t('settings.theme.' + id + '.name')}"`,
-      life: 2500,
+
+    // Persist in user profile
+    this.apiService.patch<User>('/users/profile', { theme: id }).subscribe({
+      next: (user) => {
+        this.authService.updateCurrentUser(user);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.ts.t('settings.theme.applied'),
+          detail: `"${this.ts.t('settings.theme.' + id + '.name')}"`,
+          life: 2500,
+        });
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.ts.t('budgets.error.save'), life: 3000 });
+      },
     });
   }
 
   selectLanguage(lang: Lang): void {
+    // Apply immediately (optimistic)
     this.ts.setLanguage(lang);
-    this.messageService.add({
-      severity: 'success',
-      summary: this.ts.t('settings.language.applied'),
-      life: 2000,
+
+    // Persist in user profile
+    this.apiService.patch<User>('/users/profile', { language: lang }).subscribe({
+      next: (user) => {
+        this.authService.updateCurrentUser(user);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.ts.t('settings.language.applied'),
+          life: 2000,
+        });
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: this.ts.t('budgets.error.save'), life: 3000 });
+      },
     });
   }
 
@@ -55,7 +82,6 @@ export class SettingsComponent {
   }
 
   darken(hex: string): string {
-    // Returns a slightly darker shade for the mini sidebar preview
     try {
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);

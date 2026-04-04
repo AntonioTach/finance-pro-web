@@ -343,8 +343,6 @@ export const THEMES: Theme[] = [
   },
 ];
 
-const STORAGE_KEY = 'fp_theme';
-
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private _currentTheme = signal<ThemeId>('dark');
@@ -352,18 +350,13 @@ export class ThemeService {
   readonly themes = THEMES;
 
   constructor() {
-    // Restore saved theme
-    const saved = localStorage.getItem(STORAGE_KEY) as ThemeId | null;
-    if (saved && THEMES.find(t => t.id === saved)) {
-      this.applyTheme(saved);
-    } else {
-      this.applyTheme('dark');
-    }
+    // Apply default until user profile loads
+    this.applyTheme('dark');
   }
 
+  /** Apply theme locally (no API call). Called by AuthService on login/init. */
   setTheme(id: ThemeId): void {
     this.applyTheme(id);
-    localStorage.setItem(STORAGE_KEY, id);
   }
 
   private applyTheme(id: ThemeId): void {

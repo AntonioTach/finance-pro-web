@@ -3,6 +3,8 @@ export interface User {
   email: string;
   name: string;
   currency: string;
+  theme: string;
+  language: string;
   createdAt: string;
   updatedAt: string;
 }
