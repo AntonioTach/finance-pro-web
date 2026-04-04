@@ -5,6 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { TabsModule } from 'primeng/tabs';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService } from 'primeng/api';
 import { DebtService } from '../services/debt.service';
 import { DebtFormComponent } from '../debt-form/debt-form.component';
@@ -26,6 +27,7 @@ import { AuthService } from '../../../core/services/auth.service';
     TooltipModule,
     ToastModule,
     TabsModule,
+    ConfirmDialogModule,
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     TranslatePipe,

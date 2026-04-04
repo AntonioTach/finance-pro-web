@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { BudgetService } from '../services/budget.service';
 import { BudgetFormComponent } from '../budget-form/budget-form.component';
 import { BudgetDetailComponent } from '../budget-detail/budget-detail.component';
@@ -11,6 +12,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
 import { BudgetDashboard, BudgetProgress, BudgetAlert } from '../../../core/models/budget.model';
 import { BudgetAlertStateService } from '../services/budget-alert-state.service';
 import { BudgetInfoComponent } from '../components/budget-info/budget-info.component';
@@ -23,6 +25,7 @@ import { CategoryIconComponent } from '../../../shared/components/category-icon/
     CommonModule,
     ButtonModule,
     ToastModule,
+    ConfirmDialogModule,
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     TranslatePipe,
@@ -32,6 +35,7 @@ import { CategoryIconComponent } from '../../../shared/components/category-icon/
   providers: [MessageService],
   template: `
     <p-toast />
+    <p-confirmdialog />
 
     <div class="budget-page">
       <!-- Header -->
@@ -418,6 +422,7 @@ export class BudgetListComponent implements OnInit {
   private authService    = inject(AuthService);
   private dialogService  = inject(AppDialogService);
   private messageService = inject(MessageService);
+  private i18n           = inject(TranslationService);
 
   private alertState = inject(BudgetAlertStateService);
 
@@ -573,7 +578,6 @@ export class BudgetListComponent implements OnInit {
   }
 
   private t(key: string): string {
-    // Simple fallback — the pipe handles real translation in the template
-    return key;
+    return this.i18n.t(key);
   }
 }
