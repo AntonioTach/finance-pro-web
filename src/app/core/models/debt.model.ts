@@ -49,7 +49,8 @@ export interface UpdateDebtDto extends Partial<CreateDebtDto> {}
 export interface CreateDebtPaymentDto {
   amount: number;
   paymentDate: string;
-  categoryId: string;
+  categoryId?: string;
   installmentNumber?: number;
   notes?: string;
+  createTransaction?: boolean;
 }

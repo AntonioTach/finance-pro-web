@@ -22,10 +22,16 @@
     }
   </div>
 
-  <!-- Transaction notice -->
-  <div class="tx-notice">
-    <i class="pi pi-link"></i>
-    <span>{{ 'debts.payment.txNotice' | translate }}</span>
+  <!-- Transaction toggle -->
+  <div class="tx-toggle">
+    <div class="tx-toggle-info">
+      <i class="pi pi-link"></i>
+      <div>
+        <span class="tx-toggle-label">{{ 'debts.payment.createTx' | translate }}</span>
+        <span class="tx-toggle-desc">{{ 'debts.payment.createTxDesc' | translate }}</span>
+      </div>
+    </div>
+    <p-toggleswitch [(ngModel)]="createTransaction" />
   </div>
 
   <!-- Amount -->
@@ -54,33 +60,35 @@
     />
   </div>
 
-  <!-- Category -->
-  <div class="form-field">
-    <label for="payCategory">{{ 'debts.payment.category' | translate }}</label>
-    <p-select
-      inputId="payCategory"
-      [(ngModel)]="dto.categoryId"
-      [options]="categories()"
-      optionLabel="name"
-      optionValue="id"
-      [placeholder]="'debts.payment.categoryPlaceholder' | translate"
-      [fluid]="true"
-      [showClear]="true"
-    >
-      <ng-template #item let-cat>
-        <div class="cat-option">
-          <span>{{ cat.icon }}</span>
-          <span>{{ cat.name }}</span>
-        </div>
-      </ng-template>
-      <ng-template #selectedItem let-cat>
-        <div class="cat-option" *ngIf="cat">
-          <span>{{ cat.icon }}</span>
-          <span>{{ cat.name }}</span>
-        </div>
-      </ng-template>
-    </p-select>
-  </div>
+  <!-- Category (only when creating transaction) -->
+  @if (createTransaction) {
+    <div class="form-field">
+      <label for="payCategory">{{ 'debts.payment.category' | translate }}</label>
+      <p-select
+        inputId="payCategory"
+        [(ngModel)]="dto.categoryId"
+        [options]="categories()"
+        optionLabel="name"
+        optionValue="id"
+        [placeholder]="'debts.payment.categoryPlaceholder' | translate"
+        [fluid]="true"
+        [showClear]="true"
+      >
+        <ng-template #item let-cat>
+          <div class="cat-option">
+            <span>{{ cat.icon }}</span>
+            <span>{{ cat.name }}</span>
+          </div>
+        </ng-template>
+        <ng-template #selectedItem let-cat>
+          <div class="cat-option" *ngIf="cat">
+            <span>{{ cat.icon }}</span>
+            <span>{{ cat.name }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+  }
 
   <!-- Installment number -->
   @if (debt.installments) {

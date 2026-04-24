@@ -6,6 +6,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { DebtService } from '../services/debt.service';
 import { CategoryService } from '../../categories/services/category.service';
@@ -25,6 +26,7 @@ import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
     DatePickerModule,
     TextareaModule,
     SelectModule,
+    ToggleSwitchModule,
     TranslatePipe,
     CurrencyFormatPipe,
   ],
@@ -39,6 +41,7 @@ export class PaymentFormComponent implements OnInit {
 
   saving = signal(false);
   categories = signal<Category[]>([]);
+  createTransaction = true;
 
   debt!: Debt;
   currency = 'MXN';
@@ -81,7 +84,8 @@ export class PaymentFormComponent implements OnInit {
   }
 
   isValid(): boolean {
-    return this.dto.amount > 0 && !!this.paymentDateObj && !!this.dto.categoryId;
+    const categoryOk = !this.createTransaction || !!this.dto.categoryId;
+    return this.dto.amount > 0 && !!this.paymentDateObj && categoryOk;
   }
 
   submit(): void {
@@ -89,6 +93,8 @@ export class PaymentFormComponent implements OnInit {
     const payload: CreateDebtPaymentDto = {
       ...this.dto,
       paymentDate: this.paymentDateObj.toISOString().split('T')[0],
+      categoryId: this.createTransaction ? this.dto.categoryId : undefined,
+      createTransaction: this.createTransaction,
     };
     this.saving.set(true);
     this.debtService.addPayment(this.debt.id, payload).subscribe({

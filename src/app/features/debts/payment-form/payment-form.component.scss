@@ -34,19 +34,44 @@
   &.remaining { color: var(--yellow-500); }
 }
 
-/* Transaction notice */
-.tx-notice {
+/* Transaction toggle */
+.tx-toggle {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(99, 102, 241, 0.08);
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--primary-subtle);
   border: 1px solid rgba(99, 102, 241, 0.25);
-  border-radius: 8px;
-  padding: 0.6rem 0.875rem;
-  font-size: 0.82rem;
-  color: var(--primary-color);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
 
-  i { font-size: 0.85rem; flex-shrink: 0; }
+.tx-toggle-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  flex: 1;
+
+  i {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+  }
+}
+
+.tx-toggle-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.tx-toggle-desc {
+  display: block;
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  margin-top: 0.1rem;
 }
 
 /* Fields */

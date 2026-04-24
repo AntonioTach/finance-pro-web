@@ -266,6 +266,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'debts.payment.category':          'Category',
     'debts.payment.categoryPlaceholder': 'Select a category',
     'debts.payment.txNotice':          'A transaction will be created automatically and linked to this payment.',
+    'debts.payment.createTx':          'Create linked transaction',
+    'debts.payment.createTxDesc':      'Automatically record a transaction in your finances for this payment.',
 
     // ── Budgets ───────────────────────────────────────────────
     'budgets.title':              'Budgets',
@@ -293,7 +295,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'budgets.card.status.danger': 'Exceeded',
 
     'budgets.form.name':          'Budget name',
-    'budgets.form.namePlaceholder': 'e.g. Food March',
+    'budgets.form.namePlaceholder': 'e.g. Food',
     'budgets.form.category':      'Category',
     'budgets.form.amount':        'Amount',
     'budgets.form.period':        'Period',
@@ -624,6 +626,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'debts.payment.category':          'Categoría',
     'debts.payment.categoryPlaceholder': 'Selecciona una categoría',
     'debts.payment.txNotice':          'Se creará una transacción automáticamente y quedará vinculada a este pago.',
+    'debts.payment.createTx':          'Crear transacción vinculada',
+    'debts.payment.createTxDesc':      'Registra automáticamente una transacción en tus finanzas por este pago.',
 
     // ── Presupuestos ──────────────────────────────────────────
     'budgets.title':              'Presupuestos',
@@ -651,7 +655,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'budgets.card.status.danger': 'Excedido',
 
     'budgets.form.name':          'Nombre del presupuesto',
-    'budgets.form.namePlaceholder': 'Ej: Comida Marzo',
+    'budgets.form.namePlaceholder': 'Ej: Comida',
     'budgets.form.category':      'Categoría',
     'budgets.form.amount':        'Monto',
     'budgets.form.period':        'Periodo',
