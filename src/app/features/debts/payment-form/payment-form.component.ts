@@ -6,6 +6,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { CategorySelectComponent } from '../../../shared/components/category-select/category-select.component';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { DebtService } from '../services/debt.service';
@@ -29,6 +30,7 @@ import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
     ToggleSwitchModule,
     TranslatePipe,
     CurrencyFormatPipe,
+    CategorySelectComponent,
   ],
   templateUrl: './payment-form.component.html',
   styleUrls: ['./payment-form.component.scss'],
@@ -41,6 +43,7 @@ export class PaymentFormComponent implements OnInit {
 
   saving = signal(false);
   categories = signal<Category[]>([]);
+  categoryType = signal<CategoryType>(CategoryType.EXPENSE);
   createTransaction = true;
 
   debt!: Debt;
@@ -73,13 +76,12 @@ export class PaymentFormComponent implements OnInit {
   }
 
   loadCategories(): void {
+    const neededType = this.debt.direction === 'owed_by_me'
+      ? CategoryType.EXPENSE
+      : CategoryType.INCOME;
+    this.categoryType.set(neededType);
     this.categoryService.getAll().subscribe({
-      next: (cats) => {
-        const neededType = this.debt.direction === 'owed_by_me'
-          ? CategoryType.EXPENSE
-          : CategoryType.INCOME;
-        this.categories.set(cats.filter(c => c.type === neededType));
-      },
+      next: (cats) => this.categories.set(cats),
     });
   }
 

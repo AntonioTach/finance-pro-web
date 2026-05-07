@@ -105,29 +105,11 @@
   <!-- Category -->
   <div class="form-field">
     <label for="categoryId">Categoría</label>
-    <p-select
-      id="categoryId"
+    <app-category-select
       formControlName="categoryId"
-      [options]="filteredCategories()"
-      optionLabel="name"
-      optionValue="id"
-      placeholder="Selecciona una categoría"
-      [fluid]="true"
-      [showClear]="true"
-    >
-      <ng-template #item let-category>
-        <div class="category-option">
-          <span class="category-icon">{{ category.icon }}</span>
-          <span>{{ category.name }}</span>
-        </div>
-      </ng-template>
-      <ng-template #selectedItem let-category>
-        <div class="category-option" *ngIf="category">
-          <span class="category-icon">{{ category.icon }}</span>
-          <span>{{ category.name }}</span>
-        </div>
-      </ng-template>
-    </p-select>
+      [categories]="categories()"
+      [type]="activeCategoryType()"
+    />
     @if (transactionForm.get('categoryId')?.invalid && transactionForm.get('categoryId')?.touched) {
       <small class="error-text">La categoría es requerida</small>
     }

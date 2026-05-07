@@ -21,7 +21,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
         <div class="mobile-overlay" (click)="toggleSidebar()"></div>
       }
 
-      <main class="main-content">
+      <main class="main-content">s
         <header class="top-header">
           <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
             <i class="pi pi-bars"></i>

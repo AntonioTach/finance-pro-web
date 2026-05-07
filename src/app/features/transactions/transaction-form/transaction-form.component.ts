@@ -15,8 +15,9 @@ import { TransactionService } from '../services/transaction.service';
 import { CategoryService } from '../../categories/services/category.service';
 import { CardService } from '../../cards/services/card.service';
 import { Transaction, TransactionType, MSI_OPTIONS, MsiOption } from '../../../core/models/transaction.model';
-import { Category } from '../../../core/models/category.model';
+import { Category, CategoryType } from '../../../core/models/category.model';
 import { Card, CardType } from '../../../core/models/card.model';
+import { CategorySelectComponent } from '../../../shared/components/category-select/category-select.component';
 
 @Component({
   selector: 'app-transaction-form',
@@ -33,6 +34,7 @@ import { Card, CardType } from '../../../core/models/card.model';
     SelectButtonModule,
     MessageModule,
     CheckboxModule,
+    CategorySelectComponent,
   ],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.scss'],
@@ -79,14 +81,18 @@ export class TransactionFormComponent implements OnInit {
 
   filteredCategories = computed(() => {
     const type = this.selectedType();
-    // Map card transaction types to category types
-    let categoryType: string;
-    if (type === TransactionType.CARD_PURCHASE || type === TransactionType.EXPENSE || type === TransactionType.CARD_PAYMENT) {
-      categoryType = 'expense';
-    } else {
-      categoryType = 'income';
-    }
+    const categoryType =
+      type === TransactionType.CARD_PURCHASE ||
+      type === TransactionType.EXPENSE ||
+      type === TransactionType.CARD_PAYMENT
+        ? 'expense'
+        : 'income';
     return this.categories().filter((cat) => cat.type === categoryType);
+  });
+
+  activeCategoryType = computed<CategoryType>(() => {
+    const type = this.selectedType();
+    return type === TransactionType.INCOME ? CategoryType.INCOME : CategoryType.EXPENSE;
   });
 
   selectedCard = computed(() => {

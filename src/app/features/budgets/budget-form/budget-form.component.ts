@@ -17,12 +17,13 @@ import {
   BudgetSuggestion,
   CreateBudgetDto,
 } from '../../../core/models/budget.model';
-import { Category } from '../../../core/models/category.model';
+import { Category, CategoryType } from '../../../core/models/category.model';
 import { ApiService } from '../../../core/services/api.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
+import { CategorySelectComponent } from '../../../shared/components/category-select/category-select.component';
 
 @Component({
   selector: 'app-budget-form',
@@ -40,31 +41,20 @@ import { CategoryIconComponent } from '../../../shared/components/category-icon/
     TranslatePipe,
     CurrencyFormatPipe,
     CategoryIconComponent,
+    CategorySelectComponent,
   ],
   template: `
     <div class="budget-form">
       <!-- Category -->
       <div class="form-field">
         <label>{{ 'budgets.form.category' | translate }} *</label>
-        <p-select
-          [options]="categories()"
+        <app-category-select
+          [categories]="categories()"
           [(ngModel)]="form.categoryId"
-          optionLabel="name"
-          optionValue="id"
+          [type]="expenseType"
+          (ngModelChange)="onCategoryChange()"
           [placeholder]="'budgets.form.category' | translate"
-          [filter]="true"
-          filterBy="name"
-          (onChange)="onCategoryChange()"
-          styleClass="w-full"
-        >
-          <ng-template #item let-cat>
-            <div class="cat-option">
-              <span class="cat-dot" [style.background]="cat.color"></span>
-              <app-cat-icon [icon]="cat.icon" />
-              {{ cat.name }}
-            </div>
-          </ng-template>
-        </p-select>
+        />
 
         @if (suggestion()) {
           <div class="suggestion-banner">
@@ -251,6 +241,8 @@ export class BudgetFormComponent implements OnInit {
   private budgetService  = inject(BudgetService);
   private api    = inject(ApiService);
   private i18n   = inject(TranslationService);
+
+  readonly expenseType = CategoryType.EXPENSE;
 
   saving      = signal(false);
   categories  = signal<Category[]>([]);

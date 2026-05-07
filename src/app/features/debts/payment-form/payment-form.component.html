@@ -63,30 +63,13 @@
   <!-- Category (only when creating transaction) -->
   @if (createTransaction) {
     <div class="form-field">
-      <label for="payCategory">{{ 'debts.payment.category' | translate }}</label>
-      <p-select
-        inputId="payCategory"
+      <label>{{ 'debts.payment.category' | translate }}</label>
+      <app-category-select
         [(ngModel)]="dto.categoryId"
-        [options]="categories()"
-        optionLabel="name"
-        optionValue="id"
+        [categories]="categories()"
+        [type]="categoryType()"
         [placeholder]="'debts.payment.categoryPlaceholder' | translate"
-        [fluid]="true"
-        [showClear]="true"
-      >
-        <ng-template #item let-cat>
-          <div class="cat-option">
-            <span>{{ cat.icon }}</span>
-            <span>{{ cat.name }}</span>
-          </div>
-        </ng-template>
-        <ng-template #selectedItem let-cat>
-          <div class="cat-option" *ngIf="cat">
-            <span>{{ cat.icon }}</span>
-            <span>{{ cat.name }}</span>
-          </div>
-        </ng-template>
-      </p-select>
+      />
     </div>
   }
 
