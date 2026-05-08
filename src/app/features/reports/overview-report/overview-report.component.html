@@ -81,7 +81,7 @@
                   <span class="percentage">{{ formatNumber(category.percentage) }}%</span>
                 </div>
                 <p-progressBar
-                  [value]="category.percentage ?? 0"
+                  [value]="category.percentage"
                   [showValue]="false"
                   [style]="{ height: '6px' }"
                   styleClass="category-progress"
@@ -109,7 +109,7 @@
                   <span class="percentage">{{ formatNumber(category.percentage) }}%</span>
                 </div>
                 <p-progressBar
-                  [value]="category.percentage ?? 0"
+                  [value]="category.percentage"
                   [showValue]="false"
                   [style]="{ height: '6px' }"
                   styleClass="category-progress income"

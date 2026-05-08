@@ -82,16 +82,16 @@
         @if (report()?.upcomingPayments?.length) {
           <div class="upcoming-list">
             @for (payment of report()?.upcomingPayments?.slice(0, 7); track payment.subscription.id) {
-              <div class="upcoming-item" [class.due-soon]="(payment.daysUntilPayment ?? 0) <= 3">
+              <div class="upcoming-item" [class.due-soon]="payment.daysUntilPayment <= 3">
                 <div class="payment-date">
-                  <span class="days">{{ payment.daysUntilPayment ?? 0 }}</span>
+                  <span class="days">{{ payment.daysUntilPayment }}</span>
                   <span class="label">{{ payment.daysUntilPayment === 1 ? 'day' : 'days' }}</span>
                 </div>
                 <div class="payment-info">
                   <span class="name">{{ payment.subscription.name }}</span>
                   <span class="category">
                     @if (payment.subscription.category) {
-                      <span class="category-badge" [style.background-color]="(payment.subscription.category.color ?? '#666') + '20'" [style.color]="payment.subscription.category.color ?? '#666'">
+                      <span class="category-badge" [style.background-color]="payment.subscription.category.color + '20'" [style.color]="payment.subscription.category.color">
                         {{ payment.subscription.category.name }}
                       </span>
                     }
@@ -124,7 +124,7 @@
               </div>
               <div class="card-stats">
                 <div class="stat">
-                  <span class="stat-value">{{ card.subscriptionCount ?? 0 }}</span>
+                  <span class="stat-value">{{ card.subscriptionCount }}</span>
                   <span class="stat-label">subscriptions</span>
                 </div>
                 <div class="stat">
@@ -238,7 +238,7 @@
               </div>
               <div class="sub-details">
                 <span class="amount">{{ formatCurrency(sub.amount) }}/mo</span>
-                <span class="savings">Saving {{ formatCurrency((sub.amount ?? 0) * 12) }}/year</span>
+                <span class="savings">Saving {{ formatCurrency(sub.amount * 12) }}/year</span>
               </div>
             </div>
           }

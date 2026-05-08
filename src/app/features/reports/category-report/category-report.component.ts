@@ -11,7 +11,6 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { ReportService } from '../services/report.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 import { CategoryReport } from '../../../core/models/report.model';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
@@ -29,7 +28,6 @@ import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
     ProgressBarModule,
     BaseChartDirective,
     LoadingSpinnerComponent,
-    CurrencyFormatPipe,
     CategoryIconComponent,
   ],
   templateUrl: './category-report.component.html',

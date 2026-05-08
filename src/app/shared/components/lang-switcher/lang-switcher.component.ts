@@ -1,12 +1,11 @@
 import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslationService, Lang } from '../../../core/services/translation.service';
-import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-lang-switcher',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule],
   template: `
     <div class="lang-switcher" [class.compact]="compact">
       @for (lang of ts.languages; track lang.code) {

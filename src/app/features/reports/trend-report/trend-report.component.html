@@ -134,16 +134,16 @@
                 <td style="text-align: right" class="expense">
                   {{ formatCurrency(point.expenses) }}
                 </td>
-                <td style="text-align: right" [class.income]="(point.balance ?? 0) >= 0" [class.expense]="(point.balance ?? 0) < 0">
+                <td style="text-align: right" [class.income]="point.balance >= 0" [class.expense]="point.balance < 0">
                   {{ formatCurrency(point.balance) }}
                 </td>
                 <td>
                   <div class="trend-indicator">
                     @if (i > 0) {
-                      @if ((point.balance ?? 0) > (report()!.dataPoints[i - 1].balance ?? 0)) {
+                      @if (point.balance > report()!.dataPoints[i - 1].balance) {
                         <i class="pi pi-arrow-up trend-up"></i>
                         <span class="trend-up">Improving</span>
-                      } @else if ((point.balance ?? 0) < (report()!.dataPoints[i - 1].balance ?? 0)) {
+                      } @else if (point.balance < report()!.dataPoints[i - 1].balance) {
                         <i class="pi pi-arrow-down trend-down"></i>
                         <span class="trend-down">Declining</span>
                       } @else {

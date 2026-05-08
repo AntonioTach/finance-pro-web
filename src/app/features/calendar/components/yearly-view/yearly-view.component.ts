@@ -22,7 +22,7 @@ import {
         </p>
       </div>
 
-      @if (!data?.cards || data.cards.length === 0) {
+      @if (!data.cards || data.cards.length === 0) {
         <div class="empty-state">
           <i class="pi pi-credit-card"></i>
           <h3>Sin tarjetas de crédito</h3>

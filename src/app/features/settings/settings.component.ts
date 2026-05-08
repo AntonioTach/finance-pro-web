@@ -5,7 +5,6 @@ import { TranslationService, Lang } from '../../core/services/translation.servic
 import { AuthService } from '../../core/services/auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { LangSwitcherComponent } from '../../shared/components/lang-switcher/lang-switcher.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { User } from '../../core/models/user.model';
@@ -13,7 +12,7 @@ import { User } from '../../core/models/user.model';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ToastModule, TranslatePipe, LangSwitcherComponent],
+  imports: [CommonModule, ToastModule, TranslatePipe],
   providers: [MessageService],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],

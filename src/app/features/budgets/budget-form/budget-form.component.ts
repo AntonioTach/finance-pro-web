@@ -20,9 +20,7 @@ import {
 import { Category, CategoryType } from '../../../core/models/category.model';
 import { ApiService } from '../../../core/services/api.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
-import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 import { CategorySelectComponent } from '../../../shared/components/category-select/category-select.component';
 
 @Component({
@@ -39,8 +37,6 @@ import { CategorySelectComponent } from '../../../shared/components/category-sel
     TextareaModule,
     CheckboxModule,
     TranslatePipe,
-    CurrencyFormatPipe,
-    CategoryIconComponent,
     CategorySelectComponent,
   ],
   template: `

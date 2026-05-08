@@ -9,7 +9,6 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { ReportService } from '../services/report.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { TrendReport, ReportPeriod } from '../../../core/models/report.model';
 
 interface PeriodOption {
@@ -33,7 +32,6 @@ interface MonthOption {
     ButtonModule,
     BaseChartDirective,
     LoadingSpinnerComponent,
-    CurrencyFormatPipe,
   ],
   templateUrl: './trend-report.component.html',
   styleUrls: ['./trend-report.component.scss'],

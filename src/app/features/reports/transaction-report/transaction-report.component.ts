@@ -15,7 +15,6 @@ import { CategoryService } from '../../categories/services/category.service';
 import { CardService } from '../../cards/services/card.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { CategoryIconComponent } from '../../../shared/components/category-icon/category-icon.component';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
@@ -45,7 +44,6 @@ interface SelectOption {
     TagModule,
     TooltipModule,
     LoadingSpinnerComponent,
-    CurrencyFormatPipe,
     DateFormatPipe,
     CategoryIconComponent,
   ],
