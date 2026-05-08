@@ -113,29 +113,16 @@ export class ReportService {
     const startDate = dateRange?.startDate || format(startOfMonth(subMonths(now, 5)), 'yyyy-MM-dd');
     const endDate = dateRange?.endDate || format(endOfMonth(now), 'yyyy-MM-dd');
 
-    console.log('[CategoryReport] Date range:', { startDate, endDate });
-
     return forkJoin({
       transactions: this.transactionService.getAll(),
       categories: this.categoryService.getAll(),
     }).pipe(
       map(({ transactions, categories }) => {
-        console.log('[CategoryReport] Raw transactions:', transactions.length, transactions.slice(0, 3));
-        console.log('[CategoryReport] Raw categories:', categories.length, categories);
-
         const filteredTransactions = this.filterTransactionsByDate(transactions, startDate, endDate);
-        console.log('[CategoryReport] Filtered transactions:', filteredTransactions.length);
-
         const incomeByCategory = this.calculateCategoryBreakdown(filteredTransactions, categories, CategoryType.INCOME);
         const expenseByCategory = this.calculateCategoryBreakdown(filteredTransactions, categories, CategoryType.EXPENSE);
-
-        console.log('[CategoryReport] Income by category:', incomeByCategory);
-        console.log('[CategoryReport] Expense by category:', expenseByCategory);
-
         const totalIncome = incomeByCategory.reduce((sum, cat) => sum + cat.amount, 0);
         const totalExpenses = expenseByCategory.reduce((sum, cat) => sum + cat.amount, 0);
-
-        console.log('[CategoryReport] Totals:', { totalIncome, totalExpenses });
 
         return {
           period: { startDate, endDate },
@@ -306,13 +293,9 @@ export class ReportService {
   generateTrendReport(period: ReportPeriod = ReportPeriod.MONTHLY, months: number = 6): Observable<TrendReport> {
     return this.transactionService.getAll().pipe(
       map((transactions) => {
-        console.log('[TrendReport] Raw transactions:', transactions.length, transactions.slice(0, 3));
-
         const now = new Date();
         const startDate = subMonths(startOfMonth(now), months - 1);
         const endDate = endOfMonth(now);
-
-        console.log('[TrendReport] Date range:', { startDate, endDate, period, months });
 
         let intervals: Date[];
         let dateFormat: string;
@@ -359,14 +342,10 @@ export class ReportService {
           };
         });
 
-        console.log('[TrendReport] Data points:', dataPoints);
-
         const dataPointCount = dataPoints.length || 1;
         const averageIncome = dataPoints.reduce((sum, d) => sum + Number(d.income || 0), 0) / dataPointCount;
         const averageExpenses = dataPoints.reduce((sum, d) => sum + Number(d.expenses || 0), 0) / dataPointCount;
         const projectedBalance = averageIncome - averageExpenses;
-
-        console.log('[TrendReport] Averages:', { averageIncome, averageExpenses, projectedBalance });
 
         return {
           period,

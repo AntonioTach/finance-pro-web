@@ -360,6 +360,8 @@
 }
 
 @media (max-width: 768px) {
+  .projection-header h2 { font-size: 1.25rem; }
+
   .table-header,
   .table-row {
     grid-template-columns: 120px repeat(12, minmax(50px, 1fr));
@@ -371,11 +373,23 @@
     padding: 0.375rem 0.125rem;
   }
 
-  .card-name {
-    font-size: 0.75rem;
+  .card-name { font-size: 0.75rem; }
+
+  .debt-amount { font-size: 0.6rem; }
+
+  .legend-items { gap: 1rem; }
+
+  .legend-item { font-size: 0.8rem; }
+}
+
+@media (max-width: 480px) {
+  .projection-header h2 { font-size: 1.1rem; }
+
+  ::ng-deep .p-dialog {
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
   }
 
-  .debt-amount {
-    font-size: 0.6rem;
-  }
+  .legend-items { gap: 0.75rem; }
+  .legend-item { font-size: 0.75rem; }
 }

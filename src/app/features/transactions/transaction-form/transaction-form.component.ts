@@ -110,18 +110,6 @@ export class TransactionFormComponent implements OnInit {
     
     const result = isCardTrans && isPurchase && isCreditCard && hasCutoffDay;
     
-    console.log('🔍 canUseMsi computed:', {
-      isCardTransaction: isCardTrans,
-      type,
-      isPurchase,
-      cardType: card?.type,
-      isCreditCard,
-      billingCutoffDay: card?.billingCutoffDay,
-      hasCutoffDay,
-      result,
-      fullCard: card
-    });
-    
     return result;
   });
 
@@ -179,7 +167,7 @@ export class TransactionFormComponent implements OnInit {
         amount: this.transaction.amount,
         categoryId: this.transaction.categoryId,
         description: this.transaction.description,
-        date: new Date(this.transaction.date),
+        date: new Date(String(this.transaction.date).substring(0, 10) + 'T00:00:00'),
         notes: this.transaction.notes || '',
         cardId: this.transaction.cardId || null,
       });
@@ -203,7 +191,7 @@ export class TransactionFormComponent implements OnInit {
         amount: this.prefilled.amount || null,
         categoryId: this.prefilled.categoryId || null,
         description: this.prefilled.description || '',
-        date: this.prefilled.date ? new Date(this.prefilled.date) : new Date(),
+        date: this.prefilled.date ? new Date(String(this.prefilled.date).substring(0, 10) + 'T00:00:00') : new Date(),
         notes: this.prefilled.notes || '',
         cardId: this.prefilled.cardId || null,
       });
@@ -286,7 +274,6 @@ export class TransactionFormComponent implements OnInit {
   onCardChange(): void {
     // Update the signal with the new card ID
     const cardId = this.transactionForm.get('cardId')?.value;
-    console.log('Card changed to:', cardId);
     this.selectedCardId.set(cardId);
     
     // Update MSI section visibility
@@ -303,7 +290,6 @@ export class TransactionFormComponent implements OnInit {
   private updateMsiSectionVisibility(): void {
     const canUse = this.canUseMsi();
     this.showMsiSection = canUse;
-    console.log('🎯 MSI Section visibility updated:', canUse);
   }
 
   onAmountChange(): void {
@@ -343,7 +329,6 @@ export class TransactionFormComponent implements OnInit {
       next: (msiGroup) => {
         this.isLoading = false;
         // Show dialog with MSI group details
-        console.log('MSI Group:', msiGroup);
         
         const totalInstallments = msiGroup.installments.length;
         const totalAmount = msiGroup.parent.amount;

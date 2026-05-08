@@ -915,17 +915,46 @@
   .dashboard-header {
     .greeting h1 { font-size: 1.5rem; }
     .header-content { flex-direction: column; align-items: stretch; }
+    .header-actions { width: 100%; }
   }
 
-  .summary-cards {
-    grid-template-columns: 1fr 1fr;
+  .summary-cards { grid-template-columns: 1fr 1fr; }
 
-    @media (max-width: 480px) { grid-template-columns: 1fr; }
-  }
+  .cashflow-card .cashflow-header { margin-bottom: 1rem; }
 
   .quick-actions .action-buttons {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+@media (max-width: 480px) {
+  .dashboard { padding: 0.75rem; }
+
+  .dashboard-header {
+    margin-bottom: 1.25rem;
+    .greeting h1 { font-size: 1.2rem; }
+  }
+
+  .summary-cards { grid-template-columns: 1fr; }
+
+  .summary-card {
+    padding: 1.1rem;
+    .card-value { font-size: 1.25rem; }
+  }
+
+  .cashflow-card {
+    padding: 1rem;
+    .cashflow-item { padding: 0.75rem 1rem; }
+    .cf-value { font-size: 1.05rem; }
+  }
+
+  .chart-card .chart-container { height: 210px; }
+
+  .quick-actions .action-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .transaction-item .tx-amount { font-size: 0.82rem; }
 }
 
 // ── Utility colors ────────────────────────────────────────────
