@@ -27,6 +27,44 @@
       />
     </div>
   } @else {
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card active-card">
+        <div class="card-icon"><i class="pi pi-refresh"></i></div>
+        <div class="card-content">
+          <span class="card-label">Suscripciones Activas</span>
+          <span class="card-value">{{ activeSubscriptions().length }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card cost-card">
+        <div class="card-icon"><i class="pi pi-wallet"></i></div>
+        <div class="card-content">
+          <span class="card-label">Costo Mensual</span>
+          <span class="card-value">{{ monthlyCost() | currencyFormat:currency() }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card paid-card">
+        <div class="card-icon"><i class="pi pi-check-circle"></i></div>
+        <div class="card-content">
+          <span class="card-label">Pagadas este Mes</span>
+          <span class="card-value">{{ paidThisMonth().length }}/{{ activeSubscriptions().length }}</span>
+        </div>
+      </div>
+
+      <div class="summary-card pending-card">
+        <div class="card-icon"><i class="pi pi-clock"></i></div>
+        <div class="card-content">
+          <span class="card-label">Pendientes este Mes</span>
+          <span class="card-value">{{ pendingAmount() | currencyFormat:currency() }}</span>
+          <div class="card-subtitle">
+            <span>{{ pendingThisMonth().length }} suscripción(es)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <p-table
       [value]="subscriptions()"
       [paginator]="true"
@@ -35,20 +73,34 @@
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} suscripciones"
       styleClass="p-datatable-striped"
+      dataKey="id"
+      [expandedRowKeys]="expandedRows"
     >
       <ng-template #header>
         <tr>
+          <th style="width: 3rem"></th>
           <th>Nombre</th>
           <th>Categoría</th>
           <th class="text-right">Costo</th>
           <th class="text-center">Día de Pago</th>
           <th>Método de Pago</th>
           <th class="text-center">Estado</th>
+          <th class="text-center">Este Mes</th>
           <th class="text-center">Acciones</th>
         </tr>
       </ng-template>
       <ng-template #body let-subscription>
         <tr>
+          <td>
+            <p-button
+              type="button"
+              (onClick)="toggleRow(subscription.id)"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              [icon]="expandedRows[subscription.id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            />
+          </td>
           <td>
             <div class="name-cell">
               <span class="name">{{ subscription.name }}</span>
@@ -64,17 +116,30 @@
             </div>
           </td>
           <td class="text-right">
-            <span class="amount">
-              {{ subscription.amount | currencyFormat:currency() }}
-            </span>
+            <div class="amount-cell">
+              <span class="amount">
+                {{ subscription.amount | currencyFormat:currency() }}
+              </span>
+              @if (getLatestPriceChange(subscription); as change) {
+                <span
+                  class="price-change"
+                  [class.increase]="change.newAmount > change.previousAmount"
+                  [class.decrease]="change.newAmount < change.previousAmount"
+                  [pTooltip]="'Antes: ' + (change.previousAmount | currencyFormat:currency())"
+                >
+                  <i class="pi" [class.pi-arrow-up]="change.newAmount > change.previousAmount" [class.pi-arrow-down]="change.newAmount < change.previousAmount"></i>
+                  {{ (change.newAmount - change.previousAmount) | currencyFormat:currency() }}
+                </span>
+              }
+            </div>
           </td>
           <td class="text-center">
-            <span 
+            <span
               class="payment-day"
-              [class.due-soon]="isPaymentDueSoon(subscription.paymentDay) && subscription.isActive"
+              [class.due-soon]="isPaymentDueSoon(subscription) && subscription.isActive"
             >
               Día {{ getDayOrdinal(subscription.paymentDay) }}
-              @if (isPaymentDueSoon(subscription.paymentDay) && subscription.isActive) {
+              @if (isPaymentDueSoon(subscription) && subscription.isActive) {
                 <i class="pi pi-exclamation-triangle due-warning" pTooltip="Próximo a vencer"></i>
               }
             </span>
@@ -97,13 +162,24 @@
             />
           </td>
           <td class="text-center">
+            @if (subscription.isActive) {
+              @if (isPaidThisMonth(subscription)) {
+                <p-tag value="Pagada" severity="success" />
+              } @else {
+                <p-tag value="Pendiente" severity="warn" />
+              }
+            } @else {
+              <span class="na">—</span>
+            }
+          </td>
+          <td class="text-center">
             <div class="action-buttons">
               <p-button
                 icon="pi pi-dollar"
                 [rounded]="true"
                 [text]="true"
                 severity="success"
-                (onClick)="openTransactionDialog(subscription)"
+                (onClick)="openPaymentDialog(subscription)"
                 pTooltip="Registrar Pago"
                 [disabled]="!subscription.isActive"
               />
@@ -127,9 +203,63 @@
           </td>
         </tr>
       </ng-template>
+      <ng-template #expandedrow let-subscription>
+        <tr>
+          <td colspan="9">
+            <div class="expansion-panel">
+              <div class="expansion-section">
+                <h4><i class="pi pi-history"></i> Historial de Precio</h4>
+                @if (subscription.priceHistory?.length) {
+                  <ul class="history-list">
+                    @for (change of subscription.priceHistory; track change.id) {
+                      <li class="history-item">
+                        <span class="history-date">{{ change.changedAt | dateFormat:'dd/MM/yyyy' }}</span>
+                        <span class="history-change">
+                          {{ change.previousAmount | currencyFormat:currency() }}
+                          <i class="pi pi-arrow-right"></i>
+                          {{ change.newAmount | currencyFormat:currency() }}
+                        </span>
+                        <span
+                          class="history-badge"
+                          [class.increase]="change.newAmount > change.previousAmount"
+                          [class.decrease]="change.newAmount < change.previousAmount"
+                        >
+                          {{ change.newAmount > change.previousAmount ? '+' : '' }}{{ (change.newAmount - change.previousAmount) | currencyFormat:currency() }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="empty-hint">Sin cambios de precio registrados.</p>
+                }
+              </div>
+
+              <div class="expansion-section">
+                <h4><i class="pi pi-receipt"></i> Pagos Recientes</h4>
+                @if (subscription.payments?.length) {
+                  <ul class="history-list">
+                    @for (payment of subscription.payments; track payment.id) {
+                      <li class="history-item">
+                        <span class="history-date">{{ payment.paymentDate | dateFormat:'dd/MM/yyyy' }}</span>
+                        <span class="history-change">{{ payment.amount | currencyFormat:currency() }}</span>
+                        <p-tag
+                          [value]="payment.isAutomatic ? 'Automático' : 'Manual'"
+                          [severity]="payment.isAutomatic ? 'info' : 'secondary'"
+                        />
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="empty-hint">Sin pagos registrados todavía.</p>
+                }
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="7" class="text-center">
+          <td colspan="9" class="text-center">
             No se encontraron suscripciones.
           </td>
         </tr>

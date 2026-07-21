@@ -5,6 +5,7 @@ import {
   Subscription,
   CreateSubscriptionDto,
   UpdateSubscriptionDto,
+  CreateSubscriptionPaymentDto,
 } from '../../../core/models/subscription.model';
 
 @Injectable({
@@ -31,5 +32,13 @@ export class SubscriptionService {
 
   delete(id: string): Observable<void> {
     return this.apiService.delete<void>(`/subscriptions/${id}`);
+  }
+
+  addPayment(id: string, dto: CreateSubscriptionPaymentDto): Observable<Subscription> {
+    return this.apiService.post<Subscription>(`/subscriptions/${id}/payments`, dto);
+  }
+
+  removePayment(id: string, paymentId: string): Observable<Subscription> {
+    return this.apiService.delete<Subscription>(`/subscriptions/${id}/payments/${paymentId}`);
   }
 }

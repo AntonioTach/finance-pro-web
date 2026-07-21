@@ -1,0 +1,81 @@
+<div class="payment-form">
+
+  <!-- Summary banner -->
+  <div class="sub-summary">
+    <div class="summary-row">
+      <span class="summary-label">Suscripción</span>
+      <span class="summary-value">{{ subscription.name }}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Categoría</span>
+      <span class="summary-value">{{ subscription.category?.name }}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-label">Método de pago</span>
+      <span class="summary-value">{{ subscription.card ? subscription.card.name : 'Efectivo' }}</span>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <p-message severity="warn" [text]="errorMessage()" styleClass="w-full" />
+  }
+
+  <!-- Amount -->
+  <div class="form-field">
+    <label for="payAmount">Monto</label>
+    <p-inputNumber
+      inputId="payAmount"
+      [(ngModel)]="amount"
+      mode="decimal"
+      [minFractionDigits]="2"
+      [maxFractionDigits]="2"
+      [min]="0.01"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Date -->
+  <div class="form-field">
+    <label for="payDate">Fecha de pago</label>
+    <p-datepicker
+      inputId="payDate"
+      [(ngModel)]="paymentDateObj"
+      dateFormat="dd/mm/yy"
+      [showIcon]="true"
+      [fluid]="true"
+    />
+  </div>
+
+  <!-- Notes -->
+  <div class="form-field">
+    <label for="payNotes">
+      Notas
+      <span class="label-hint">(opcional)</span>
+    </label>
+    <textarea
+      id="payNotes"
+      pTextarea
+      [(ngModel)]="notes"
+      rows="2"
+      placeholder="Agrega una nota..."
+      class="w-full"
+    ></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="cancel()"
+    />
+    <p-button
+      label="Registrar Pago"
+      [loading]="saving()"
+      [disabled]="!isValid()"
+      (onClick)="submit()"
+    />
+  </div>
+
+</div>

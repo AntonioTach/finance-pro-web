@@ -15,6 +15,40 @@ export interface Subscription {
   updatedAt: string;
   category?: Category;
   card?: Card;
+  payments?: SubscriptionPayment[];
+  priceHistory?: SubscriptionPriceHistory[];
+}
+
+export interface SubscriptionPayment {
+  id: string;
+  subscriptionId: string;
+  amount: number;
+  paymentDate: string;
+  periodYear: number;
+  periodMonth: number;
+  isAutomatic: boolean;
+  notes: string | null;
+  transactionId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionPriceHistory {
+  id: string;
+  subscriptionId: string;
+  previousAmount: number;
+  newAmount: number;
+  changedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSubscriptionPaymentDto {
+  paymentDate: string;
+  amount?: number;
+  categoryId?: string;
+  createTransaction?: boolean;
+  notes?: string;
 }
 
 export interface CreateSubscriptionDto {

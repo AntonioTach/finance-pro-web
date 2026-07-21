@@ -138,6 +138,14 @@ export class TransactionFormComponent implements OnInit {
     return !!(this.transaction?.installmentMonths && this.transaction.installmentMonths > 0);
   }
 
+  private toLocalMidnight(value: unknown): Date {
+    if (!value) return new Date();
+    if (value instanceof Date) {
+      return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    }
+    return new Date(String(value).substring(0, 10) + 'T00:00:00');
+  }
+
   constructor() {
     this.transactionForm = this.fb.group({
       type: [TransactionType.EXPENSE, Validators.required],
@@ -167,7 +175,7 @@ export class TransactionFormComponent implements OnInit {
         amount: this.transaction.amount,
         categoryId: this.transaction.categoryId,
         description: this.transaction.description,
-        date: new Date(String(this.transaction.date).substring(0, 10) + 'T00:00:00'),
+        date: this.toLocalMidnight(this.transaction.date),
         notes: this.transaction.notes || '',
         cardId: this.transaction.cardId || null,
       });
@@ -191,7 +199,7 @@ export class TransactionFormComponent implements OnInit {
         amount: this.prefilled.amount || null,
         categoryId: this.prefilled.categoryId || null,
         description: this.prefilled.description || '',
-        date: this.prefilled.date ? new Date(String(this.prefilled.date).substring(0, 10) + 'T00:00:00') : new Date(),
+        date: this.toLocalMidnight(this.prefilled.date),
         notes: this.prefilled.notes || '',
         cardId: this.prefilled.cardId || null,
       });

@@ -9,12 +9,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SubscriptionService } from '../services/subscription.service';
 import { SubscriptionFormComponent } from '../subscription-form/subscription-form.component';
-import { TransactionFormComponent } from '../../transactions/transaction-form/transaction-form.component';
+import { SubscriptionPaymentFormComponent } from '../payment-form/subscription-payment-form.component';
 import { AppDialogService } from '../../../shared/services/dialog.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
-import { Subscription } from '../../../core/models/subscription.model';
-import { Transaction, TransactionType } from '../../../core/models/transaction.model';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { Subscription, SubscriptionPriceHistory } from '../../../core/models/subscription.model';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -30,6 +30,7 @@ import { AuthService } from '../../../core/services/auth.service';
     TooltipModule,
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
+    DateFormatPipe,
   ],
   templateUrl: './subscription-list.component.html',
   styleUrls: ['./subscription-list.component.scss'],
@@ -43,6 +44,29 @@ export class SubscriptionListComponent implements OnInit {
   isLoading = signal(false);
   subscriptions = signal<Subscription[]>([]);
   currency = signal(this.authService.currentUser()?.currency || 'USD');
+  expandedRows: Record<string, boolean> = {};
+
+  private readonly today = new Date();
+  private readonly currentYear = this.today.getFullYear();
+  private readonly currentMonth = this.today.getMonth() + 1;
+
+  activeSubscriptions = computed(() => this.subscriptions().filter((s) => s.isActive));
+
+  monthlyCost = computed(() =>
+    this.activeSubscriptions().reduce((sum, s) => sum + Number(s.amount), 0),
+  );
+
+  paidThisMonth = computed(() =>
+    this.activeSubscriptions().filter((s) => this.isPaidThisMonth(s)),
+  );
+
+  pendingThisMonth = computed(() =>
+    this.activeSubscriptions().filter((s) => !this.isPaidThisMonth(s)),
+  );
+
+  pendingAmount = computed(() =>
+    this.pendingThisMonth().reduce((sum, s) => sum + Number(s.amount), 0),
+  );
 
   ngOnInit(): void {
     this.loadSubscriptions();
@@ -104,29 +128,20 @@ export class SubscriptionListComponent implements OnInit {
     });
   }
 
-  openTransactionDialog(subscription: Subscription): void {
-    const prefilledTransaction = {
-      type: subscription.cardId ? TransactionType.CARD_PURCHASE : TransactionType.EXPENSE,
-      amount: subscription.amount,
-      categoryId: subscription.categoryId,
-      cardId: subscription.cardId || null,
-      description: subscription.name,
-      date: new Date(),
-      notes: `Pago de suscripción: ${subscription.name}`,
-    };
-
-    const ref = this.dialogService.open(TransactionFormComponent, {
-      header: 'Registrar Pago de Suscripción',
-      width: '500px',
-      data: { prefilled: prefilledTransaction },
+  openPaymentDialog(subscription: Subscription): void {
+    const ref = this.dialogService.open(SubscriptionPaymentFormComponent, {
+      header: `Registrar Pago - ${subscription.name}`,
+      width: '460px',
+      data: { subscription },
     });
 
-    ref.onClose.subscribe((result: Transaction | undefined) => {
+    ref.onClose.subscribe((result: Subscription | undefined) => {
       if (result) {
+        this.loadSubscriptions();
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
-          detail: 'Transacción registrada correctamente',
+          detail: 'Pago registrado correctamente',
         });
       }
     });
@@ -181,14 +196,30 @@ export class SubscriptionListComponent implements OnInit {
     return subscription.card ? subscription.card.name : 'Efectivo';
   }
 
-  isPaymentDueSoon(paymentDay: number): boolean {
-    const today = new Date();
-    const currentDay = today.getDate();
-    const daysUntilPayment = paymentDay - currentDay;
+  isPaidThisMonth(subscription: Subscription): boolean {
+    return !!subscription.payments?.some(
+      (p) => p.periodYear === this.currentYear && p.periodMonth === this.currentMonth,
+    );
+  }
+
+  isPaymentDueSoon(subscription: Subscription): boolean {
+    if (this.isPaidThisMonth(subscription)) return false;
+    const daysUntilPayment = subscription.paymentDay - this.today.getDate();
     return daysUntilPayment >= 0 && daysUntilPayment <= 3;
   }
 
   getDayOrdinal(day: number): string {
     return `${day}`;
+  }
+
+  getLatestPriceChange(subscription: Subscription): SubscriptionPriceHistory | null {
+    return subscription.priceHistory?.[0] ?? null;
+  }
+
+  toggleRow(subscriptionId: string): void {
+    this.expandedRows = {
+      ...this.expandedRows,
+      [subscriptionId]: !this.expandedRows[subscriptionId],
+    };
   }
 }

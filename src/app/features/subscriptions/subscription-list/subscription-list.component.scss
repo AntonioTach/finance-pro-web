@@ -2,6 +2,94 @@
   padding: 1.5rem;
 }
 
+// ── Summary Cards ─────────────────────────────────────────────
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-card {
+  position: relative;
+  background: var(--bg-elevated, var(--surface-card));
+  border: 1px solid var(--border-color, var(--surface-border));
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  overflow: hidden;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i { font-size: 1.35rem; }
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .card-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted, var(--text-color-secondary));
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .card-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-color);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted, var(--text-color-secondary));
+  }
+
+  &.active-card .card-icon {
+    background: var(--primary-subtle, rgba(99, 102, 241, 0.12));
+    color: var(--primary-color, #6366f1);
+  }
+
+  &.cost-card .card-icon {
+    background: rgba(6, 182, 212, 0.12);
+    color: #06b6d4;
+  }
+
+  &.paid-card .card-icon {
+    background: var(--success-bg, rgba(34, 197, 94, 0.12));
+    color: var(--success-color, #22c55e);
+  }
+
+  &.pending-card .card-icon {
+    background: var(--warning-bg, rgba(245, 158, 11, 0.12));
+    color: var(--warning-color, #f59e0b);
+  }
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -76,6 +164,33 @@
   color: var(--text-color);
 }
 
+.amount-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.price-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  cursor: default;
+
+  i { font-size: 0.6rem; }
+
+  &.increase { background: var(--danger-bg, rgba(239, 68, 68, 0.12)); color: var(--danger-color, #ef4444); }
+  &.decrease { background: var(--success-bg, rgba(34, 197, 94, 0.12)); color: var(--success-color, #22c55e); }
+}
+
+.na {
+  color: var(--text-color-secondary);
+}
+
 .payment-day {
   display: inline-flex;
   align-items: center;
@@ -114,6 +229,83 @@
 
 .text-center {
   text-align: center;
+}
+
+// ── Row expansion panel ───────────────────────────────────────
+.expansion-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.expansion-section {
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
+
+    i { color: var(--text-color-secondary); font-size: 0.8rem; }
+  }
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--surface-ground);
+  font-size: 0.8rem;
+}
+
+.history-date {
+  color: var(--text-color-secondary);
+  white-space: nowrap;
+}
+
+.history-change {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+  color: var(--text-color);
+
+  i { font-size: 0.65rem; color: var(--text-color-secondary); }
+}
+
+.history-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+
+  &.increase { background: var(--danger-bg, rgba(239, 68, 68, 0.12)); color: var(--danger-color, #ef4444); }
+  &.decrease { background: var(--success-bg, rgba(34, 197, 94, 0.12)); color: var(--success-color, #22c55e); }
+}
+
+.empty-hint {
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  margin: 0;
 }
 
 :host ::ng-deep {
