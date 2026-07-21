@@ -65,6 +65,57 @@
       </div>
     </div>
 
+    <!-- Category Breakdown -->
+    @if (categoryBreakdown().length) {
+      <div class="category-chart-card">
+        <h4>Costo por Categoría</h4>
+        <div class="category-chart-body">
+          <div class="chart-container">
+            <canvas
+              baseChart
+              [data]="categoryChartData()"
+              [type]="'doughnut'"
+              [options]="doughnutOptions"
+            ></canvas>
+          </div>
+          <div class="chart-legend">
+            @for (item of categoryBreakdown(); track item.categoryId) {
+              <div class="legend-item">
+                <span class="legend-color" [style.background-color]="item.categoryColor"></span>
+                <span class="legend-label">{{ item.categoryName }}</span>
+                <span class="legend-value">{{ item.amount | currencyFormat:currency() }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Monthly Spend Trend -->
+    <div class="trend-chart-card">
+      <div class="trend-header">
+        <h4>Tendencia de Gasto <span class="trend-subtitle">(últimos 6 meses)</span></h4>
+        @if (trendDelta(); as delta) {
+          <span
+            class="trend-delta"
+            [class.increase]="delta > 0"
+            [class.decrease]="delta < 0"
+          >
+            <i class="pi" [class.pi-arrow-up]="delta > 0" [class.pi-arrow-down]="delta < 0"></i>
+            {{ delta > 0 ? '+' : '' }}{{ delta | number:'1.0-1' }}% vs mes anterior
+          </span>
+        }
+      </div>
+      <div class="trend-chart-container">
+        <canvas
+          baseChart
+          [data]="monthlyTrendChartData()"
+          [type]="'bar'"
+          [options]="barOptions"
+        ></canvas>
+      </div>
+    </div>
+
     <p-table
       [value]="subscriptions()"
       [paginator]="true"
@@ -210,25 +261,30 @@
               <div class="expansion-section">
                 <h4><i class="pi pi-history"></i> Historial de Precio</h4>
                 @if (subscription.priceHistory?.length) {
-                  <ul class="history-list">
-                    @for (change of subscription.priceHistory; track change.id) {
-                      <li class="history-item">
-                        <span class="history-date">{{ change.changedAt | dateFormat:'dd/MM/yyyy' }}</span>
-                        <span class="history-change">
-                          {{ change.previousAmount | currencyFormat:currency() }}
-                          <i class="pi pi-arrow-right"></i>
-                          {{ change.newAmount | currencyFormat:currency() }}
-                        </span>
-                        <span
-                          class="history-badge"
-                          [class.increase]="change.newAmount > change.previousAmount"
-                          [class.decrease]="change.newAmount < change.previousAmount"
-                        >
-                          {{ change.newAmount > change.previousAmount ? '+' : '' }}{{ (change.newAmount - change.previousAmount) | currencyFormat:currency() }}
-                        </span>
-                      </li>
+                  <div class="sparkline-container">
+                    <canvas
+                      baseChart
+                      [data]="getPriceHistoryChartData(subscription)"
+                      [type]="'line'"
+                      [options]="lineOptions"
+                    ></canvas>
+                  </div>
+                  <div class="history-summary">
+                    <span class="history-change">
+                      {{ getInitialPrice(subscription) | currencyFormat:currency() }}
+                      <i class="pi pi-arrow-right"></i>
+                      {{ subscription.amount | currencyFormat:currency() }}
+                    </span>
+                    @if (getLatestPriceChange(subscription); as change) {
+                      <span
+                        class="history-badge"
+                        [class.increase]="change.newAmount > change.previousAmount"
+                        [class.decrease]="change.newAmount < change.previousAmount"
+                      >
+                        {{ subscription.amount > getInitialPrice(subscription) ? '+' : '' }}{{ (subscription.amount - getInitialPrice(subscription)) | currencyFormat:currency() }}
+                      </span>
                     }
-                  </ul>
+                  </div>
                 } @else {
                   <p class="empty-hint">Sin cambios de precio registrados.</p>
                 }

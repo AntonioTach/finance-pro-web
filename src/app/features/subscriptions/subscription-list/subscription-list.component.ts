@@ -7,6 +7,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData } from 'chart.js';
 import { SubscriptionService } from '../services/subscription.service';
 import { SubscriptionFormComponent } from '../subscription-form/subscription-form.component';
 import { SubscriptionPaymentFormComponent } from '../payment-form/subscription-payment-form.component';
@@ -28,6 +30,7 @@ import { AuthService } from '../../../core/services/auth.service';
     ConfirmDialogModule,
     TagModule,
     TooltipModule,
+    BaseChartDirective,
     LoadingSpinnerComponent,
     CurrencyFormatPipe,
     DateFormatPipe,
@@ -67,6 +70,157 @@ export class SubscriptionListComponent implements OnInit {
   pendingAmount = computed(() =>
     this.pendingThisMonth().reduce((sum, s) => sum + Number(s.amount), 0),
   );
+
+  categoryBreakdown = computed(() => {
+    const byCategory = new Map<
+      string,
+      { categoryId: string; categoryName: string; categoryColor: string; amount: number }
+    >();
+
+    for (const subscription of this.activeSubscriptions()) {
+      if (!subscription.category) continue;
+      const existing = byCategory.get(subscription.category.id);
+      if (existing) {
+        existing.amount += Number(subscription.amount);
+      } else {
+        byCategory.set(subscription.category.id, {
+          categoryId: subscription.category.id,
+          categoryName: subscription.category.name,
+          categoryColor: subscription.category.color || '#6366f1',
+          amount: Number(subscription.amount),
+        });
+      }
+    }
+
+    return Array.from(byCategory.values()).sort((a, b) => b.amount - a.amount);
+  });
+
+  categoryChartData = computed((): ChartData<'doughnut'> => {
+    const data = this.categoryBreakdown();
+    return {
+      labels: data.map((c) => c.categoryName),
+      datasets: [
+        {
+          data: data.map((c) => c.amount),
+          backgroundColor: data.map((c) => c.categoryColor),
+          borderWidth: 0,
+          hoverOffset: 6,
+        },
+      ],
+    };
+  });
+
+  monthlyTrend = computed(() => {
+    const totalsByMonth = new Map<string, number>();
+    for (const subscription of this.subscriptions()) {
+      for (const payment of subscription.payments ?? []) {
+        const key = `${payment.periodYear}-${payment.periodMonth}`;
+        totalsByMonth.set(key, (totalsByMonth.get(key) ?? 0) + Number(payment.amount));
+      }
+    }
+
+    const months: { key: string; label: string; amount: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(this.currentYear, this.currentMonth - 1 - i, 1);
+      const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+      months.push({
+        key,
+        label: date.toLocaleDateString('es-MX', { month: 'short' }),
+        amount: totalsByMonth.get(key) ?? 0,
+      });
+    }
+    return months;
+  });
+
+  monthlyTrendChartData = computed((): ChartData<'bar'> => {
+    const months = this.monthlyTrend();
+    return {
+      labels: months.map((m) => m.label),
+      datasets: [
+        {
+          data: months.map((m) => m.amount),
+          backgroundColor: months.map((m, i) =>
+            i === months.length - 1 ? '#6366f1' : 'rgba(99, 102, 241, 0.35)',
+          ),
+          borderRadius: 6,
+          maxBarThickness: 40,
+        },
+      ],
+    };
+  });
+
+  trendDelta = computed(() => {
+    const months = this.monthlyTrend();
+    const current = months[months.length - 1]?.amount ?? 0;
+    const previous = months[months.length - 2]?.amount ?? 0;
+    if (!previous) return null;
+    return ((current - previous) / previous) * 100;
+  });
+
+  barOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { color: 'rgba(148, 163, 184, 0.8)' },
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(148, 163, 184, 0.12)' },
+        ticks: {
+          color: 'rgba(148, 163, 184, 0.8)',
+          callback: (value) => this.formatCurrency(Number(value)),
+        },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => ` ${this.formatCurrency(context.parsed.y as number)}`,
+        },
+      },
+    },
+  };
+
+  doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: true,
+    cutout: '70%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.raw as number;
+            return ` ${context.label}: ${this.formatCurrency(value)}/mes`;
+          },
+        },
+      },
+    },
+  };
+
+  lineOptions: ChartConfiguration<'line'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    elements: {
+      point: { radius: 3, hoverRadius: 5, backgroundColor: '#6366f1', borderColor: 'transparent' },
+      line: { tension: 0.3, borderWidth: 2 },
+    },
+    scales: {
+      x: { display: false },
+      y: { display: false },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => ` ${this.formatCurrency(context.parsed.y as number)}`,
+        },
+      },
+    },
+  };
 
   ngOnInit(): void {
     this.loadSubscriptions();
@@ -214,6 +368,42 @@ export class SubscriptionListComponent implements OnInit {
 
   getLatestPriceChange(subscription: Subscription): SubscriptionPriceHistory | null {
     return subscription.priceHistory?.[0] ?? null;
+  }
+
+  getInitialPrice(subscription: Subscription): number {
+    const history = subscription.priceHistory;
+    if (!history?.length) return Number(subscription.amount);
+    return Number(history[history.length - 1].previousAmount);
+  }
+
+  getPriceHistoryChartData(subscription: Subscription): ChartData<'line'> {
+    const history = [...(subscription.priceHistory ?? [])].reverse();
+    const labels = ['Inicio', ...history.map((h) => this.formatShortDate(h.changedAt))];
+    const points = [this.getInitialPrice(subscription), ...history.map((h) => Number(h.newAmount))];
+
+    return {
+      labels,
+      datasets: [
+        {
+          data: points,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.12)',
+          fill: true,
+          pointBackgroundColor: '#6366f1',
+        },
+      ],
+    };
+  }
+
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: this.currency(),
+    }).format(value);
+  }
+
+  private formatShortDate(date: string): string {
+    return new Date(date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
   }
 
   toggleRow(subscriptionId: string): void {
