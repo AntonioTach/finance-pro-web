@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { Transaction } from '../../../core/models/transaction.model';
+import { PaginatedResponse } from '../../../core/models/paginated-response.model';
+import { TransactionListFilters } from '../models/transaction-list-filters.model';
 import { Observable } from 'rxjs';
 
 export interface MsiGroup {
@@ -21,6 +23,11 @@ export class TransactionService {
 
   getAll(filters?: Record<string, unknown>): Observable<Transaction[]> {
     return this.apiService.get<Transaction[]>('/transactions', filters);
+  }
+
+  /** Paginated + filtered + sorted list, for the Transactions table (server-side). */
+  getPage(filters: TransactionListFilters): Observable<PaginatedResponse<Transaction>> {
+    return this.apiService.get<PaginatedResponse<Transaction>>('/transactions', filters);
   }
 
   getById(id: string): Observable<Transaction> {

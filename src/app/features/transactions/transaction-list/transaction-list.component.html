@@ -11,111 +11,111 @@
     />
   </div>
 
-  @if (isLoading()) {
-    <div class="loading-container">
-      <app-loading-spinner></app-loading-spinner>
-    </div>
-  } @else if (transactions().length === 0) {
-    <div class="empty-state">
-      <i class="pi pi-wallet empty-icon"></i>
-      <h3>{{ 'transactions.noTransactions' | translate }}</h3>
-      <p>{{ 'transactions.startTracking' | translate }}</p>
-      <p-button
-        [label]="'transactions.add' | translate"
-        icon="pi pi-plus"
-        (onClick)="openAddDialog()"
-      />
-    </div>
-  } @else {
-    <p-table
-      [value]="transactions()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="'transactions.showing' | translate"
-      styleClass="p-datatable-striped"
-    >
-      <ng-template #header>
-        <tr>
-          <th>{{ 'transactions.category' | translate }}</th>
-          <th>{{ 'transactions.description' | translate }}</th>
-          <th>{{ 'transactions.date' | translate }}</th>
-          <th>{{ 'transactions.type' | translate }}</th>
-          <th class="text-right">{{ 'transactions.amount' | translate }}</th>
-          <th class="text-center">{{ 'transactions.actions' | translate }}</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-transaction>
-        <tr>
-          <td>
-            <div class="category-cell">
-              <span class="category-icon">{{ transaction.category?.icon || '💰' }}</span>
-              <span>{{ transaction.category?.name }}</span>
-            </div>
-          </td>
-          <td>
-            <div class="description-cell">
-              <span class="description">{{ transaction.description }}</span>
-              @if (isMsi(transaction)) {
-                <div class="msi-badge">
-                  <i class="pi pi-calendar"></i>
-                  <span class="msi-label">MSI {{ getMsiLabel(transaction) }}</span>
-                  <div class="msi-bar-track">
-                    <div class="msi-bar-fill" [style.width.%]="getMsiProgress(transaction)"></div>
-                  </div>
+  <app-transaction-filters (filtersChange)="onFiltersChange($event)" />
+
+  <app-transaction-analytics
+    [summary]="summary()"
+    [categoryBreakdown]="categoryBreakdown()"
+    [trend]="trend()"
+    [granularity]="granularity()"
+    [loading]="isAnalyticsLoading()"
+    [currency]="currency()"
+  />
+
+  <p-table
+    [value]="transactions()"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [paginator]="true"
+    [rows]="filters().limit"
+    [totalRecords]="totalRecords()"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [loading]="isTableLoading()"
+    [showCurrentPageReport]="true"
+    [currentPageReportTemplate]="'transactions.showing' | translate"
+    sortField="date"
+    [sortOrder]="-1"
+    styleClass="p-datatable-striped"
+  >
+    <ng-template #header>
+      <tr>
+        <th>{{ 'transactions.category' | translate }}</th>
+        <th pSortableColumn="description">{{ 'transactions.description' | translate }} <p-sortIcon field="description" /></th>
+        <th pSortableColumn="date">{{ 'transactions.date' | translate }} <p-sortIcon field="date" /></th>
+        <th>{{ 'transactions.type' | translate }}</th>
+        <th pSortableColumn="amount" class="text-right">{{ 'transactions.amount' | translate }} <p-sortIcon field="amount" /></th>
+        <th class="text-center">{{ 'transactions.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-transaction>
+      <tr>
+        <td>
+          <div class="category-cell">
+            <span class="category-icon">{{ transaction.category?.icon || '💰' }}</span>
+            <span>{{ transaction.category?.name }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="description-cell">
+            <span class="description">{{ transaction.description }}</span>
+            @if (isMsi(transaction)) {
+              <div class="msi-badge">
+                <i class="pi pi-calendar"></i>
+                <span class="msi-label">MSI {{ getMsiLabel(transaction) }}</span>
+                <div class="msi-bar-track">
+                  <div class="msi-bar-fill" [style.width.%]="getMsiProgress(transaction)"></div>
                 </div>
-              }
-              @if (transaction.notes) {
-                <small class="notes">{{ transaction.notes }}</small>
-              }
-            </div>
-          </td>
-          <td>{{ transaction.date | dateFormat }}</td>
-          <td>
-            <p-tag
-              [value]="'transactions.type.' + transaction.type | translate"
-              [severity]="getTransactionSeverity(transaction.type)"
+              </div>
+            }
+            @if (transaction.notes) {
+              <small class="notes">{{ transaction.notes }}</small>
+            }
+          </div>
+        </td>
+        <td>{{ transaction.date | dateFormat }}</td>
+        <td>
+          <p-tag
+            [value]="'transactions.type.' + transaction.type | translate"
+            [severity]="getTransactionSeverity(transaction.type)"
+          />
+        </td>
+        <td class="text-right">
+          <span
+            class="amount"
+            [class.income]="transaction.type === 'income'"
+            [class.expense]="transaction.type === 'expense'"
+          >
+            {{ transaction.type === 'income' ? '+' : '-' }}{{ transaction.amount | currencyFormat:currency() }}
+          </span>
+        </td>
+        <td class="text-center">
+          <div class="action-buttons">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              (onClick)="openEditDialog(transaction)"
+              [pTooltip]="'common.edit' | translate"
             />
-          </td>
-          <td class="text-right">
-            <span
-              class="amount"
-              [class.income]="transaction.type === 'income'"
-              [class.expense]="transaction.type === 'expense'"
-            >
-              {{ transaction.type === 'income' ? '+' : '-' }}{{ transaction.amount | currencyFormat:currency() }}
-            </span>
-          </td>
-          <td class="text-center">
-            <div class="action-buttons">
-              <p-button
-                icon="pi pi-pencil"
-                [rounded]="true"
-                [text]="true"
-                severity="secondary"
-                (onClick)="openEditDialog(transaction)"
-                [pTooltip]="'common.edit' | translate"
-              />
-              <p-button
-                icon="pi pi-trash"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                (onClick)="confirmDelete(transaction)"
-                [pTooltip]="'common.delete' | translate"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="6" class="text-center">
-            {{ 'transactions.noTransactions' | translate }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  }
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              (onClick)="confirmDelete(transaction)"
+              [pTooltip]="'common.delete' | translate"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="text-center">
+          {{ 'transactions.noTransactions' | translate }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>

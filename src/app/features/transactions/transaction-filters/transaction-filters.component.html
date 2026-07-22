@@ -1,0 +1,96 @@
+<div class="filters-bar">
+  <div class="filter-field search-field">
+    <i class="pi pi-search"></i>
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="searchTerm"
+      [placeholder]="'transactions.filters.search' | translate"
+    />
+  </div>
+
+  <div class="filter-field">
+    <p-datepicker
+      [(ngModel)]="startDate"
+      (ngModelChange)="onDateChange()"
+      dateFormat="yy-mm-dd"
+      [showIcon]="true"
+      [placeholder]="'transactions.date' | translate"
+    />
+  </div>
+
+  <div class="filter-field">
+    <p-datepicker
+      [(ngModel)]="endDate"
+      (ngModelChange)="onDateChange()"
+      dateFormat="yy-mm-dd"
+      [showIcon]="true"
+      [placeholder]="'transactions.date' | translate"
+    />
+  </div>
+
+  <div class="filter-field">
+    <p-select
+      [(ngModel)]="selectedType"
+      (ngModelChange)="onTypeChange()"
+      [options]="typeOptions"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'transactions.filters.allTypes' | translate"
+      [showClear]="true"
+    />
+  </div>
+
+  <div class="filter-field">
+    <p-select
+      [(ngModel)]="selectedCategoryId"
+      (ngModelChange)="onCategoryChange()"
+      [options]="categoryOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [filter]="true"
+      [placeholder]="'transactions.filters.allCategories' | translate"
+      [showClear]="true"
+    />
+  </div>
+
+  <div class="filter-field">
+    <p-select
+      [(ngModel)]="selectedCardId"
+      (ngModelChange)="onCardChange()"
+      [options]="cardOptions()"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'transactions.filters.allCards' | translate"
+      [showClear]="true"
+    />
+  </div>
+
+  <div class="filter-field amount-field">
+    <p-inputNumber
+      [(ngModel)]="minAmount"
+      (ngModelChange)="onAmountChange()"
+      mode="currency"
+      [currency]="currency()"
+      [placeholder]="'transactions.filters.minAmount' | translate"
+    />
+  </div>
+
+  <div class="filter-field amount-field">
+    <p-inputNumber
+      [(ngModel)]="maxAmount"
+      (ngModelChange)="onAmountChange()"
+      mode="currency"
+      [currency]="currency()"
+      [placeholder]="'transactions.filters.maxAmount' | translate"
+    />
+  </div>
+
+  <p-button
+    icon="pi pi-filter-slash"
+    [label]="'transactions.filters.clear' | translate"
+    severity="secondary"
+    [text]="true"
+    (onClick)="clearFilters()"
+  />
+</div>

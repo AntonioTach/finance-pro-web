@@ -9,6 +9,22 @@ interface ApiResponse<T> {
   data: T;
 }
 
+/**
+ * Drops undefined/null values before Angular serializes params to a query
+ * string — otherwise `{categoryId: undefined}` becomes `?categoryId=undefined`,
+ * which class-validator decorators like @IsUUID/@IsEnum reject as a 400.
+ */
+function cleanParams(params: any): any {
+  if (!params || typeof params !== 'object') return params;
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null) {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -18,7 +34,7 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   get<T>(endpoint: string, params?: any): Observable<T> {
-    return this.http.get<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, { params }).pipe(
+    return this.http.get<ApiResponse<T>>(`${this.apiUrl}${endpoint}`, { params: cleanParams(params) }).pipe(
       map((response) => response.data)
     );
   }

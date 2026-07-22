@@ -24,6 +24,7 @@ import {
   ReportPeriod,
   DateRangeFilter,
 } from '../../../core/models/report.model';
+import { AnalyticsFilters, TrendGranularity } from '../../transactions/models/transaction-list-filters.model';
 import {
   startOfMonth,
   endOfMonth,
@@ -53,19 +54,19 @@ export class ReportService {
   private subscriptionService = inject(SubscriptionService);
   private categoryService = inject(CategoryService);
 
-  /** Get monthly report from API (legacy) */
-  getMonthlyReport(filters?: DateRangeFilter): Observable<any> {
-    return this.apiService.get<any>('/reports/monthly', filters);
+  /** Server-side monthly summary (income/expenses/balance/counts), scoped by the given filters. */
+  getMonthlyReport(filters?: AnalyticsFilters): Observable<{ period: { startDate: string | null; endDate: string | null }; summary: FinancialSummary }> {
+    return this.apiService.get('/reports/monthly', filters);
   }
 
-  /** Get category report from API (legacy) */
-  getByCategory(filters?: DateRangeFilter): Observable<any> {
-    return this.apiService.get<any>('/reports/by-category', filters);
+  /** Server-side category breakdown (top 7 + "Other"), scoped by the given filters. */
+  getByCategory(filters?: AnalyticsFilters): Observable<CategoryBreakdown[]> {
+    return this.apiService.get<CategoryBreakdown[]>('/reports/by-category', filters);
   }
 
-  /** Get trends from API (legacy) */
-  getTrends(filters?: DateRangeFilter): Observable<any> {
-    return this.apiService.get<any>('/reports/trends', filters);
+  /** Server-side income/expense trend, bucketed by day/week/month, scoped by the given filters. */
+  getTrends(filters?: AnalyticsFilters & { granularity?: TrendGranularity }): Observable<Omit<TimeSeriesDataPoint, 'label'>[]> {
+    return this.apiService.get('/reports/trends', filters);
   }
 
   /** Generate overview report with all data */

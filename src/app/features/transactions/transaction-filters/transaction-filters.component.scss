@@ -1,0 +1,58 @@
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 1.25rem;
+}
+
+.filter-field {
+  min-width: 160px;
+  flex: 1 1 160px;
+}
+
+.search-field {
+  position: relative;
+  flex: 2 1 240px;
+
+  i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding-left: 2.25rem;
+  }
+}
+
+.amount-field {
+  min-width: 130px;
+  flex: 1 1 130px;
+}
+
+:host ::ng-deep {
+  .p-select, .p-datepicker input, .p-inputnumber, .p-inputtext {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-field {
+    min-width: 0;
+  }
+}

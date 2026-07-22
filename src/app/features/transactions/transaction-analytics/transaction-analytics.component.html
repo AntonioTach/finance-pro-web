@@ -1,0 +1,54 @@
+<div class="analytics" [class.is-refreshing]="loading()">
+  <div class="kpi-row">
+    <app-stat-tile
+      [label]="'transactions.analytics.totalIncome' | translate"
+      [value]="summary()?.totalIncome ?? 0"
+      [currency]="currency()"
+      tone="success"
+      icon="pi-arrow-down-left"
+    />
+    <app-stat-tile
+      [label]="'transactions.analytics.totalExpenses' | translate"
+      [value]="summary()?.totalExpenses ?? 0"
+      [currency]="currency()"
+      tone="danger"
+      icon="pi-arrow-up-right"
+    />
+    <app-stat-tile
+      [label]="'transactions.analytics.balance' | translate"
+      [value]="summary()?.balance ?? 0"
+      [currency]="currency()"
+      [tone]="(summary()?.balance ?? 0) >= 0 ? 'success' : 'danger'"
+      icon="pi-wallet"
+    />
+    <app-stat-tile
+      [label]="'transactions.analytics.transactionCount' | translate"
+      [value]="summary()?.transactionCount ?? 0"
+      format="number"
+      icon="pi-list"
+    />
+  </div>
+
+  @if (hasData()) {
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>{{ 'transactions.analytics.trendTitle' | translate }}</h3>
+        <div class="chart-container">
+          <canvas baseChart [data]="trendChartData()" [options]="trendChartOptions" type="line"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>{{ 'transactions.analytics.categoryTitle' | translate }}</h3>
+        <div class="chart-container" [style.height.px]="categoryChartHeight()">
+          <canvas baseChart [data]="categoryChartData()" [options]="categoryChartOptions" type="bar"></canvas>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="no-data">
+      <i class="pi pi-inbox"></i>
+      <span>{{ 'transactions.analytics.noData' | translate }}</span>
+    </div>
+  }
+</div>
