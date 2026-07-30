@@ -53,39 +53,6 @@ export interface MonthlyCalendarResponse {
   };
 }
 
-export interface MsiDetail {
-  transactionId: string;
-  description: string;
-  monthlyAmount: number;
-  remainingMonths: number;
-  totalMonths: number;
-}
-
-export interface MonthProjection {
-  month: number;
-  totalDebt: number;
-  msiDebt: number;
-  msiDetails: MsiDetail[];
-  isPaidOff: boolean;
-}
-
-export interface CardYearlyProjection {
-  cardId: string;
-  cardName: string;
-  network: string | null;
-  last4: string | null;
-  maxDebt: number;
-  projection: MonthProjection[];
-}
-
-export interface YearlyProjectionResponse {
-  year: number;
-  cards: CardYearlyProjection[];
-  totalMaxDebt: number;
-}
-
-export type CalendarView = 'monthly' | 'yearly';
-
 export const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',

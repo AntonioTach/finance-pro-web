@@ -16,7 +16,16 @@
     margin: 0.25rem 0 0;
     color: var(--text-color-secondary);
     font-size: 0.9rem;
+    max-width: 46ch;
   }
+}
+
+.projection-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .empty-state {
@@ -92,6 +101,28 @@
 
   &:hover {
     background: var(--surface-hover);
+  }
+}
+
+.table-row.total-row {
+  background: var(--primary-subtle, rgba(99, 102, 241, 0.08));
+  font-weight: 600;
+
+  &:hover {
+    background: var(--primary-subtle, rgba(99, 102, 241, 0.08));
+  }
+
+  .card-column {
+    background: transparent;
+    border-right-color: rgba(99, 102, 241, 0.25);
+  }
+
+  .card-name {
+    color: var(--primary-light, #818cf8);
+  }
+
+  .month-column {
+    cursor: default;
   }
 }
 

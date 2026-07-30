@@ -27,12 +27,6 @@
   }
 }
 
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .calendar-navigation {
   display: flex;
   align-items: center;
@@ -90,8 +84,6 @@
 
     h1 { font-size: 1.5rem; }
   }
-
-  .header-controls { justify-content: center; }
 
   .calendar-navigation {
     flex-wrap: wrap;

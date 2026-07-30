@@ -14,10 +14,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TransactionService } from '../services/transaction.service';
 import { CategoryService } from '../../categories/services/category.service';
 import { CardService } from '../../cards/services/card.service';
-import { Transaction, TransactionType, MSI_OPTIONS, MsiOption } from '../../../core/models/transaction.model';
+import { Transaction, TransactionType, MSI_OPTIONS } from '../../../core/models/transaction.model';
 import { Category, CategoryType } from '../../../core/models/category.model';
 import { Card, CardType } from '../../../core/models/card.model';
 import { CategorySelectComponent } from '../../../shared/components/category-select/category-select.component';
+import { AppDialogService } from '../../../shared/services/dialog.service';
+import { MsiScheduleDialogComponent, MsiScheduleDialogResult } from '../../msi/components/msi-schedule-dialog/msi-schedule-dialog.component';
+import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 
 @Component({
   selector: 'app-transaction-form',
@@ -35,6 +38,7 @@ import { CategorySelectComponent } from '../../../shared/components/category-sel
     MessageModule,
     CheckboxModule,
     CategorySelectComponent,
+    CurrencyFormatPipe,
   ],
   templateUrl: './transaction-form.component.html',
   styleUrls: ['./transaction-form.component.scss'],
@@ -46,6 +50,7 @@ export class TransactionFormComponent implements OnInit {
   private cardService = inject(CardService);
   private dialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
+  private appDialogService = inject(AppDialogService);
 
   transactionForm: FormGroup;
   isLoading = false;
@@ -58,7 +63,6 @@ export class TransactionFormComponent implements OnInit {
   selectedCardId = signal<string | null>(null);
   currentAmount = signal<number | null>(null);
   currentInstallmentMonths = signal<number | null>(null);
-  showMsiSection = false;
 
   msiOptions = MSI_OPTIONS.map((months) => ({
     label: `${months} meses`,
@@ -112,6 +116,10 @@ export class TransactionFormComponent implements OnInit {
     
     return result;
   });
+
+  /** MSI is toggled on but no term has been picked yet — block submit so a
+   * "forgot to pick a term" purchase doesn't silently save as a regular one. */
+  msiSelectionIncomplete = computed(() => this.isMsiEnabled() && !this.currentInstallmentMonths());
 
   monthlyPaymentAmount = computed(() => {
     const amount = this.currentAmount();
@@ -250,19 +258,13 @@ export class TransactionFormComponent implements OnInit {
       this.isMsiEnabled.set(false);
       this.currentInstallmentMonths.set(null);
     }
-    
-    // Update MSI section visibility
-    this.updateMsiSectionVisibility();
   }
 
   onTypeChange(): void {
     const newType = this.transactionForm.get('type')?.value;
     this.selectedType.set(newType);
     this.transactionForm.patchValue({ categoryId: null });
-    
-    // Update MSI section visibility
-    this.updateMsiSectionVisibility();
-    
+
     // Disable MSI if not a card purchase
     if (newType !== TransactionType.CARD_PURCHASE) {
       this.isMsiEnabled.set(false);
@@ -283,21 +285,13 @@ export class TransactionFormComponent implements OnInit {
     // Update the signal with the new card ID
     const cardId = this.transactionForm.get('cardId')?.value;
     this.selectedCardId.set(cardId);
-    
-    // Update MSI section visibility
-    this.updateMsiSectionVisibility();
-    
+
     // Reset MSI if the new card doesn't support it
     if (!this.canUseMsi()) {
       this.isMsiEnabled.set(false);
       this.transactionForm.patchValue({ installmentMonths: null });
       this.currentInstallmentMonths.set(null);
     }
-  }
-
-  private updateMsiSectionVisibility(): void {
-    const canUse = this.canUseMsi();
-    this.showMsiSection = canUse;
   }
 
   onAmountChange(): void {
@@ -314,64 +308,23 @@ export class TransactionFormComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  getMsiMonthlyAmount(): number {
-    if (!this.transaction?.installmentMonths || !this.transaction?.amount) {
-      return 0;
-    }
-    // The transaction amount is already the monthly payment
-    // But if we have the parent transaction, calculate from total
-    if (this.transaction.parentTransaction) {
-      return this.transaction.parentTransaction.amount / this.transaction.installmentMonths;
-    }
-    // Otherwise, use the current transaction amount (which is the monthly payment)
-    return this.transaction.amount;
-  }
-
-  viewMsiGroup(): void {
+  /** Opens the shared MSI schedule dialog (view + cancel). If the user
+   * cancels the MSI from there, this form closes too, since the
+   * transaction it was editing may no longer exist as-is. */
+  viewMsiSchedule(): void {
     if (!this.transaction) return;
 
     const transactionId = this.transaction.parentTransactionId || this.transaction.id;
-    this.isLoading = true;
-
-    this.transactionService.getMsiGroup(transactionId).subscribe({
-      next: (msiGroup) => {
-        this.isLoading = false;
-        // Show dialog with MSI group details
-        
-        const totalInstallments = msiGroup.installments.length;
-        const totalAmount = msiGroup.parent.amount;
-        const monthlyAmount = totalAmount / totalInstallments;
-        const completedPayments = msiGroup.installments.filter(i => i.date <= new Date().toISOString().split('T')[0]).length;
-        
-        alert(`Grupo MSI:\n${totalInstallments} pagos de ${monthlyAmount.toFixed(2)} MXN\nPagos completados: ${completedPayments}\nPagos pendientes: ${totalInstallments - completedPayments}`);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = 'Error al cargar el grupo MSI';
-        console.error('Error loading MSI group:', error);
-      },
+    const ref = this.appDialogService.open<MsiScheduleDialogResult>(MsiScheduleDialogComponent, {
+      header: 'Calendario de pagos MSI',
+      width: '480px',
+      data: { transactionId },
     });
-  }
 
-  cancelMsiGroup(): void {
-    if (!this.transaction || !this.transaction.parentTransactionId) return;
-
-    if (!confirm('¿Estás seguro de cancelar todas las parcialidades MSI pendientes? Esta acción no se puede deshacer.')) {
-      return;
-    }
-
-    this.isLoading = true;
-    this.transactionService.cancelMsi(this.transaction.parentTransactionId).subscribe({
-      next: (result) => {
-        this.isLoading = false;
-        alert(`MSI cancelado. Se eliminaron ${result.deletedCount} parcialidades pendientes.`);
-        this.dialogRef.close({ cancelled: true });
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = 'Error al cancelar MSI';
-        console.error('Error cancelling MSI:', error);
-      },
+    ref.onClose.subscribe((result) => {
+      if (result?.cancelled) {
+        this.dialogRef.close({ cancelled: true, deletedCount: result.deletedCount });
+      }
     });
   }
 

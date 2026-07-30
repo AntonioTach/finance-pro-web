@@ -1,0 +1,181 @@
+<div class="yearly-view">
+  <div class="projection-header">
+    <div class="projection-header-top">
+      <div>
+        <h2>Proyección de Deuda {{ year }}</h2>
+        <p class="projection-subtitle">{{ modeDescription() }}</p>
+      </div>
+      <p-selectbutton
+        [options]="modeOptions"
+        [ngModel]="mode()"
+        (onChange)="mode.set($event.value)"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+      />
+    </div>
+  </div>
+
+  @if (!data.cards || data.cards.length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-credit-card"></i>
+      <h3>Sin tarjetas de crédito</h3>
+      <p>Agrega una tarjeta de crédito para ver proyecciones de deuda</p>
+    </div>
+  } @else {
+    <div class="projection-table">
+      <div class="table-header">
+        <div class="card-column">Tarjeta</div>
+        @for (monthName of MONTH_NAMES_SHORT; track $index) {
+          <div class="month-column">{{ monthName }}</div>
+        }
+      </div>
+
+      <!-- Portfolio-wide total row: unlike the per-card rows below (each
+           scaled against its own max), this one lets you compare months
+           against each other across every card at once. -->
+      <div class="table-row total-row">
+        <div class="card-column">
+          <div class="card-info">
+            <span class="card-name">Total del portafolio</span>
+          </div>
+        </div>
+
+        @for (monthTotal of totalSeries(); track $index) {
+          <div class="month-column" [class.has-debt]="monthTotal > 0">
+            @if (monthTotal > 0) {
+              <div class="debt-cell">
+                <span class="debt-amount">{{ formatAmount(monthTotal) }}</span>
+                <div
+                  class="debt-bar"
+                  [style.height.%]="getBarHeight(monthTotal, totalMax())"
+                  [style.background]="getBarColor(monthTotal, totalMax())"
+                ></div>
+              </div>
+            } @else {
+              <div class="no-debt">-</div>
+            }
+          </div>
+        }
+      </div>
+
+      @for (card of data.cards; track card.cardId) {
+        <div class="table-row">
+          <div class="card-column">
+            <div class="card-info">
+              <span class="card-name">{{ card.cardName }}</span>
+              @if (card.last4) {
+                <small class="card-last4">•••• {{ card.last4 }}</small>
+              }
+            </div>
+          </div>
+
+          @for (month of card.projection; track month.month) {
+            <div
+              class="month-column"
+              [class.paid-off]="isPaidOffCell(month)"
+              [class.has-debt]="getMonthValue(month) > 0"
+              (click)="showMonthDetail(card, month)"
+            >
+              @if (isPaidOffCell(month)) {
+                <div class="paid-off-indicator">
+                  <i class="pi pi-check-circle"></i>
+                </div>
+              } @else if (getMonthValue(month) > 0) {
+                <div class="debt-cell">
+                  <span class="debt-amount">{{ formatAmount(getMonthValue(month)) }}</span>
+                  <div
+                    class="debt-bar"
+                    [style.height.%]="getBarHeight(getMonthValue(month), getCardMax(card))"
+                    [style.background]="getBarColor(getMonthValue(month), getCardMax(card))"
+                  ></div>
+                </div>
+              } @else {
+                <div class="no-debt">-</div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="legend-section">
+      <h4>Leyenda</h4>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-bar high"></div>
+          <span>{{ mode() === 'remaining' ? 'Deuda alta' : 'Pago alto' }}</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-bar medium"></div>
+          <span>{{ mode() === 'remaining' ? 'Deuda media' : 'Pago medio' }}</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-bar low"></div>
+          <span>{{ mode() === 'remaining' ? 'Deuda baja' : 'Pago bajo' }}</span>
+        </div>
+        @if (mode() === 'remaining') {
+          <div class="legend-item">
+            <i class="pi pi-check-circle" style="color: var(--green-500)"></i>
+            <span>Liquidado</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Month Detail Dialog -->
+  <p-dialog
+    [(visible)]="showDetailDialog"
+    [header]="detailDialogHeader()"
+    [modal]="true"
+    [style]="{ width: '400px' }"
+    [dismissableMask]="true"
+  >
+    @if (selectedMonth() && selectedCard()) {
+      <div class="detail-content">
+        <div class="detail-total">
+          <span class="label">{{ mode() === 'remaining' ? 'Deuda total:' : 'Pago este mes:' }}</span>
+          <span class="value">
+            {{ (mode() === 'remaining' ? selectedMonth()!.totalDebt : selectedMonth()!.monthlyPaymentDue) | currency:'MXN':'symbol':'1.2-2':'es-MX' }}
+          </span>
+        </div>
+
+        @if (selectedMonth()!.msiDetails.length > 0) {
+          <div class="msi-breakdown">
+            <h4>Desglose MSI</h4>
+            @for (msi of selectedMonth()!.msiDetails; track msi.transactionId) {
+              <div class="msi-item">
+                <div class="msi-description">{{ msi.description }}</div>
+                @if (mode() === 'remaining') {
+                  <div class="msi-info">
+                    <span class="monthly">
+                      {{ msi.monthlyAmount | currency:'MXN':'symbol':'1.2-2':'es-MX' }}/mes
+                    </span>
+                    <span class="remaining">
+                      {{ msi.remainingMonths }} de {{ msi.totalMonths }} meses restantes
+                    </span>
+                  </div>
+                } @else {
+                  <div class="msi-info">
+                    <span class="monthly">
+                      {{ msi.amountDueThisMonth | currency:'MXN':'symbol':'1.2-2':'es-MX' }} este mes
+                    </span>
+                    <span class="remaining">
+                      {{ msi.remainingMonths }} de {{ msi.totalMonths }} meses restantes
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-msi">
+            <i class="pi pi-info-circle"></i>
+            <span>Sin compras a MSI activas</span>
+          </div>
+        }
+      </div>
+    }
+  </p-dialog>
+</div>

@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import {
   MonthlyCalendarResponse,
@@ -11,7 +12,7 @@ import {
 @Component({
   selector: 'app-monthly-view',
   standalone: true,
-  imports: [CommonModule, TooltipModule],
+  imports: [CommonModule, RouterLink, TooltipModule],
   template: `
     <div class="monthly-view">
       <div class="calendar-grid">
@@ -97,6 +98,9 @@ import {
                     </span>
                     <span class="detail-value">{{ card.msiAmount | currency:'MXN':'symbol':'1.2-2':'es-MX' }}</span>
                   </div>
+                  <a routerLink="/msi" class="msi-link">
+                    Ver proyección MSI completa <i class="pi pi-arrow-right"></i>
+                  </a>
                 }
                 @if (card.purchasesAmount > 0) {
                   <div class="detail-row">

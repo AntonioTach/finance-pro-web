@@ -88,53 +88,68 @@
   border-top: 1px solid var(--surface-border);
 }
 
-// ── MSI — WIP notice ─────────────────────────────────────────
-.msi-wip {
+// ── MSI (meses sin intereses) ───────────────────────────────────
+.msi-field {
+  padding: 0.875rem 1rem;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  gap: 0.75rem;
+}
+
+.msi-options {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-top: 0.25rem;
+
+  label {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.msi-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-color-secondary);
+
+  i { color: var(--primary-light, #818cf8); }
+
+  strong { color: var(--text-color); }
+}
+
+.msi-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-50);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+
+  i { margin-top: 0.15rem; }
+}
+
+.msi-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
   padding: 0.875rem 1rem;
-  background: rgba(245, 158, 11, 0.06);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: 10px;
 }
 
-.msi-wip-left {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  flex-wrap: wrap;
-}
-
-.msi-wip-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--warning-color, #f59e0b);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.msi-wip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--warning-color, #f59e0b);
-  animation: msi-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes msi-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.7); }
-}
-
-.msi-wip-title {
+.msi-info-title {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -142,10 +157,10 @@
   font-weight: 600;
   color: var(--text-color);
 
-  i { font-size: 0.85rem; color: var(--warning-color, #f59e0b); }
+  i { color: var(--primary-light, #818cf8); }
 }
 
-.msi-wip-desc {
+.msi-info-desc {
   margin: 0;
   font-size: 0.8rem;
   color: var(--text-color-secondary);

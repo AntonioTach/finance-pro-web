@@ -384,6 +384,7 @@ export class SidebarComponent implements OnInit {
     { labelKey: 'nav.cards',        icon: 'pi-credit-card',   route: '/cards' },
     { labelKey: 'nav.cashFlow',     icon: 'pi-dollar',        route: '/cash-flow' },
     { labelKey: 'nav.calendar',     icon: 'pi-calendar-plus', route: '/calendar' },
+    { labelKey: 'nav.msi',          icon: 'pi-percentage',    route: '/msi' },
     { labelKey: 'nav.subscriptions',icon: 'pi-sync',          route: '/subscriptions' },
     { labelKey: 'nav.debts',        icon: 'pi-arrows-h',      route: '/debts' },
     { labelKey: 'nav.categories',   icon: 'pi-tags',          route: '/categories' },

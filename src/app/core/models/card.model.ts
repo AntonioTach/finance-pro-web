@@ -49,6 +49,8 @@ export interface CardSummary {
   creditLimit: number | null;
   nextCutoffDate: string | null;
   nextDueDate: string | null;
+  activeMsiCount: number | null;
+  msiMonthlyCommitment: number | null;
 }
 
 export interface CreateCardDto {

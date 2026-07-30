@@ -197,15 +197,27 @@ export class TransactionListComponent {
   }
 
   openEditDialog(transaction: Transaction): void {
-    const ref = this.dialogService.open(TransactionFormComponent, {
-      header: this.ts.t('transactions.dialogEdit'),
-      width: '500px',
-      data: { transaction },
-    });
+    const ref = this.dialogService.open<Transaction | { cancelled: true; deletedCount?: number }>(
+      TransactionFormComponent,
+      {
+        header: this.ts.t('transactions.dialogEdit'),
+        width: '500px',
+        data: { transaction },
+      },
+    );
 
-    ref.onClose.subscribe((result: Transaction | undefined) => {
-      if (result) {
-        this.refreshTick.update((n) => n + 1);
+    ref.onClose.subscribe((result) => {
+      if (!result) return;
+
+      this.refreshTick.update((n) => n + 1);
+
+      if ('cancelled' in result) {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'MSI cancelado',
+          detail: `Se eliminaron ${result.deletedCount ?? 0} parcialidades pendientes.`,
+        });
+      } else {
         this.messageService.add({
           severity: 'success',
           summary: this.ts.t('transactions.success.updated'),

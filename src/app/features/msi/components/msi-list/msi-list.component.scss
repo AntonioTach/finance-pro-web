@@ -1,0 +1,132 @@
+.msi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.state-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color-secondary);
+  padding: 3rem 0;
+  justify-content: center;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--surface-card, var(--bg-elevated));
+  border-radius: var(--border-radius);
+  border: 1px solid var(--surface-border, var(--border-color));
+  text-align: center;
+
+  i {
+    font-size: 3rem;
+    color: var(--text-color-secondary);
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    color: var(--text-color);
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    max-width: 32ch;
+  }
+}
+
+.msi-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.msi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  background: var(--surface-card, var(--bg-elevated));
+  border: 1px solid var(--surface-border, var(--border-color));
+  border-radius: 12px;
+}
+
+.msi-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.msi-card-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.msi-card-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+}
+
+.msi-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.msi-card-figures {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.msi-card-figures > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.msi-card-figures .label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-color-secondary);
+}
+
+.msi-card-figures .value {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.msi-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--surface-border, var(--border-color));
+}

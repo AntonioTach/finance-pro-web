@@ -83,22 +83,66 @@
     }
   </div>
 
-  <!-- MSI — WIP notice -->
-  @if (isCardTransaction() && selectedType() === 'card_purchase') {
-    <div class="msi-wip">
-      <div class="msi-wip-left">
-        <span class="msi-wip-badge">
-          <span class="msi-wip-dot"></span>
-          En desarrollo
-        </span>
-        <span class="msi-wip-title">
-          <i class="pi pi-calendar"></i>
-          Meses sin intereses (MSI)
-        </span>
+  <!-- MSI (meses sin intereses) -->
+  @if (isEditMode && isMsiTransaction) {
+    <div class="msi-info">
+      <div class="msi-info-title">
+        <i class="pi pi-calendar"></i>
+        Compra a meses sin intereses
       </div>
-      <p class="msi-wip-desc">
-        Próximamente podrás dividir compras en mensualidades sin intereses directamente desde aquí.
+      <p class="msi-info-desc">
+        Parcialidad {{ transaction?.installmentCurrent }} de {{ transaction?.installmentMonths }}.
+        El monto y la tarjeta de esta compra no se pueden editar de forma individual.
       </p>
+      <p-button
+        label="Ver calendario de pagos"
+        icon="pi pi-eye"
+        severity="secondary"
+        [outlined]="true"
+        size="small"
+        type="button"
+        (onClick)="viewMsiSchedule()"
+      />
+    </div>
+  } @else if (canUseMsi()) {
+    <div class="form-field msi-field">
+      <label class="toggle-label">
+        <input
+          type="checkbox"
+          [checked]="isMsiEnabled()"
+          (change)="isMsiEnabled.set(!isMsiEnabled()); onMsiToggle()"
+        />
+        <span class="toggle-text">
+          <i class="pi pi-calendar"></i>
+          Comprar a meses sin intereses (MSI)
+        </span>
+      </label>
+
+      @if (isMsiEnabled()) {
+        <div class="msi-options">
+          <label>Plazo</label>
+          <p-selectbutton
+            [options]="msiOptions"
+            formControlName="installmentMonths"
+            (onChange)="onInstallmentMonthsChange()"
+          />
+
+          @if (msiSelectionIncomplete()) {
+            <small class="error-text">Selecciona un plazo para continuar</small>
+          } @else if (monthlyPaymentAmount(); as monthly) {
+            <p class="msi-preview">
+              <i class="pi pi-info-circle"></i>
+              {{ currentInstallmentMonths() }} pagos mensuales de
+              <strong>{{ monthly | currencyFormat }}</strong>
+            </p>
+          }
+        </div>
+      }
+    </div>
+  } @else if (isCardTransaction() && selectedType() === 'card_purchase') {
+    <div class="msi-hint">
+      <i class="pi pi-info-circle"></i>
+      <span>Para usar meses sin intereses, la tarjeta debe ser de crédito y tener un día de corte configurado.</span>
     </div>
   }
 
@@ -175,7 +219,7 @@
     <p-button
       type="submit"
       [label]="isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar')"
-      [disabled]="transactionForm.invalid || isLoading"
+      [disabled]="transactionForm.invalid || isLoading || msiSelectionIncomplete()"
       [loading]="isLoading"
     />
   </div>

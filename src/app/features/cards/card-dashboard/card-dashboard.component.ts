@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -21,6 +22,7 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     ButtonModule,
     CardModule,
     TableModule,
@@ -98,6 +100,12 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
                   <span class="debt-amount" [class.has-debt]="card.outstandingDebt > 0">
                     {{ card.outstandingDebt | currencyFormat:card.currency }}
                   </span>
+                  @if (card.activeMsiCount) {
+                    <a [routerLink]="['/msi']" [queryParams]="{ cardId: card.cardId }" class="msi-badge-link">
+                      <i class="pi pi-percentage"></i>
+                      {{ card.activeMsiCount }} a meses
+                    </a>
+                  }
                 } @else {
                   <span class="na">N/A</span>
                 }
@@ -223,6 +231,22 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
     .debt-amount.has-debt {
       color: var(--red-500);
+    }
+
+    .msi-badge-link {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.25rem;
+      margin-top: 0.2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
     .available-credit {

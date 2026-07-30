@@ -79,6 +79,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'msi',
+        loadChildren: () =>
+          import('./features/msi/msi.routes').then((m) => m.msiRoutes),
+      },
+      {
         path: 'debts',
         loadChildren: () =>
           import('./features/debts/debts.routes').then((m) => m.DEBT_ROUTES),

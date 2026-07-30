@@ -1,0 +1,62 @@
+<div class="msi-page">
+  <header class="msi-header">
+    <h1>
+      <i class="pi pi-percentage"></i>
+      Meses sin intereses
+    </h1>
+    <p class="subtitle">Todas tus compras a meses, su progreso y cuándo terminan</p>
+  </header>
+
+  <p-tabs [value]="0" [scrollable]="true">
+    <p-tablist>
+      <p-tab [value]="0">
+        <i class="pi pi-list"></i>
+        <span>Compras activas</span>
+      </p-tab>
+      <p-tab [value]="1">
+        <i class="pi pi-chart-bar"></i>
+        <span>Proyección anual</span>
+      </p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel [value]="0">
+        <app-msi-list />
+      </p-tabpanel>
+      <p-tabpanel [value]="1">
+        <div class="projection-nav">
+          <p-button
+            icon="pi pi-chevron-left"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="previousYear()"
+            ariaLabel="Año anterior"
+          />
+          <span class="year-label">{{ currentYear() }}</span>
+          <p-button
+            icon="pi pi-chevron-right"
+            [rounded]="true"
+            [text]="true"
+            (onClick)="nextYear()"
+            ariaLabel="Año siguiente"
+          />
+          <p-button label="Hoy" [text]="true" (onClick)="goToCurrentYear()" />
+        </div>
+
+        @if (isLoadingProjection()) {
+          <div class="state-row">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Cargando proyección...</span>
+          </div>
+        } @else if (projectionError()) {
+          <div class="state-row error">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>{{ projectionError() }}</span>
+            <p-button label="Reintentar" (onClick)="loadProjection()" />
+          </div>
+        } @else if (yearlyData()) {
+          <app-msi-yearly-projection [data]="yearlyData()!" [year]="currentYear()" />
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

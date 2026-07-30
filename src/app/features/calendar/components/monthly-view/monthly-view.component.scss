@@ -249,6 +249,25 @@
   color: var(--text-color);
 }
 
+.msi-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  i {
+    font-size: 0.65rem;
+  }
+}
+
 .due-date {
   display: flex;
   align-items: center;

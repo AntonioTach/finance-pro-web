@@ -1,0 +1,83 @@
+<div class="msi-list">
+  <div class="filters-row">
+    <p-selectbutton
+      [options]="statusOptions"
+      [(ngModel)]="statusFilterValue"
+      (onChange)="onFilterChange()"
+      [allowEmpty]="false"
+    />
+    <p-select
+      [options]="cardOptions()"
+      [(ngModel)]="cardFilterValue"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Todas las tarjetas"
+      [showClear]="true"
+      (onChange)="onFilterChange()"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-row">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Cargando compras a meses...</span>
+    </div>
+  } @else if (groups().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-calendar"></i>
+      <h3>Sin compras a meses</h3>
+      <p>Cuando registres una compra a meses sin intereses desde una tarjeta de crédito, aparecerá aquí.</p>
+    </div>
+  } @else {
+    <div class="msi-cards">
+      @for (group of groups(); track group.parentTransactionId) {
+        <div class="msi-card">
+          <div class="msi-card-header">
+            <div class="msi-card-heading">
+              <div class="msi-card-title">{{ group.description }}</div>
+              <div class="msi-card-subtitle">
+                <i class="pi pi-credit-card"></i>
+                {{ group.cardName }}
+                @if (group.cardLast4) { <span>•••• {{ group.cardLast4 }}</span> }
+              </div>
+            </div>
+            <p-tag
+              [value]="group.status === 'active' ? 'Activa' : 'Terminada'"
+              [severity]="group.status === 'active' ? 'info' : 'success'"
+            />
+          </div>
+
+          <div class="msi-progress">
+            <p-progressBar [value]="progressPct(group)" [showValue]="false" [style]="{ height: '8px' }" />
+            <span class="progress-label">{{ group.installmentsPaid }} de {{ group.totalMonths }} pagos realizados</span>
+          </div>
+
+          <div class="msi-card-figures">
+            <div>
+              <span class="label">Mensualidad</span>
+              <span class="value">{{ group.monthlyAmount | currencyFormat }}</span>
+            </div>
+            <div>
+              <span class="label">Restante</span>
+              <span class="value">{{ group.remainingAmount | currencyFormat }}</span>
+            </div>
+            <div>
+              <span class="label">{{ group.status === 'active' ? 'Termina' : 'Terminó' }}</span>
+              <span class="value">{{ group.endDate | dateFormat }}</span>
+            </div>
+          </div>
+
+          <div class="msi-card-actions">
+            <p-button
+              label="Ver calendario de pagos"
+              icon="pi pi-eye"
+              size="small"
+              [outlined]="true"
+              (onClick)="viewSchedule(group)"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
