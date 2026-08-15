@@ -215,14 +215,14 @@ export class DashboardComponent implements OnInit {
     const currentYear = now.getFullYear();
 
     const currentMonthTx = transactions.filter((t) => {
-      const d = new Date(t.date);
+      const d = new Date(t.date.substring(0, 10) + 'T00:00:00');
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     });
 
     const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const lastMonthTx = transactions.filter((t) => {
-      const d = new Date(t.date);
+      const d = new Date(t.date.substring(0, 10) + 'T00:00:00');
       return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
     });
 
