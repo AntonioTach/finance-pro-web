@@ -63,14 +63,6 @@ interface CategoryGroup {
               class="search-input"
             />
           </span>
-          <p-button
-            [label]="'categories.sync' | translate"
-            icon="pi pi-sync"
-            severity="secondary"
-            [outlined]="true"
-            [loading]="isSyncing()"
-            (onClick)="syncCategories()"
-          />
         </div>
       </div>
 
@@ -413,7 +405,6 @@ export class CategoryListComponent implements OnInit {
   private ts              = inject(TranslationService);
 
   isLoading  = signal(false);
-  isSyncing  = signal(false);
   isSaving   = signal(false);
   categories = signal<Category[]>([]);
   showDialog = false;
@@ -481,21 +472,6 @@ export class CategoryListComponent implements OnInit {
         this.isLoading.set(false);
         this.toast('error', this.ts.t('categories.error.load'));
       },
-    });
-  }
-
-  syncCategories(): void {
-    this.isSyncing.set(true);
-    this.categoryService.syncDefaults().subscribe({
-      next: (result) => {
-        this.isSyncing.set(false);
-        const msg = result.added > 0
-          ? this.ts.t('categories.toast.syncAdded').replace('{count}', String(result.added))
-          : this.ts.t('categories.toast.syncUpToDate');
-        this.toast(result.added > 0 ? 'success' : 'info', msg);
-        this.loadCategories();
-      },
-      error: () => { this.isSyncing.set(false); this.toast('error', this.ts.t('categories.error.sync')); },
     });
   }
 
