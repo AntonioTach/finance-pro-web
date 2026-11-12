@@ -95,7 +95,10 @@
         @if (row.lastDate) { · {{ 'reconciliations.form.last' | translate }} {{ row.lastDate | dateFormat:'dd/MM/yyyy' }} }
       </span>
       @if (row.kind === 'card' && row.msiPending > 0) {
-        <span class="sub msi">+ {{ row.msiPending | currencyFormat:currency }} {{ 'reconciliations.form.msiPending' | translate }}</span>
+        <span class="sub msi">
+          {{ row.msiPending | currencyFormat:currency }} {{ 'reconciliations.form.msiPending' | translate }}
+          <strong>{{ ((row.real ?? row.computed) + row.msiPending) | currencyFormat:currency }}</strong>
+        </span>
       }
     </div>
 
