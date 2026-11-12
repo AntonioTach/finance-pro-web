@@ -100,12 +100,24 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
                   <span class="debt-amount" [class.has-debt]="card.outstandingDebt > 0">
                     {{ card.outstandingDebt | currencyFormat:card.currency }}
                   </span>
+                  @if (card.msiPending) {
+                    <small class="debt-secondary">
+                      + {{ card.msiPending | currencyFormat:card.currency }} MSI por facturar
+                    </small>
+                  }
                   @if (card.activeMsiCount) {
                     <a [routerLink]="['/msi']" [queryParams]="{ cardId: card.cardId }" class="msi-badge-link">
                       <i class="pi pi-percentage"></i>
                       {{ card.activeMsiCount }} a meses
                     </a>
                   }
+                  <small class="debt-secondary">
+                    @if (card.lastReconciliationDate) {
+                      <i class="pi pi-check-circle"></i> Cuadrada {{ card.lastReconciliationDate | dateFormat:'dd/MM/yyyy' }}
+                    } @else {
+                      <a routerLink="/reconciliations/new" class="reconcile-link">Cuadrar saldo</a>
+                    }
+                  </small>
                 } @else {
                   <span class="na">N/A</span>
                 }
@@ -231,6 +243,22 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
     .debt-amount.has-debt {
       color: var(--red-500);
+    }
+
+    .debt-secondary {
+      display: block;
+      margin-top: 0.2rem;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+
+      i { font-size: 0.65rem; color: var(--success-color, #22c55e); }
+    }
+
+    .reconcile-link {
+      color: var(--primary-color);
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
     }
 
     .msi-badge-link {

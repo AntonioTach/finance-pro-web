@@ -381,6 +381,8 @@ export class SidebarComponent implements OnInit {
   navItems: NavItem[] = [
     { labelKey: 'nav.dashboard',    icon: 'pi-home',          route: '/dashboard' },
     { labelKey: 'nav.transactions', icon: 'pi-money-bill',    route: '/transactions' },
+    { labelKey: 'nav.accounts',     icon: 'pi-building-columns', route: '/accounts' },
+    { labelKey: 'nav.reconciliations', icon: 'pi-check-square', route: '/reconciliations' },
     { labelKey: 'nav.cards',        icon: 'pi-credit-card',   route: '/cards' },
     { labelKey: 'nav.cashFlow',     icon: 'pi-dollar',        route: '/cash-flow' },
     { labelKey: 'nav.calendar',     icon: 'pi-calendar-plus', route: '/calendar' },

@@ -1,0 +1,128 @@
+.total-card {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--primary-color);
+}
+
+.total-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.total-amount {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.account-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.account-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-subtle, rgba(99, 102, 241, 0.1));
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.account-title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.account-name {
+  font-weight: 700;
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-type {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.account-balance {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-color);
+  font-variant-numeric: tabular-nums;
+
+  &.negative { color: var(--danger-color, #f43f5e); }
+}
+
+.account-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-top: auto;
+}
+
+.transfer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 90px 1fr auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+
+    &:last-child { border-bottom: none; }
+  }
+}
+
+.transfer-date { color: var(--text-secondary); }
+.transfer-route i { font-size: 0.7rem; margin: 0 0.25rem; }
+.transfer-amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.empty-state.small { padding: 1rem; }
+
+@media (max-width: 640px) {
+  .transfer-list li {
+    grid-template-columns: 1fr auto auto;
+
+    .transfer-date { grid-column: 1 / -1; }
+  }
+}

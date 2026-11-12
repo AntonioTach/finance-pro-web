@@ -1,0 +1,131 @@
+<p-toast />
+
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'reconciliations.new' | translate }}</h1>
+      <p>{{ 'reconciliations.form.subtitle' | translate }}</p>
+    </div>
+    <p-button [label]="'reconciliations.history' | translate" icon="pi pi-history" severity="secondary"
+      [outlined]="true" routerLink="/reconciliations" />
+  </div>
+
+  <div class="panel date-panel">
+    <div class="form-field">
+      <label for="recDate">{{ 'reconciliations.form.date' | translate }}</label>
+      <p-datepicker inputId="recDate" [(ngModel)]="date" (onSelect)="loadPreview()" [maxDate]="today"
+        dateFormat="dd/mm/yy" [showIcon]="true" />
+    </div>
+    <p class="hint">{{ 'reconciliations.form.dateHint' | translate }}</p>
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner />
+  } @else {
+    <!-- Accounts -->
+    <h2 class="section-title"><i class="pi pi-wallet"></i>{{ 'reconciliations.form.accounts' | translate }}</h2>
+    <p class="hint section-hint">{{ 'reconciliations.form.accountsHint' | translate }}</p>
+    <div class="panel rows">
+      @for (row of accountRows(); track row.id) {
+        <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }" />
+      }
+    </div>
+
+    <!-- Credit cards -->
+    @if (cardRows().length > 0) {
+      <h2 class="section-title"><i class="pi pi-credit-card"></i>{{ 'reconciliations.form.cards' | translate }}</h2>
+      <p class="hint section-hint">{{ 'reconciliations.form.cardsHint' | translate }}</p>
+      <div class="panel rows">
+        @for (row of cardRows(); track row.id) {
+          <ng-container *ngTemplateOutlet="rowTpl; context: { $implicit: row }" />
+        }
+      </div>
+    }
+
+    <!-- Summary -->
+    <div class="panel summary">
+      <div class="summary-line">
+        <span>{{ 'reconciliations.form.money' | translate }}</span>
+        <strong [class.positive]="accountsDiff() > 0" [class.negative]="accountsDiff() < 0">
+          @if (accountsDiff() === 0) {
+            {{ 'reconciliations.form.matches' | translate }}
+          } @else if (accountsDiff() > 0) {
+            {{ 'reconciliations.form.moreMoney' | translate }} {{ accountsDiff() | currencyFormat:currency }}
+          } @else {
+            {{ 'reconciliations.form.lessMoney' | translate }} {{ -accountsDiff() | currencyFormat:currency }}
+          }
+        </strong>
+      </div>
+      @if (cardRows().length > 0) {
+        <div class="summary-line">
+          <span>{{ 'reconciliations.form.debt' | translate }}</span>
+          <strong [class.negative]="cardsDiff() > 0" [class.positive]="cardsDiff() < 0">
+            @if (cardsDiff() === 0) {
+              {{ 'reconciliations.form.matches' | translate }}
+            } @else if (cardsDiff() > 0) {
+              {{ 'reconciliations.form.moreDebt' | translate }} {{ cardsDiff() | currencyFormat:currency }}
+            } @else {
+              {{ 'reconciliations.form.lessDebt' | translate }} {{ -cardsDiff() | currencyFormat:currency }}
+            }
+          </strong>
+        </div>
+      }
+
+      <div class="form-field notes">
+        <label for="recNotes">{{ 'reconciliations.form.notes' | translate }} <span class="hint">({{ 'common.optional' | translate }})</span></label>
+        <textarea id="recNotes" pTextarea [(ngModel)]="notes" rows="2" class="w-full"
+          [placeholder]="'reconciliations.form.notesPlaceholder' | translate"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <span class="hint">{{ filledCount() }} {{ 'reconciliations.form.filled' | translate }}</span>
+        <p-button [label]="'reconciliations.form.save' | translate" icon="pi pi-check" [loading]="saving()"
+          [disabled]="filledCount() === 0" (onClick)="save()" />
+      </div>
+    </div>
+  }
+</div>
+
+<ng-template #rowTpl let-row>
+  <div class="rec-row">
+    <div class="rec-name">
+      <span class="name">{{ row.name }}</span>
+      <span class="sub">
+        {{ row.subtitle }}
+        @if (row.lastDate) { · {{ 'reconciliations.form.last' | translate }} {{ row.lastDate | dateFormat:'dd/MM/yyyy' }} }
+      </span>
+      @if (row.kind === 'card' && row.msiPending > 0) {
+        <span class="sub msi">+ {{ row.msiPending | currencyFormat:currency }} {{ 'reconciliations.form.msiPending' | translate }}</span>
+      }
+    </div>
+
+    <div class="rec-computed">
+      <span class="label">{{ (row.kind === 'card' ? 'reconciliations.form.appDebt' : 'reconciliations.form.appBalance') | translate }}</span>
+      <span class="value">{{ row.computed | currencyFormat:currency }}</span>
+    </div>
+
+    <div class="rec-real">
+      <span class="label">{{ (row.kind === 'card' ? 'reconciliations.form.realDebt' : 'reconciliations.form.realBalance') | translate }}</span>
+      <div class="real-input">
+        <p-inputNumber [(ngModel)]="row.real" (ngModelChange)="onInput()" mode="decimal"
+          [minFractionDigits]="2" [maxFractionDigits]="2" [placeholder]="'reconciliations.form.skip' | translate"
+          [fluid]="true" />
+        <p-button icon="pi pi-equals" [text]="true" [rounded]="true" size="small"
+          [title]="'reconciliations.form.useComputed' | translate" (onClick)="matchComputed(row)" />
+      </div>
+    </div>
+
+    <div class="rec-diff">
+      @if (diff(row); as d) {
+        <span [class.positive]="row.kind === 'account' ? d > 0 : d < 0"
+              [class.negative]="row.kind === 'account' ? d < 0 : d > 0">
+          {{ d > 0 ? '+' : '' }}{{ d | currencyFormat:currency }}
+        </span>
+      } @else if (row.real !== null) {
+        <span class="ok"><i class="pi pi-check"></i></span>
+      } @else {
+        <span class="muted">—</span>
+      }
+    </div>
+  </div>
+</ng-template>

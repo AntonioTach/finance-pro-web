@@ -1,0 +1,102 @@
+<p-toast />
+<p-confirmdialog />
+
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'accounts.title' | translate }}</h1>
+      <p>{{ 'accounts.subtitle' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <p-button [label]="'accounts.transfer.button' | translate" icon="pi pi-arrow-right-arrow-left"
+        severity="secondary" [outlined]="true" [disabled]="accounts().length < 2" (onClick)="openTransferDialog()" />
+      <p-button [label]="'accounts.add' | translate" icon="pi pi-plus" severity="secondary" [outlined]="true"
+        (onClick)="openAccountDialog()" />
+      <p-button [label]="'reconciliations.new' | translate" icon="pi pi-check-square" routerLink="/reconciliations/new" />
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <app-loading-spinner />
+  } @else {
+    <div class="total-card panel">
+      <span class="total-label">{{ 'accounts.total' | translate }}</span>
+      <span class="total-amount" [class.negative]="total() < 0">{{ total() | currencyFormat:currency() }}</span>
+    </div>
+
+    <div class="account-grid">
+      @for (acc of accounts(); track acc.id) {
+        <div class="account-card panel">
+          <div class="account-head">
+            <div class="account-icon"><i class="pi" [ngClass]="icons[acc.type]"></i></div>
+            <div class="account-title">
+              <span class="account-name">{{ acc.name }}</span>
+              <span class="account-type">{{ typeLabel(acc) }}</span>
+            </div>
+            @if (acc.isDefault) {
+              <p-tag [value]="'accounts.default' | translate" severity="info" />
+            }
+          </div>
+
+          <div class="account-balance" [class.negative]="acc.balance < 0">
+            {{ acc.balance | currencyFormat:currency() }}
+          </div>
+
+          <div class="account-meta">
+            @if (acc.lastReconciliation; as rec) {
+              <i class="pi pi-check-circle"></i>
+              <span>
+                {{ 'accounts.lastReconciliation' | translate }} {{ rec.date | dateFormat:'dd/MM/yyyy' }}
+                @if (rec.difference !== 0) {
+                  · <span [class.positive]="rec.difference > 0" [class.negative]="rec.difference < 0">
+                    {{ rec.difference > 0 ? '+' : '' }}{{ rec.difference | currencyFormat:currency() }}
+                  </span>
+                }
+              </span>
+            } @else {
+              <i class="pi pi-exclamation-circle"></i>
+              <span>{{ 'accounts.neverReconciled' | translate }}</span>
+            }
+          </div>
+
+          <div class="account-actions">
+            @if (!acc.isDefault) {
+              <p-button icon="pi pi-star" [text]="true" [rounded]="true" size="small"
+                [pTooltip]="'accounts.makeDefault' | translate" (onClick)="makeDefault(acc)" />
+            }
+            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" size="small"
+              [pTooltip]="'common.edit' | translate" (onClick)="openAccountDialog(acc)" />
+            @if (!acc.isDefault) {
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small" severity="danger"
+                [pTooltip]="'common.delete' | translate" (onClick)="confirmDelete(acc)" />
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <h2 class="section-title"><i class="pi pi-arrow-right-arrow-left"></i>{{ 'accounts.transfer.recent' | translate }}</h2>
+    <div class="panel">
+      @if (transfers().length === 0) {
+        <div class="empty-state small">
+          <p>{{ 'accounts.transfer.empty' | translate }}</p>
+        </div>
+      } @else {
+        <ul class="transfer-list">
+          @for (t of transfers(); track t.id) {
+            <li>
+              <span class="transfer-date">{{ t.date | dateFormat:'dd/MM/yyyy' }}</span>
+              <span class="transfer-route">
+                {{ t.fromAccount?.name }} <i class="pi pi-arrow-right"></i> {{ t.toAccount?.name }}
+                @if (t.notes) { <span class="muted">· {{ t.notes }}</span> }
+              </span>
+              <span class="transfer-amount">{{ t.amount | currencyFormat:currency() }}</span>
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" size="small" severity="danger"
+                (onClick)="confirmDeleteTransfer(t)" />
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>

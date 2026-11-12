@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TransactionService } from '../../transactions/services/transaction.service';
+import { AccountService } from '../../accounts/services/account.service';
 import { Transaction, TransactionType } from '../../../core/models/transaction.model';
 import { DateRangeFilter, TimeSeriesDataPoint, ReportPeriod } from '../../../core/models/report.model';
 import {
@@ -40,6 +41,7 @@ export interface CashFlowFilters extends DateRangeFilter {
 })
 export class CashFlowService {
   private transactionService = inject(TransactionService);
+  private accountService = inject(AccountService);
 
   /**
    * Get cash flow summary for a date range
@@ -58,7 +60,7 @@ export class CashFlowService {
 
         const incomeTransactions = filtered.filter((t) => t.type === TransactionType.INCOME);
         const expenseTransactions = filtered.filter(
-          (t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PAYMENT
+          (t) => t.type !== TransactionType.INCOME
         );
         const cardPaymentTransactions = filtered.filter((t) => t.type === TransactionType.CARD_PAYMENT);
 
@@ -164,7 +166,7 @@ export class CashFlowService {
             .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
           const expenses = periodTransactions
-            .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PAYMENT)
+            .filter((t) => t.type !== TransactionType.INCOME)
             .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
           return {
@@ -180,45 +182,20 @@ export class CashFlowService {
   }
 
   /**
-   * Get available cash (cumulative from all time)
+   * Available cash = total of all account balances, computed by the API
+   * (anchored to the last balance check, excluding future-dated movements).
    */
   getAvailableCash(): Observable<number> {
-    return this.transactionService.getAll().pipe(
-      map((transactions) => {
-        const cashTransactions = this.filterCashTransactions(transactions);
-        
-        const totalIncome = cashTransactions
-          .filter((t) => t.type === TransactionType.INCOME)
-          .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-
-        const totalExpenses = cashTransactions
-          .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PAYMENT)
-          .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-
-        return totalIncome - totalExpenses;
-      })
-    );
+    return this.accountService.getBalances().pipe(map((b) => b.total));
   }
 
   /**
-   * Filter transactions to only include cash-affecting transactions
-   * - INCOME without cardId (direct cash income)
-   * - EXPENSE without cardId (direct cash expense)
-   * - CARD_PAYMENT (always affects cash, even with cardId)
-   * - Excludes CARD_PURCHASE (doesn't affect cash immediately)
+   * Cash-affecting transactions: exactly those that belong to an account
+   * (income, expense, card payments and debit-card purchases). Credit-card
+   * purchases have no account and only affect card debt.
    */
   private filterCashTransactions(transactions: Transaction[]): Transaction[] {
-    return transactions.filter((t) => {
-      // INCOME and EXPENSE without cardId (direct cash)
-      if ((t.type === TransactionType.INCOME || t.type === TransactionType.EXPENSE) && !t.cardId) {
-        return true;
-      }
-      // CARD_PAYMENT always affects cash (even with cardId)
-      if (t.type === TransactionType.CARD_PAYMENT) {
-        return true;
-      }
-      return false;
-    });
+    return transactions.filter((t) => !!t.accountId);
   }
 
   /**

@@ -21,6 +21,8 @@ export interface Transaction {
   date: string;
   notes?: string;
   cardId?: string;
+  /** Set iff the movement moves real money (income, expense, card payment, debit purchase). */
+  accountId?: string | null;
   installmentMonths?: number;
   installmentCurrent?: number;
   parentTransactionId?: string;

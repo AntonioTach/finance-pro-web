@@ -32,6 +32,8 @@ export interface Card {
   billingCutoffDay?: number;
   paymentDueType?: PaymentDueType;
   paymentDueValue?: number;
+  /** Debit cards: account their purchases come out of. */
+  accountId?: string | null;
   status: CardStatus;
   createdAt: string;
   updatedAt: string;
@@ -44,7 +46,11 @@ export interface CardSummary {
   network: string | null;
   last4: string | null;
   currency: string;
+  /** Current debt (anchored to the last balance check), excluding future MSI installments. */
   outstandingDebt: number | null;
+  msiPending: number | null;
+  totalDebt: number | null;
+  lastReconciliationDate: string | null;
   availableCredit: number | null;
   creditLimit: number | null;
   nextCutoffDate: string | null;
@@ -63,6 +69,7 @@ export interface CreateCardDto {
   billingCutoffDay?: number;
   paymentDueType?: PaymentDueType;
   paymentDueValue?: number;
+  accountId?: string;
 }
 
 export interface UpdateCardDto extends Partial<CreateCardDto> {

@@ -9,6 +9,8 @@ import { SelectModule } from 'primeng/select';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { MessageModule } from 'primeng/message';
 import { CardService } from '../services/card.service';
+import { AccountService } from '../../accounts/services/account.service';
+import { Account } from '../../../core/models/account.model';
 import {
   Card,
   CardType,
@@ -86,6 +88,23 @@ import {
           class="w-full"
         />
       </div>
+
+      <!-- Debit: account the purchases come out of -->
+      @if (!isCreditCard()) {
+        <div class="form-field">
+          <label for="accountId">Cuenta asociada</label>
+          <p-select
+            id="accountId"
+            formControlName="accountId"
+            [options]="accounts()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Selecciona la cuenta"
+            [fluid]="true"
+          />
+          <small class="hint-text">Las compras con esta tarjeta de débito salen de esta cuenta.</small>
+        </div>
+      }
 
       <!-- Credit Card Fields -->
       @if (isCreditCard()) {
@@ -206,6 +225,11 @@ import {
       color: var(--text-color);
     }
 
+    .hint-text {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
     .error-text {
       color: var(--red-500);
       font-size: 0.8rem;
@@ -243,6 +267,8 @@ export class CardFormComponent implements OnInit {
   private cardService = inject(CardService);
   private dialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
+  private accountService = inject(AccountService);
+  accounts = signal<Account[]>([]);
 
   cardForm: FormGroup;
   isLoading = false;
@@ -298,6 +324,7 @@ export class CardFormComponent implements OnInit {
       billingCutoffDay: [null],
       paymentDueType: [null],
       paymentDueValue: [null],
+      accountId: [null],
     });
   }
 
@@ -313,8 +340,19 @@ export class CardFormComponent implements OnInit {
         billingCutoffDay: this.card.billingCutoffDay,
         paymentDueType: this.card.paymentDueType,
         paymentDueValue: this.card.paymentDueValue,
+        accountId: this.card.accountId ?? null,
       });
     }
+
+    this.accountService.getAll().subscribe({
+      next: (accounts) => {
+        this.accounts.set(accounts);
+        if (!this.cardForm.get('accountId')?.value) {
+          const def = accounts.find((a) => a.isDefault) ?? accounts[0];
+          if (def) this.cardForm.patchValue({ accountId: def.id });
+        }
+      },
+    });
 
     this.updateCreditValidators();
   }
@@ -359,6 +397,8 @@ export class CardFormComponent implements OnInit {
         delete formData.billingCutoffDay;
         delete formData.paymentDueType;
         delete formData.paymentDueValue;
+      } else {
+        delete formData.accountId;
       }
 
       const request$ = this.isEditMode

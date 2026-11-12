@@ -255,18 +255,9 @@ export class DashboardComponent implements OnInit {
       transactionCount: currentMonthTx.length,
     });
 
-    // Cash Flow summary (excludes card purchases - includes INCOME, EXPENSE, and CARD_PAYMENT)
-    const isCashTransaction = (t: Transaction): boolean => {
-      // INCOME and EXPENSE without cardId (direct cash)
-      if ((t.type === TransactionType.INCOME || t.type === TransactionType.EXPENSE) && !t.cardId) {
-        return true;
-      }
-      // CARD_PAYMENT always affects cash (even with cardId)
-      if (t.type === TransactionType.CARD_PAYMENT) {
-        return true;
-      }
-      return false;
-    };
+    // Cash Flow summary: movements that belong to an account (income, expense,
+    // card payments, debit-card purchases). Credit-card purchases are excluded.
+    const isCashTransaction = (t: Transaction): boolean => !!t.accountId;
 
     const currentCashTx = currentMonthTx.filter(isCashTransaction);
     const lastCashTx = lastMonthTx.filter(isCashTransaction);
@@ -276,7 +267,7 @@ export class DashboardComponent implements OnInit {
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const currentCashExpenses = currentCashTx
-      .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PAYMENT)
+      .filter((t) => t.type !== TransactionType.INCOME)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const lastCashIncome = lastCashTx
@@ -284,7 +275,7 @@ export class DashboardComponent implements OnInit {
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const lastCashExpenses = lastCashTx
-      .filter((t) => t.type === TransactionType.EXPENSE || t.type === TransactionType.CARD_PAYMENT)
+      .filter((t) => t.type !== TransactionType.INCOME)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const cashIncomeChange = lastCashIncome > 0 ? ((currentCashIncome - lastCashIncome) / lastCashIncome) * 100 : 0;

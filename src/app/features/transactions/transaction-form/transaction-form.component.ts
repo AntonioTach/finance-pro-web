@@ -21,6 +21,11 @@ import { CategorySelectComponent } from '../../../shared/components/category-sel
 import { AppDialogService } from '../../../shared/services/dialog.service';
 import { MsiScheduleDialogComponent, MsiScheduleDialogResult } from '../../msi/components/msi-schedule-dialog/msi-schedule-dialog.component';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
+import { AccountService } from '../../accounts/services/account.service';
+import { Account } from '../../../core/models/account.model';
+import { CardSummary } from '../../../core/models/card.model';
+import { TranslationService } from '../../../core/services/translation.service';
+import { toLocalDateStr } from '../../../shared/utils/date.util';
 
 @Component({
   selector: 'app-transaction-form',
@@ -51,12 +56,18 @@ export class TransactionFormComponent implements OnInit {
   private dialogRef = inject(DynamicDialogRef);
   private dialogConfig = inject(DynamicDialogConfig);
   private appDialogService = inject(AppDialogService);
+  private accountService = inject(AccountService);
+  private ts = inject(TranslationService);
 
   transactionForm: FormGroup;
   isLoading = false;
   errorMessage = '';
   categories = signal<Category[]>([]);
   cards = signal<Card[]>([]);
+  accounts = signal<Account[]>([]);
+  cardSummaries = signal<CardSummary[]>([]);
+  selectedAccountId = signal<string | null>(null);
+  selectedDate = signal<Date | null>(new Date());
   selectedType = signal<TransactionType>(TransactionType.EXPENSE);
   isCardTransaction = signal(false);
   isMsiEnabled = signal(false);
@@ -97,6 +108,41 @@ export class TransactionFormComponent implements OnInit {
   activeCategoryType = computed<CategoryType>(() => {
     const type = this.selectedType();
     return type === TransactionType.INCOME ? CategoryType.INCOME : CategoryType.EXPENSE;
+  });
+
+  /** Income, expense and card payments move money in/out of an account; card purchases don't
+   * (credit) or use the card's own account (debit). */
+  showAccountSelect = computed(() => this.selectedType() !== TransactionType.CARD_PURCHASE);
+
+  /** Warns when the movement is dated inside an already-balanced period: it will not move the balance. */
+  reconciliationWarning = computed<string | null>(() => {
+    const date = this.selectedDate();
+    if (!date) return null;
+    const day = toLocalDateStr(this.toLocalMidnight(date));
+
+    let name: string | null = null;
+    let last: string | null = null;
+    if (this.showAccountSelect()) {
+      const acc = this.accounts().find((a) => a.id === this.selectedAccountId());
+      name = acc?.name ?? null;
+      last = acc?.lastReconciliation?.date ?? null;
+    } else {
+      const card = this.selectedCard();
+      if (card?.type === CardType.DEBIT) {
+        const acc = this.accounts().find((a) => a.id === card.accountId);
+        name = acc?.name ?? null;
+        last = acc?.lastReconciliation?.date ?? null;
+      } else if (card) {
+        name = card.name;
+        last = this.cardSummaries().find((s) => s.cardId === card.id)?.lastReconciliationDate ?? null;
+      }
+    }
+
+    if (!name || !last || day > last) return null;
+    const [y, m, d] = last.split('-');
+    return this.ts.t('transactions.form.beforeReconciliation')
+      .replace('{name}', name)
+      .replace('{date}', `${d}/${m}/${y}`);
   });
 
   selectedCard = computed(() => {
@@ -163,13 +209,18 @@ export class TransactionFormComponent implements OnInit {
       date: [new Date(), Validators.required],
       notes: [''],
       cardId: [null],
+      accountId: [null],
       installmentMonths: [null],
     });
+
+    this.transactionForm.get('accountId')!.valueChanges.subscribe((v) => this.selectedAccountId.set(v));
+    this.transactionForm.get('date')!.valueChanges.subscribe((v) => this.selectedDate.set(v));
   }
 
   ngOnInit(): void {
     this.loadCategories();
     this.loadCards();
+    this.loadAccounts();
 
     if (this.transaction) {
       this.selectedType.set(this.transaction.type as TransactionType);
@@ -186,6 +237,7 @@ export class TransactionFormComponent implements OnInit {
         date: this.toLocalMidnight(this.transaction.date),
         notes: this.transaction.notes || '',
         cardId: this.transaction.cardId || null,
+        accountId: this.transaction.accountId || null,
       });
 
       // Disable amount field for MSI transactions
@@ -233,6 +285,22 @@ export class TransactionFormComponent implements OnInit {
       error: (error) => {
         console.error('Error loading cards:', error);
       },
+    });
+  }
+
+  loadAccounts(): void {
+    this.accountService.getAll().subscribe({
+      next: (accounts) => {
+        this.accounts.set(accounts);
+        // New movements default to the user's default account.
+        if (!this.transactionForm.get('accountId')?.value) {
+          const def = accounts.find((a) => a.isDefault) ?? accounts[0];
+          if (def) this.transactionForm.patchValue({ accountId: def.id });
+        }
+      },
+    });
+    this.cardService.getAllSummaries().subscribe({
+      next: (summaries) => this.cardSummaries.set(summaries),
     });
   }
 
@@ -337,9 +405,15 @@ export class TransactionFormComponent implements OnInit {
       const formData: Record<string, unknown> = {
         ...formValue,
         date: formValue.date instanceof Date
-          ? formValue.date.toISOString().split('T')[0]
+          ? toLocalDateStr(formValue.date)
           : formValue.date,
       };
+
+      // Card purchases never carry an account from the client: the API
+      // assigns the debit card's account (or none for credit cards).
+      if (!this.showAccountSelect() || !formData['accountId']) {
+        delete formData['accountId'];
+      }
 
       // Remove cardId if not a card transaction
       if (!this.isCardTransaction()) {

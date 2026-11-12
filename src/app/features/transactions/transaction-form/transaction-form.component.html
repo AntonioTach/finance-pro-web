@@ -64,6 +64,28 @@
     />
   </div>
 
+  <!-- Account (where the money comes from / goes to) -->
+  @if (showAccountSelect() && accounts().length > 0) {
+    <div class="form-field">
+      <label for="accountId">{{ selectedType() === 'income' ? 'Cuenta destino' : 'Cuenta de origen' }}</label>
+      <p-select
+        id="accountId"
+        formControlName="accountId"
+        [options]="accounts()"
+        optionLabel="name"
+        optionValue="id"
+        [fluid]="true"
+      >
+        <ng-template #item let-acc>
+          <div class="card-option">
+            <span class="card-name">{{ acc.name }}</span>
+            <small class="card-last4">{{ acc.balance | currencyFormat:'MXN' }}</small>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+  }
+
   <!-- Amount -->
   <div class="form-field">
     <label for="amount">Monto</label>
@@ -189,6 +211,10 @@
       <small class="error-text">La fecha es requerida</small>
     }
   </div>
+
+  @if (reconciliationWarning(); as warning) {
+    <p-message severity="warn" [text]="warning" />
+  }
 
   <!-- Notes -->
   <div class="form-field">
