@@ -114,7 +114,8 @@ export class TransactionFormComponent implements OnInit {
    * (credit) or use the card's own account (debit). */
   showAccountSelect = computed(() => this.selectedType() !== TransactionType.CARD_PURCHASE);
 
-  /** Warns when the movement is dated inside an already-balanced period: it will not move the balance. */
+  /** Warns when the movement is dated before the last balance check: it will not move the balance.
+   *  Same-day movements logged after the check do count, so they don't warn. */
   reconciliationWarning = computed<string | null>(() => {
     const date = this.selectedDate();
     if (!date) return null;
@@ -138,7 +139,7 @@ export class TransactionFormComponent implements OnInit {
       }
     }
 
-    if (!name || !last || day > last) return null;
+    if (!name || !last || day >= last) return null;
     const [y, m, d] = last.split('-');
     return this.ts.t('transactions.form.beforeReconciliation')
       .replace('{name}', name)
